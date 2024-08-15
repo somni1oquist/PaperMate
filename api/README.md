@@ -27,6 +27,10 @@ api/
 
 ```
 python -m venv .venv
+
+source .venv/bin/activate (Linux/Mac)
+.venv\Scripts\activate (Windows)
+
 pip install -r requirements
 export SECRET_KEY=<KEY>
 flask run

@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from app import db
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
@@ -17,7 +18,8 @@ class PaperList(Resource):
     @api.marshal_list_with(paper_model)
     def get(self):
         """List all papers"""
-        papers = Paper.get_all()
+        papers = Paper.query.all()
+        print(papers)
         return papers
 
     @api.expect(paper_model)
@@ -25,5 +27,7 @@ class PaperList(Resource):
     def post(self):
         """Create a new paper"""
         data = api.payload
-        new_paper = Paper.create(data)
-        return new_paper, 201
+        paper = Paper(title=data['title'], author=data['author'], year=data['year'])
+        db.session.add(paper)
+        db.session.commit()
+        return paper, 201
