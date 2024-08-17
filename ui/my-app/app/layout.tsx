@@ -16,7 +16,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        {/* Add Google Fonts link */}
+        <link 
+          rel="stylesheet" 
+          href="https://fonts.googleapis.com/css2?family=Fauna+One:wght@400;700&display=swap" 
+        />
+      </head>
+      <body className={`${inter.className} font-fauna`}>
+        {children}
+      </body>
     </html>
   );
 }

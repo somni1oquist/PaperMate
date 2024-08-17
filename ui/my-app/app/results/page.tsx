@@ -1,9 +1,16 @@
+// app/results/page.tsx
 import React from 'react';
+import Header from '../components/Header'; // Adjust the path if necessary
 
-const ResultPage: React.FC = () => {
+const ResultsPage: React.FC = () => {
   return (
-    <div className="papermate-container"></div>
+    <div className="papermate-container">
+      <Header />
+      <main>
+        {/* Your main content goes here */}
+      </main>
+    </div>
   );
 };
 
-export default ResultPage;
+export default ResultsPage;
