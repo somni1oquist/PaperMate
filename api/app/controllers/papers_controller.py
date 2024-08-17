@@ -1,6 +1,4 @@
 from flask_restx import Namespace, Resource, fields
-from app import db
-from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
 
@@ -17,17 +15,51 @@ paper_model = api.model('Paper', {
 class PaperList(Resource):
     @api.marshal_list_with(paper_model)
     def get(self):
-        """List all papers"""
-        papers = Paper.query.all()
-        print(papers)
+        '''List all papers'''
+        papers = ElsevierService.fetch_papers()
         return papers
 
-    @api.expect(paper_model)
-    @api.marshal_with(paper_model, code=201)
+    @api.expect([paper_model])
+    @api.marshal_list_with(paper_model, code=201)
     def post(self):
-        """Create a new paper"""
+        '''Create papers in batch'''
         data = api.payload
-        paper = Paper(title=data['title'], author=data['author'], year=data['year'])
-        db.session.add(paper)
-        db.session.commit()
-        return paper, 201
+        papers = ElsevierService.create_papers(data)
+        return papers
+
+@api.route('/<int:id>')
+@api.param('id', 'The DOI of the paper')
+class Paper(Resource):
+    @api.marshal_with(paper_model)
+    def get(self, id):
+        '''Fetch paper detail by id'''
+        paper = ElsevierService.fetch_paper(id)
+        return paper
+    
+@api.route('/process')
+class process(Resource):
+    @api.marshal_list_with(paper_model)
+    @api.doc(params={'query': 'The query to filter papers.'})
+    def get(self, query):
+        '''Filter papers based on query'''
+        papers = GeminiService.filter_papers(query)
+        return papers
+    
+    @api.marshal_list_with(paper_model)
+    def put(self):
+        '''Rate papers based on relevance'''
+        papers = GeminiService.rate_papers()
+        return papers
+
+    @api.marshal_list_with(paper_model)
+    def post(self):
+        '''Mutate papers based on query'''
+        papers = GeminiService.mutate_papers()
+        return papers
+    
+@api.route('/export')
+class Export(Resource):
+    def post(self):
+        '''Export papers to CSV'''
+        # Export papers to CSV
+        return 'CSV exported successfully'
