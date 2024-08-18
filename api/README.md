@@ -35,8 +35,7 @@ pip install -r requirements
 
 export SECRET_KEY=<KEY> (Unix/Linux)
 $env:SECRET_KEY = "<KEY>" (PowerShell)
-
-echo $env:SECRET_KEY (Check if the environment variable is set; the value of <KEY> should appear in the terminal.)
+echo $env:SECRET_KEY (PowerShell, Check if the environment variable is set; the value of <KEY> should appear in the terminal.)
 
 flask run
 ```
