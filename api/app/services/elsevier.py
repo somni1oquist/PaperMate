@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.models.paper import Paper
 from app import db
 
@@ -14,11 +15,12 @@ class ElsevierService:
     def create_papers(data):
         papers = []
         for paper in data:
+            date = datetime.strptime(paper.get('publish_date'), '%Y-%m-%d').date()
             new_paper = Paper(doi=paper.get('doi'),
                               publication=paper.get('publication'),
                               title=paper.get('title'),
                               author=paper.get('author'),
-                              publish_date=paper.get('publish_date'),
+                              publish_date=date,
                               abstract=paper.get('abstract'),
                               url=paper.get('url'))
             db.session.add(new_paper)

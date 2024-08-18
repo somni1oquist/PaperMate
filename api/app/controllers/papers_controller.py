@@ -34,7 +34,7 @@ class PaperList(Resource):
         return papers
 
 @api.route('/<int:id>')
-@api.param('id', 'The DOI of the paper')
+@api.param('id', 'ID of the paper')
 class Paper(Resource):
     @api.marshal_with(paper_model)
     def get(self, id):
