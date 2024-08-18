@@ -1,3 +1,4 @@
+from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
@@ -63,3 +64,37 @@ class Export(Resource):
         '''Export papers to CSV'''
         # Export papers to CSV
         return 'CSV exported successfully'
+    
+@api.route('/search')
+class PaperSearch(Resource):
+    def get(self):
+        # Extract query parameters
+        title = request.args.get('title', '')
+        author = request.args.get('author', '')
+        keyword = request.args.get('keyword', '')
+        start_date = request.args.get('startDate', '')
+        end_date = request.args.get('endDate', '')
+        
+        # Build query
+        query_params = {
+            'title': title,
+            'author': author,
+            'keyword': keyword,
+            'startDate': start_date,
+            'endDate': end_date
+        }
+        query = ' '.join([f"{k}:{v}" for k, v in query_params.items() if v])
+        
+        # Call Gemini API
+        response = search_gemini(query)
+        
+        # Extract and format results
+        papers = response.get('papers', [])
+        results = [{'title': paper.get('title'),
+                    'abstract': paper.get('abstract'),
+                    'author': paper.get('author'),
+                    'journal': paper.get('journal'),
+                    'published_date': paper.get('published_date')}
+                   for paper in papers]
+        
+        return {'papers': results}, 200
