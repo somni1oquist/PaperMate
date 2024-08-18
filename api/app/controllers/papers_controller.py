@@ -51,6 +51,7 @@ class process(Resource):
         papers = GeminiService.filter_papers(query)
         return papers
     
+    @api.marshal_list_with(paper_model)
     @api.doc(params={'query': 'The keywords to rate papers.'})
     def put(self, query):
         '''Rate papers based on relevance'''
