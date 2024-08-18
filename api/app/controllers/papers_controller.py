@@ -6,10 +6,15 @@ from app.services.gemini import GeminiService
 api = Namespace('papers', description='Operations related to papers')
 
 paper_model = api.model('Paper', {
-    'id': fields.Integer(readOnly=True, description='The unique identifier of a paper'),
-    'title': fields.String(required=True, description='The title of the paper'),
-    'author': fields.String(required=True, description='The author of the paper'),
-    'year': fields.Integer(required=True, description='The publication year of the paper')
+    'doi': fields.String(required=True, description='The paper DOI'),
+    'publication': fields.String(required=True, description='The paper publication'),
+    'title': fields.String(required=True, description='The paper title'),
+    'author': fields.String(required=True, description='The paper author'),
+    'publish_date': fields.Date(required=True, description='The paper publication date'),
+    'abstract': fields.String(required=True, description='The paper abstract'),
+    'synopsis': fields.String(description='The paper synopsis'),
+    'relevance': fields.Integer(description='The paper relevance'),
+    'url': fields.String(description='The paper URL')
 })
 
 @api.route('/')
@@ -37,7 +42,7 @@ class Paper(Resource):
         paper = ElsevierService.fetch_paper(id)
         return paper
     
-@api.route('/process')
+@api.route('/process/<string:query>')
 class process(Resource):
     @api.marshal_list_with(paper_model)
     @api.doc(params={'query': 'The query to filter papers.'})
@@ -46,17 +51,16 @@ class process(Resource):
         papers = GeminiService.filter_papers(query)
         return papers
     
-    @api.marshal_list_with(paper_model)
-    def put(self):
+    @api.doc(params={'query': 'The keywords to rate papers.'})
+    def put(self, query):
         '''Rate papers based on relevance'''
-        papers = GeminiService.rate_papers()
-        return papers
+        papers = GeminiService.rate_papers(query)
+        return papers, 200
 
-    @api.marshal_list_with(paper_model)
-    def post(self):
+    def post(self, query):
         '''Mutate papers based on query'''
-        papers = GeminiService.mutate_papers()
-        return papers
+        papers = GeminiService.mutate_papers(query)
+        return papers, 200
     
 @api.route('/export')
 class Export(Resource):

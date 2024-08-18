@@ -14,7 +14,13 @@ class ElsevierService:
     def create_papers(data):
         papers = []
         for paper in data:
-            new_paper = Paper(title=paper['title'], author=paper['author'], year=paper['year'])
+            new_paper = Paper(doi=paper.get('doi'),
+                              publication=paper.get('publication'),
+                              title=paper.get('title'),
+                              author=paper.get('author'),
+                              publish_date=paper.get('publish_date'),
+                              abstract=paper.get('abstract'),
+                              url=paper.get('url'))
             db.session.add(new_paper)
             papers.append(new_paper)
         db.session.commit()
