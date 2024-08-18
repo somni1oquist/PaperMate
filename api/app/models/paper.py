@@ -5,3 +5,4 @@ class Paper(db.Model):
     title = db.Column(db.String(255), nullable=False)
     author = db.Column(db.String(255), nullable=False)
     year = db.Column(db.Integer, nullable=False)
+    # score = db.Column(db.Float, nullable=False) # Assuming ratings are floating point numbers out of 10

@@ -1,6 +1,8 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
+import pandas as pd
+from flask import make_response, jsonify
 
 api = Namespace('papers', description='Operations related to papers')
 
@@ -9,6 +11,7 @@ paper_model = api.model('Paper', {
     'title': fields.String(required=True, description='The title of the paper'),
     'author': fields.String(required=True, description='The author of the paper'),
     'year': fields.Integer(required=True, description='The publication year of the paper')
+    # 'score': fields.Float(description='The relevance score of the paper')
 })
 
 @api.route('/')
@@ -60,6 +63,30 @@ class process(Resource):
 @api.route('/export')
 class Export(Resource):
     def post(self):
-        '''Export papers to CSV'''
-        # Export papers to CSV
-        return 'CSV exported successfully'
+        try:
+            '''Export the top 20 relevant papers to CSV'''
+            print("Fetching top 20 relevant papers...")
+            papers = ElsevierService.fetch_papers() # GeminiService.get_top_20_relevant_papers
+            print(f"Papers fetched: {papers}")
+
+            # If papers are empty or not in the expected format, this may cause problems
+            if not papers:
+                print("No papers found.")
+                return "No papers to export", 404
+            
+            # Convert the papers to a pandas DataFrame
+            df = pd.DataFrame([paper.__dict__ for paper in papers])
+            print(f"DataFrame created: {df}")
+
+            # Convert DataFrame to CSV
+            csv_data = df.to_csv(index=False)
+            print("CSV data created.")
+
+            # Create a response object and set the headers for downloading
+            response = make_response(csv_data)
+            response.headers['Content-Disposition'] = 'attachment; filename=top_20_papers.csv'
+            response.headers['Content-Type'] = 'text/csv'
+            return response
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return "Internal Server Error", 500

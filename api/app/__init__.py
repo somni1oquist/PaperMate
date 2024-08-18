@@ -3,6 +3,7 @@ from flask_migrate import Migrate, upgrade
 from flask_restx import Api
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
+import random
 
 db = SQLAlchemy()
 api = Api()
@@ -29,5 +30,9 @@ def create_app(config=None):
     with app.app_context():
         # Apply migrations
         upgrade()
-
+        for i in range(20):
+            db.session.add(Paper(title=f'Paper {i}', author=f'Author {i}', year=random.randint(2000, 2024)))
+        db.session.commit()
     return app
+
+
