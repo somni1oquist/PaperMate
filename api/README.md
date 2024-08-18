@@ -26,6 +26,7 @@ api/
 ## Steps to launch the API app
 
 ```
+cd api
 python -m venv .venv
 
 source .venv/bin/activate (Linux/Mac)
@@ -33,8 +34,9 @@ source .venv/bin/activate (Linux/Mac)
 
 pip install -r requirements
 
-export SECRET_KEY=<KEY> (Unix/Linux)
+export SECRET_KEY=<KEY> (Linux/Mac)
 $env:SECRET_KEY = "<KEY>" (PowerShell)
+
 echo $env:SECRET_KEY (PowerShell, Check if the environment variable is set; the value of <KEY> should appear in the terminal.)
 
 flask run

@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 api = Api()
 migrate = Migrate()
+cors = CORS()
 def create_app(config=None):
     app = Flask(__name__)
     
@@ -16,7 +17,7 @@ def create_app(config=None):
     else:
         app.config.from_object(config)
    
-    CORS(app)  # Enable CORS for the entire app
+    cors.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     api.init_app(app, version='1.0',
