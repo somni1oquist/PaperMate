@@ -19,13 +19,13 @@ const Header: React.FC = () => {
         alignItems: 'center', 
         height: '60px', 
         backgroundColor: 'transparent', 
-        marginTop: '20px' // Add margin to push the header lower
+        marginTop: '10px' // Add margin to push the header lower
       }}
     >
       <h1 
         onClick={handleClick} 
         style={{ 
-          fontSize: '3.5rem', 
+          fontSize: '2.5rem', 
           cursor: 'pointer', 
           margin: 0 
         }}
