@@ -10,6 +10,7 @@ const ResultsForm: React.FC = () => {
     author: "ABC",
     journal: "ABC",
     date: "14/APR/2020",
+    relevance: "8/10",
   }));
 
   return (
@@ -19,11 +20,12 @@ const ResultsForm: React.FC = () => {
         <table className="min-w-full bg-white rounded-lg">
           <thead>
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-center">Literature Title</th>
-              <th className="py-3 px-12 text-center">Abstract</th>
-              <th className="py-3 px-3 text-center">Author</th>
-              <th className="py-3 px-3 text-center">Journal Source</th>
-              <th className="py-3 px-6 text-center">Published Date</th>
+              <th className="py-3 px-3 text-center">Literature Title</th>
+              <th className="py-3 px-20 text-center">Abstract</th>
+              <th className="py-3 px-1 text-center">Author</th>
+              <th className="py-3 px-1 text-center">Journal Source</th>
+              <th className="py-3 px-1 text-center">Published Date</th>
+              <th className="py-3 px-1 text-center">Relevance Score</th>
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
@@ -34,6 +36,7 @@ const ResultsForm: React.FC = () => {
                 <td className="py-3 px-3 text-center">{result.author}</td>
                 <td className="py-3 px-3 text-center">{result.journal}</td>
                 <td className="py-3 px-6 text-center">{result.date}</td>
+                <td className="py-3 px-3 text-center">{result.relevance}</td>
               </tr>
             ))}
           </tbody>
