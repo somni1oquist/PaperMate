@@ -85,16 +85,19 @@ class PaperSearch(Resource):
         }
         query = ' '.join([f"{k}:{v}" for k, v in query_params.items() if v])
         
-        # Call Gemini API
-        response = search_gemini(query)
+        # Search through Elsevier API
+        # elsevier_response = ElsevierService.search_papers(query)
+
+        # Rate papers using Gemini API
+        response = GeminiService.rate_papers(query)
         
         # Extract and format results
-        papers = response.get('papers', [])
-        results = [{'title': paper.get('title'),
-                    'abstract': paper.get('abstract'),
-                    'author': paper.get('author'),
-                    'journal': paper.get('journal'),
-                    'published_date': paper.get('published_date')}
-                   for paper in papers]
+        # papers = response.get('papers', [])
+        # results = [{'title': paper.get('title'),
+        #             'abstract': paper.get('abstract'),
+        #             'author': paper.get('author'),
+        #             'journal': paper.get('journal'),
+        #             'published_date': paper.get('published_date')}
+        #            for paper in papers]
         
-        return {'papers': results}, 200
+        return {'papers': []}, 200
