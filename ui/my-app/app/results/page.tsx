@@ -1,9 +1,17 @@
+// app/results/page.tsx
 import React from 'react';
+import Header from '../components/Header';
+import ResultsForm from './ResultItem';
 
-const ResultPage: React.FC = () => {
+const ResultsPage: React.FC = () => {
   return (
-    <div className="papermate-container"></div>
+    <div className="papermate-container">
+      <Header />
+      <main>
+        <ResultsForm/>
+      </main>
+    </div>
   );
 };
 
-export default ResultPage;
+export default ResultsPage;

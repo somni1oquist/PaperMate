@@ -2,6 +2,9 @@
 .venv/
 venv/
 
+# Ignore editor files
+.vscode/
+
 # Ignore compiled python files
 __pycache__/
 
