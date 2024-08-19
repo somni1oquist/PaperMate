@@ -19,10 +19,17 @@ class GeminiService:
                                               generation_config={'response_mime_type': 'application/json'})
     
     @staticmethod
-    def rate_papers(query):
-        '''Rate papers based on relevance to a query'''
+    def rate_papers(papers:list[Paper], query=None):
+        '''
+        Rate papers based on relevance to a query.\n
+        `papers` is a list of Paper objects.\n
+        `query` is a string describing the criteria to rate papers on relevance; 
+        If empty or none, use default query in `config.py`
+        '''
         GeminiService.load_model()
-        papers = Paper.query.all()
+        # Raise error if no papers found
+        if not papers:
+            raise ValueError('No papers found in database')
         prompt = '''
         Rate the following papers' abstract based on relevance to the criteria on a scale of 0-10:
         '''
@@ -34,31 +41,31 @@ class GeminiService:
             '''
         # Specify criteria to prompt
         prompt += f'''
-        Criteria: {query}
+        Criteria: {query if query else app.config['DEFAULT_QUERY']}
         '''
         # Specify response format
         prompt += '''
-        Response format: [{ 'id': 1, 'relevance': 0, 'synopsis': '...' }]
+        Response format: [{ 'id': 1, 'relevance': 0, 'synopsis': '...' }, ...]
         '''
-        
+        # Generate content
         response = GeminiService.model.generate_content(prompt)
         res_obj = json.loads(response.text)
         for obj in res_obj:
             paper = Paper.query.get(obj.get('id'))
-            paper.relevance = obj.get('relevance')
+            if paper is None:
+                continue
+            paper.relevance = obj.get('relevance') 
             paper.synopsis = obj.get('synopsis')
-            db.session.add(paper)
         db.session.commit()
-        return Paper.query.all()
+        return papers
     
     @staticmethod
-    def mutate_papers(query):
+    def mutate_papers(papers:list[Paper], query):
+        '''
+        Mutate papers based on a query.\n
+        `papers` is a list of Paper objects. If empty, fetch all papers\n
+        `query` is a string describing the mutation criteria
+        '''
         GeminiService.load_model()
         # Apply mutation logic based on query here
-        return Paper.query.all()
-    
-    @staticmethod
-    def filter_papers(query):
-        GeminiService.load_model()
-        # Apply filter logic based on query here
         return Paper.query.all()

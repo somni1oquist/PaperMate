@@ -12,8 +12,8 @@ paper_model = api.model('Paper', {
     'author': fields.String(required=True, description='The paper author'),
     'publish_date': fields.Date(required=True, description='The paper publication date'),
     'abstract': fields.String(required=True, description='The paper abstract'),
-    'synopsis': fields.String(description='The paper synopsis'),
-    'relevance': fields.Integer(description='The paper relevance'),
+    'synopsis': fields.String(description='The paper synopsis', default=None),
+    'relevance': fields.Integer(description='The paper relevance', default=None),
     'url': fields.String(description='The paper URL')
 })
 
@@ -21,9 +21,9 @@ paper_model = api.model('Paper', {
 class PaperList(Resource):
     @api.marshal_list_with(paper_model)
     def get(self):
-        '''List all papers'''
-        papers = ElsevierService.fetch_papers()
-        return papers
+        '''List all papers in database'''
+        db_papers = ElsevierService.fetch_papers()
+        return db_papers
 
     @api.expect([paper_model])
     @api.marshal_list_with(paper_model, code=201)
@@ -32,36 +32,27 @@ class PaperList(Resource):
         data = api.payload
         papers = ElsevierService.create_papers(data)
         return papers
-
-@api.route('/<int:id>')
-@api.param('id', 'ID of the paper')
-class Paper(Resource):
-    @api.marshal_with(paper_model)
-    def get(self, id):
-        '''Fetch paper detail by id'''
-        paper = ElsevierService.fetch_paper(id)
-        return paper
     
+    def delete(self):
+        '''Delete all papers in database'''
+        result = ElsevierService.delete_papers()
+        return result, 200
+
 @api.route('/process/<string:query>')
 class process(Resource):
-    @api.marshal_list_with(paper_model)
-    @api.doc(params={'query': 'The query to filter papers.'})
-    def get(self, query):
-        '''Filter papers based on query'''
-        papers = GeminiService.filter_papers(query)
-        return papers
-    
-    @api.marshal_list_with(paper_model)
-    @api.doc(params={'query': 'The keywords to rate papers.'})
+    @api.marshal_list_with(paper_model, code=200)
+    @api.doc(params={'query': 'The criteria to rate papers.'})
     def put(self, query):
-        '''Rate papers based on relevance'''
-        papers = GeminiService.rate_papers(query)
-        return papers, 200
+        '''Rate all papers in database based on relevance'''
+        db_papers = ElsevierService.fetch_papers()
+        papers = GeminiService.rate_papers(db_papers, query)
+        return papers
 
-    def post(self, query):
-        '''Mutate papers based on query'''
-        papers = GeminiService.mutate_papers(query)
-        return papers, 200
+    # def post(self, query):
+    #     '''Mutate all papers in database based on query'''
+    #     db_papers = ElsevierService.fetch_papers()
+    #     papers = GeminiService.mutate_papers(db_papers, query)
+    #     return papers, 200
     
 @api.route('/export')
 class Export(Resource):
@@ -72,37 +63,33 @@ class Export(Resource):
     
 @api.route('/search')
 class PaperSearch(Resource):
+    @api.marshal_list_with(paper_model)
     def get(self):
+        '''Search papers based on query parameters'''
         # Extract query parameters
+        # @TODO: Conform to UI specification
         title = request.args.get('title', '')
         author = request.args.get('author', '')
         keyword = request.args.get('keyword', '')
-        start_date = request.args.get('startDate', '')
-        end_date = request.args.get('endDate', '')
+        from_date = request.args.get('fromDate', '')
+        to_date = request.args.get('toDate', '')
         
         # Build query
         query_params = {
             'title': title,
             'author': author,
             'keyword': keyword,
-            'startDate': start_date,
-            'endDate': end_date
+            'fromDate': from_date,
+            'toDate': to_date
         }
-        query = ' '.join([f"{k}:{v}" for k, v in query_params.items() if v])
+        # query = ' '.join([f"{k}:{v}" for k, v in query_params.items() if v])
         
         # Search through Elsevier API
-        # elsevier_response = ElsevierService.search_papers(query)
+        papers = ElsevierService.fetch_papers(query_params)
+        if not papers:
+            return 'No papers found, try other search query.', 404
 
         # Rate papers using Gemini API
-        response = GeminiService.rate_papers(query)
+        papers_rated = GeminiService.rate_papers(papers, query_params.get('keyword'))
         
-        # Extract and format results
-        # papers = response.get('papers', [])
-        # results = [{'title': paper.get('title'),
-        #             'abstract': paper.get('abstract'),
-        #             'author': paper.get('author'),
-        #             'journal': paper.get('journal'),
-        #             'published_date': paper.get('published_date')}
-        #            for paper in papers]
-        
-        return {'papers': []}, 200
+        return papers_rated, 200
