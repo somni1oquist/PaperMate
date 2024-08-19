@@ -33,4 +33,9 @@ def create_app(config=None):
         # Apply migrations
         upgrade()
 
+    # Return error messages if any Errors occur
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        return {'message': str(error)}, 500
+
     return app
