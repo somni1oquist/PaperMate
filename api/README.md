@@ -49,11 +49,14 @@ pip install -r requirements
 ```
 export SECRET_KEY=<KEY> 
 export LLM_API_KEY=<KEY>
+export ELS_API_KEY=<KEY>
 ```
 - `$env:` for Windows PowerShell
 ```
 $env:SECRET_KEY = "<KEY>"
 $env:LLM_API_KEY = "<KEY>"
+$env:ELS_API_KEY = "<KEY>"
+
 echo $env:SECRET_KEY (Check if the environment variable is set; the value of <KEY> should appear in the terminal.)
 ```
 ### 5. Launch the API

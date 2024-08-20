@@ -20,9 +20,9 @@ def create_app(config=None):
     cors.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    api.init_app(app, version='1.0',
+    api.init_app(app, version='1.0.1',
                  title='PaperMate API',
-                 description='A REST API for managing road safety literature')
+                 description='A REST API for searching and rating road safety literature')
     
     from app.controllers.papers_controller import api as papers_ns
     api.add_namespace(papers_ns, path='/papers')
@@ -36,6 +36,8 @@ def create_app(config=None):
     # Return error messages if any Errors occur
     @app.errorhandler(Exception)
     def handle_error(error):
+        if app.config['DEBUG']:
+            raise error
         return {'message': str(error)}, 500
 
     return app
