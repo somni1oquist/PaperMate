@@ -19,43 +19,42 @@ class GeminiService:
                                               generation_config={'response_mime_type': 'application/json'})
     
     @staticmethod
-    def rate_papers(papers:list[Paper], query=None):
+    def rate_papers(papers:list[Paper], query):
         '''
         Rate papers based on relevance to a query.\n
-        `papers` is a list of Paper objects.\n
-        `query` is a string describing the criteria to rate papers on relevance; 
-        If empty or none, use default query in `config.py`
+        `papers`: **Required.** List of Paper to rate\n
+        `query`: **Required.** The criteria to rate papers on relevance
         '''
         GeminiService.load_model()
         # Raise error if no papers found
         if not papers:
-            raise ValueError('No papers found in database')
+            raise ValueError('No papers to rate.', 404)
         prompt = '''
         Rate the following papers' abstract based on relevance to the criteria on a scale of 0-10:
         '''
         for paper in papers:
             prompt += f'''
-            ID: {paper.id}
+            DOI: {paper.doi}
             Title: {paper.title}
             Abstract: {paper.abstract}
             '''
         # Specify criteria to prompt
+        if not query:
+            raise ValueError('Missing query for rating papers.', 400)
         prompt += f'''
-        Criteria: {query if query else app.config['DEFAULT_QUERY']}
+        Criteria: {query}
         '''
         # Specify response format
         prompt += '''
-        Response format: [{ 'id': 1, 'relevance': 0, 'synopsis': '...' }, ...]
+        Response format: [{ 'doi': 'example', 'relevance': 0, 'synopsis': '...' }, ...]
         '''
         # Generate content
         response = GeminiService.model.generate_content(prompt)
         res_obj = json.loads(response.text)
         for obj in res_obj:
-            paper = Paper.query.get(obj.get('id'))
-            if paper is None:
-                continue
-            paper.relevance = obj.get('relevance') 
-            paper.synopsis = obj.get('synopsis')
+            paper = next((p for p in papers if p.doi == obj['doi']), None)
+            paper.relevance = obj['relevance']
+            paper.synopsis = obj['synopsis']
         db.session.commit()
         return papers
     
