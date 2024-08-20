@@ -65,22 +65,17 @@ class Export(Resource):
     def post(self):
         try:
             '''Export the top 20 relevant papers to CSV'''
-            print("Fetching top 20 relevant papers...")
             papers = ElsevierService.fetch_papers() # GeminiService.get_top_20_relevant_papers
-            print(f"Papers fetched: {papers}")
 
             # If papers are empty or not in the expected format, this may cause problems
             if not papers:
-                print("No papers found.")
                 return "No papers to export", 404
             
             # Convert the papers to a pandas DataFrame
             df = pd.DataFrame([paper.__dict__ for paper in papers])
-            print(f"DataFrame created: {df}")
 
             # Convert DataFrame to CSV
             csv_data = df.to_csv(index=False)
-            print("CSV data created.")
 
             # Create a response object and set the headers for downloading
             response = make_response(csv_data)
