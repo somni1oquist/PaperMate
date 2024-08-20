@@ -1,4 +1,5 @@
 // app/results/page.tsx
+"use client";
 import React from 'react';
 import Header from '../components/Header';
 import ResultsForm from './ResultItem';

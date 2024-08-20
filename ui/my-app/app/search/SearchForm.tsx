@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/router";
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect,useState } from "react";
 
 const SearchForm = () => {
   const [query, setQuery] = useState("");
