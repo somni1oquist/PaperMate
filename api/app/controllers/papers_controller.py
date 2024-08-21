@@ -2,6 +2,8 @@ from flask import request, current_app as app
 from flask_restx import Namespace, Resource, fields
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
+import pandas as pd
+from flask import make_response
 
 api = Namespace('papers', description='Operations related to papers')
 
@@ -38,9 +40,25 @@ class process(Resource):
 @api.route('/export')
 class Export(Resource):
     def post(self):
-        '''Export papers to CSV'''
-        # Export papers to CSV
-        return 'CSV exported successfully'
+        '''Export relevant papers to CSV'''
+        papers = ElsevierService.fetch_papers()
+
+        # If papers are empty or not in the expected format, this may cause problems
+        if not papers:
+            return "No papers to export", 404
+            
+        # Convert the papers to a pandas DataFrame
+        df = pd.DataFrame([paper.__dict__ for paper in papers])
+
+        # Convert DataFrame to CSV
+        csv_data = df.to_csv(index=False)
+
+        # Create a response object and set the headers for downloading
+        response = make_response(csv_data)
+        response.headers['Content-Disposition'] = 'attachment; filename=top_20_papers.csv'
+        response.headers['Content-Type'] = 'text/csv'
+        return response
+
     
 @api.route('/search')
 class PaperSearch(Resource):

@@ -4,6 +4,7 @@ from flask_restx import Api
 from config import Config
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+import random
 
 db = SQLAlchemy()
 api = Api()
@@ -33,11 +34,13 @@ def create_app(config=None):
         # Apply migrations
         upgrade()
 
-    # Return error messages if any Errors occur
-    @app.errorhandler(Exception)
-    def handle_error(error):
-        if app.config['DEBUG']:
-            raise error
-        return {'message': str(error)}, 500
+        # Return error messages if any Errors occur
+        @app.errorhandler(Exception)
+        def handle_error(error):
+            if app.config['DEBUG']:
+                raise error
+            return {'message': str(error)}, 500
 
     return app
+
+
