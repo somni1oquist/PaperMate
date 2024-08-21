@@ -48,9 +48,9 @@ class ElsevierService:
         if 'query' not in params or not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
         # Check for date range
-        if (params['fromDate'] and type(params['fromDate']) != datetime):
+        if (params.get('fromDate', None) and type(params['fromDate']) != datetime):
             params['fromDate'] = datetime.strptime(params['fromDate'], '%Y-%m-%d').date()
-        if (params['toDate'] and type(params['toDate']) != datetime):
+        if (params.get('toDate', None) and type(params['toDate']) != datetime):
             params['toDate'] = datetime.strptime(params['toDate'], '%Y-%m-%d').date()
 
         # Search URL for and Scopus
@@ -120,8 +120,8 @@ class ElsevierService:
                 relevance=None
             )
             # Apply date range filter
-            if (params['fromDate'] and paper.publish_date > params['fromDate']) or\
-                (params['toDate'] and paper.publish_date < params['toDate']):
+            if (params.get('fromDate', None) and paper.publish_date > params['fromDate']) or\
+                (params.get('toDate', None) and paper.publish_date < params['toDate']):
                  continue
             papers.append(paper)
         return papers
