@@ -30,9 +30,6 @@ def create_app(config=None):
     with app.app_context():
         # Apply migrations
         upgrade()
-        for i in range(20):
-            db.session.add(Paper(title=f'Paper {i}', author=f'Author {i}', year=random.randint(2000, 2024)))
-        db.session.commit()
     return app
 
 
