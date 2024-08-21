@@ -9,7 +9,6 @@ export default function Layout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <Header />
-        <SearchForm />
         {children}
         <Footer />
       </body>
