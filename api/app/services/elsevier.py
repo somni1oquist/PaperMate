@@ -36,7 +36,8 @@ class ElsevierService:
         if app.config['TESTING']:
             import json
             from app.models.paper import Paper
-            papers_json = json.load(open('sample.json'))
+            with open('sample.json', encoding='utf-8') as f:
+                papers_json = json.load(f)
             papers = [Paper(**paper) for paper in papers_json]
             return papers
         
