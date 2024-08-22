@@ -6,12 +6,20 @@ from app import db
 
 class ElsevierService:
     api_key = None
+    inst_token = None
+    headers = None
 
     @classmethod
     def set_api_key(cls):
         cls.api_key = app.config['ELS_API_KEY']
+        cls.inst_token = app.config['ELS_TOKEN']
         if cls.api_key is None:
             raise ValueError('Missing API key for Elsevier.')
+        cls.headers = {
+            'X-ELS-APIKey': cls.api_key,
+            'X-ELS-Insttoken': cls.inst_token,
+            'Accept': 'application/json'
+        }
 
     @staticmethod
     def fetch_papers(params:dict):
@@ -67,7 +75,7 @@ class ElsevierService:
             params['toDate'] = datetime.strptime(params['toDate'], '%d-%m-%Y').date()
 
         # Search URL for and Scopus
-        scopus_url = f'https://api.elsevier.com/content/search/scopus?apiKey={ElsevierService.api_key}'
+        scopus_url = f'https://api.elsevier.com/content/search/scopus'
         
         # Extract query parameters
         query_parts = []
@@ -82,10 +90,10 @@ class ElsevierService:
             if key in switcher and value:
                 query_parts.append(switcher[key])
         query = ' AND '.join(query_parts)
-        scopus_url += f'&query={query}&count=25&start={params["start"]}'
+        scopus_url += f'?query={query}&count=25&start={params["start"]}'
 
         # Make request to ScienceDirect and Scopus
-        scopus_res = requests.get(scopus_url)
+        scopus_res = requests.get(scopus_url, headers=ElsevierService.headers)
         if scopus_res.status_code != 200:
             raise ValueError(f'Error fetching papers from Elsevier(Scopus: {scopus_res.status_code})')
 
@@ -148,9 +156,8 @@ class ElsevierService:
         # Check if API key is set properly
         ElsevierService.set_api_key()
         # Fetch paper abstract
-        url = f"https://api.elsevier.com/content/abstract/doi/{doi}?apiKey={ElsevierService.api_key}"
-        header = {'Accept': 'application/json'}
-        res = requests.get(url, headers=header)
+        url = f"https://api.elsevier.com/content/abstract/doi/{doi}"
+        res = requests.get(url, headers=ElsevierService.headers)
         if res.status_code != 200:
             raise ValueError(f'Error fetching paper abstract from Elsevier({res.status_code})')
         abs_res = res.json().get('abstracts-retrieval-response', {})
