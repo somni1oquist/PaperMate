@@ -20,7 +20,7 @@ def create_app(config=None):
     else:
         app.config.from_object(config)
    
-    cors.init_app(app)
+    cors.init_app(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)
     migrate.init_app(app, db)
     api.init_app(app, version='1.0.1',
@@ -29,6 +29,16 @@ def create_app(config=None):
     
     from app.controllers.papers_controller import api as papers_ns
     api.add_namespace(papers_ns, path='/papers')
+
+    # Load secrets from Docker secrets path
+    with open('/run/secrets/llm_api_key', 'r') as file:
+        app.config['LLM_API_KEY'] = file.read().strip()
+
+    with open('/run/secrets/els_api_key', 'r') as file:
+        app.config['ELS_API_KEY'] = file.read().strip()
+
+    with open('/run/secrets/els_token', 'r') as file:
+        app.config['ELS_TOKEN'] = file.read().strip()
 
     from app.models.paper import Paper
 

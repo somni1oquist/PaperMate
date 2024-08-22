@@ -59,29 +59,30 @@ export default function ResultGrid() {
       setRows(parsedData);
       setLoading(false);
     } else {
-      const fetchData = async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:5000/papers/search?query=crash');
-          const data = await response.json();
-          const formattedData = data.map((item: Result, index: number) => ({
-            id: index + 1, // Unique ID for each row
-            ...item,
-          }));
-          setRows(formattedData);
-          setLoading(false);
-          // Store data in sessionStorage
-          sessionStorage.setItem('papersData', JSON.stringify(formattedData));
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
+      // const fetchData = async () => {
+      //   try {
+      //     const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
+      //     const response = await fetch(`${baseApiUrl}/papers/search?query=crash`);
+      //     const data = await response.json();
+      //     const formattedData = data.map((item: Result, index: number) => ({
+      //       id: index + 1, // Unique ID for each row
+      //       ...item,
+      //     }));
+      //     setRows(formattedData);
+      //     setLoading(false);
+      //     // Store data in sessionStorage
+      //     sessionStorage.setItem('papersData', JSON.stringify(formattedData));
+      //   } catch (error) {
+      //     console.error('Error fetching data:', error);
+      //   }
+      // };
 
-      fetchData();
+      // fetchData();
     }
   }, []);
 
   return (
-    <div style={{ height: 380, width: '100%' }}>
+    <div style={{ height: 350, width: '100%' }}>
       <Paper>
         <DataGrid
           rows={rows}
