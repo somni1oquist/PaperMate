@@ -1,5 +1,6 @@
 from flask import request, current_app as app
 from flask_restx import Namespace, Resource, fields
+from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
 import pandas as pd
@@ -41,14 +42,14 @@ class process(Resource):
 class Export(Resource):
     def post(self):
         '''Export relevant papers to CSV'''
-        papers = ElsevierService.fetch_papers({'query': app.config['DEFAULT_QUERY']})
-
-        # If papers are empty or not in the expected format, this may cause problems
+        # Get top 5 papers sorted by relevance
+        papers = Paper.query.order_by(Paper.relevance.desc()).limit(5).all()
+        
         if not papers:
-            return "No papers to export", 404
-            
+            return "No paper to export.", 404
+        
         # Convert the papers to a pandas DataFrame
-        df = pd.DataFrame([{key: value for key, value in paper.__dict__.items() if key != '_sa_instance_state'} for paper in papers])
+        df = pd.DataFrame([{key: value for key, value in paper.__dict__.items() if key not in ['_sa_instance_state', 'id']} for paper in papers])
 
         # Convert DataFrame to CSV
         csv_data = df.to_csv(index=False)

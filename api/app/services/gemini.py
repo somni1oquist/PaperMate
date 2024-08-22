@@ -42,7 +42,7 @@ class GeminiService:
         if not query:
             raise ValueError('Missing query for rating papers.', 400)
         prompt += f'''
-        Criteria: {query}
+        Criteria to rate: {query}
         '''
         # Specify response format
         prompt += '''
@@ -52,10 +52,10 @@ class GeminiService:
         response = GeminiService.model.generate_content(prompt)
         res_obj = json.loads(response.text)
         for obj in res_obj:
-            paper = next((p for p in papers if p.doi == obj['doi']), None)
+            paper = next((p for p in papers if p.doi == obj['doi']))
             paper.relevance = obj['relevance']
             paper.synopsis = obj['synopsis']
-        db.session.commit()
+            db.session.commit()
         return papers
     
     @staticmethod

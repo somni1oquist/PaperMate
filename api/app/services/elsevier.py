@@ -38,7 +38,20 @@ class ElsevierService:
             from app.models.paper import Paper
             with open('sample.json', encoding='utf-8') as f:
                 papers_json = json.load(f)
-            papers = [Paper(**paper) for paper in papers_json]
+            papers = [Paper(
+                publication=paper['publication'],
+                doi=paper['doi'],
+                title=paper['title'],
+                author=paper['author'],
+                publish_date=datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
+                abstract=paper['abstract'],
+                url=paper['url'],
+                synopsis=None,
+                relevance=None
+            ) for paper in papers_json]
+
+            db.session.add_all(papers)
+            db.session.commit()
             return papers
         
         # Check for start index
@@ -49,9 +62,9 @@ class ElsevierService:
             raise ValueError('Missing query parameter for Elsevier.')
         # Check for date range
         if (params.get('fromDate', None) and type(params['fromDate']) != datetime):
-            params['fromDate'] = datetime.strptime(params['fromDate'], '%Y-%m-%d').date()
+            params['fromDate'] = datetime.strptime(params['fromDate'], '%d-%m-%Y').date()
         if (params.get('toDate', None) and type(params['toDate']) != datetime):
-            params['toDate'] = datetime.strptime(params['toDate'], '%Y-%m-%d').date()
+            params['toDate'] = datetime.strptime(params['toDate'], '%d-%m-%Y').date()
 
         # Search URL for and Scopus
         scopus_url = f'https://api.elsevier.com/content/search/scopus?apiKey={ElsevierService.api_key}'
@@ -88,7 +101,8 @@ class ElsevierService:
         #         raise ValueError(f'Error fetching papers from Elsevier(Scopus: {scopus_res.status_code})')
         #     scopus_data = scopus_res.json().get('results', [])
         #     papers.extend(ElsevierService.transform_entries(scopus_data, params))
-        db.session.bulk_save_objects(papers)
+        db.session.add_all(papers)
+        db.session.commit()
         return papers
     
     @staticmethod

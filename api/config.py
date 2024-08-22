@@ -3,7 +3,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    TESTING = True # testing with sample data
+    TESTING = False # testing with sample data
 
     DEFAULT_QUERY = 'crash' # default query for rating papers
 
