@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 from flask_migrate import Migrate, upgrade
 from flask_restx import Api
@@ -30,6 +31,13 @@ def create_app(config=None):
 
     from app.models.paper import Paper
 
+    # Set up logging
+    logging.basicConfig(filename='app.log', level=logging.INFO,
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    logger = logging.getLogger(__name__)
+    logger.info('Starting the PaperMate API')
+
     with app.app_context():
         # Apply migrations
         upgrade()
@@ -37,9 +45,20 @@ def create_app(config=None):
         # Return error messages if any Errors occur
         @app.errorhandler(Exception)
         def handle_error(error):
+            logger.error(f'An error occurred: {type(error).__name__} - {str(error)}', exc_info=True)
             if app.config['DEBUG']:
                 raise error
             return {'message': str(error)}, 500
+
+        ''' Testing for logging function
+        @app.route('/trigger-error')
+        def trigger_error():
+            try:
+                raise ValueError("This is a test error")
+            except Exception as e:
+                logger.error(f'Error triggered in /trigger-error: {e}', exc_info=True)
+                raise
+        '''
 
     return app
 
