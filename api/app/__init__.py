@@ -44,7 +44,6 @@ def create_app(config=None):
 
     # Logging setup
     logger = init_logging()
-    
     # Log application start
     logger.info(f'{api.title} started')
 
@@ -56,6 +55,14 @@ def create_app(config=None):
         if app.debug:
             raise error
         return {'message': str(error)}, 500
+
+    # Create database
+    with app.app_context():
+        db.create_all()
+
+    @app.teardown_appcontext
+    def teardown_session(exception):
+        db.drop_all()
 
     return app
 

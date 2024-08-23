@@ -18,4 +18,4 @@ COPY . /app/
 EXPOSE 5000
 
 # Run the application
-CMD ["flask", "run", "--debug", "--host=0.0.0.0"]
+CMD ["flask", "run", "--host=0.0.0.0", "--debug"]
