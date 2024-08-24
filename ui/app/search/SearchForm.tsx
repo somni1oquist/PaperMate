@@ -42,17 +42,17 @@ const SearchForm: React.FC = () => {
     }
 
     // Send request to the API
-    const apiUrl = `http://127.0.0.1:5000/papers/search?${params.toString()}`;
-    
+    const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl = `${baseApiUrl}/papers/search?${params.toString()}`;
     axios.get(apiUrl)
-    .then((response) => {
-      sessionStorage.setItem('papersData', JSON.stringify(response.data));
-      router.push('/results');
-    }).catch((error) => {
-      console.error('Error:', error);
-    }).finally(() => {
-      alert(`Request completed.`);
-    });
+      .then((response) => {
+        sessionStorage.setItem('papersData', JSON.stringify(response.data));
+        router.push('/results');
+      }).catch((error) => {
+        console.error('Error:', error);
+      }).finally(() => {
+        alert(`Request completed.`);
+      });
   };
 
   const handleInputChange = (key: keyof SearchFormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
