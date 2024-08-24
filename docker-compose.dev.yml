@@ -5,6 +5,7 @@ services:
       dockerfile: dev.Dockerfile
     ports:
       - "5001:5000"
+      - "5678:5678"
     environment:
       - FLASK_ENV=development
     secrets:

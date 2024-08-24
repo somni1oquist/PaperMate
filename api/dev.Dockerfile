@@ -9,13 +9,15 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt\
+    && pip install --no-cache-dir debugpy
 
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
-# Expose the Flask port
+# Expose the Flask ports
 EXPOSE 5000
+EXPOSE 5678
 
-# Run the application
-CMD ["flask", "run", "--host=0.0.0.0", "--debug"]
+# Run the application with debugger
+CMD ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
