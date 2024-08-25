@@ -59,10 +59,11 @@ def create_app(config=None):
     # Create database
     with app.app_context():
         db.create_all()
-
+    
+    # Delete database when app is stopped
     @app.teardown_appcontext
-    def teardown_session(exception):
-        db.drop_all()
+    def shutdown_session(exception=None):
+        db.session.remove()
 
     return app
 

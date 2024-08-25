@@ -9,7 +9,8 @@ export default function Export() {
   // Send POST request to export the data
   const handleExport = async () => {
     try {
-      const apiUrl = 'http://127.0.0.1:5000/papers/export';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = `${baseUrl}/papers/export`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
