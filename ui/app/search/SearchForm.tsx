@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Grid from '@mui/material/Unstable_Grid2';
-import { Switch, FormControlLabel, Paper, TextField, Button } from '@mui/material';
+import { Switch, FormControlLabel, Paper, TextField, Button, Autocomplete, Chip } from '@mui/material';
 import axios from 'axios';
 
 interface SearchFormData {
@@ -11,10 +11,11 @@ interface SearchFormData {
   toDate: string;
   title: string;
   author: string;
+  publications: string[]; // Field for publications
   advanced: boolean;
   chat: boolean;
+  geminiPro: boolean;
 }
-
 
 const SearchForm: React.FC = () => {
   const router = useRouter();
@@ -25,13 +26,16 @@ const SearchForm: React.FC = () => {
     toDate: '31-01-2022',
     title: '',
     author: '',
+    publications: [],
     advanced: true,
     chat: false,
+    geminiPro: false,
   });
+
+  const [resultCount, setResultCount] = useState<number | null>(null); // State for result count
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Set parameters for query
     const params = new URLSearchParams();
     params.append('query', formData.query);
     if (!formData.advanced) {
@@ -39,17 +43,21 @@ const SearchForm: React.FC = () => {
       params.append('toDate', '');
       params.append('title', '');
       params.append('author', '');
+      params.append('publications', '');
+    } else {
+      params.append('publications', formData.publications.join(','));
     }
 
-    // Send request to the API
     const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
     const apiUrl = `${baseApiUrl}/papers/search?${params.toString()}`;
     axios.get(apiUrl)
       .then((response) => {
         sessionStorage.setItem('papersData', JSON.stringify(response.data));
+        setResultCount(response.data.length); // Set the number of results
         router.push('/results');
       }).catch((error) => {
         console.error('Error:', error);
+        setResultCount(0); // Set to 0 if there's an error
       }).finally(() => {
         alert(`Request completed.`);
       });
@@ -59,14 +67,19 @@ const SearchForm: React.FC = () => {
     setFormData({ ...formData, [key]: event.target.value });
   };
 
+  const handlePublicationChange = (event: any, value: string[]) => {
+    setFormData({ ...formData, publications: value });
+  };
+
   return (
     <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
-
+          
           <Grid xs={12} sx={{
             display: 'flex',
             justifyContent: 'center',
+            alignItems: 'center',
           }}>
             <FormControlLabel
               control={
@@ -78,27 +91,48 @@ const SearchForm: React.FC = () => {
                 />
               }
               label="Advanced Search"
+              sx={{ marginRight: 2 }}
             />
-            {/* <FormControlLabel
+            <FormControlLabel
               control={
                 <Switch
-                  checked={formData.chat}
+                  checked={formData.geminiPro}
                   onChange={() =>
-                    setFormData((prev) => ({ ...prev, chat: !prev.chat }))
+                    setFormData((prev) => ({ ...prev, geminiPro: !prev.geminiPro }))
                   }
-                  disabled
                 />
               }
-              label="Enable Chat"
-            /> */}
+              label="Gemini 1.5 Pro"
+            />
           </Grid>
 
-          <Grid xs={12}>
+          <Grid xs={6}>
             <TextField
               label="Query"
               fullWidth
               value={formData.query}
               onChange={handleInputChange('query')}
+            />
+          </Grid>
+          <Grid xs={6}>
+            <Autocomplete
+              multiple
+              options={[
+                'Accident Analysis and Prevention',
+                'Journal of Safety Research',
+                'Transportation Research Part F',
+                'Journal of Road Engineering'
+              ]} // Updated publication options
+              value={formData.publications}
+              onChange={handlePublicationChange}
+              renderTags={(value: string[], getTagProps) =>
+                value.map((option: string, index: number) => (
+                  <Chip label={option} {...getTagProps({ index })} key={option} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Publication" placeholder="Select journals" />
+              )}
             />
           </Grid>
 
@@ -139,11 +173,24 @@ const SearchForm: React.FC = () => {
             </>
           )}
 
-          <Grid xs={12}>
-            <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Grid xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Button type="submit" variant="contained" color="primary">
               Search
             </Button>
+            <Button variant="contained" color="secondary" sx={{ marginLeft: 2 }}>
+              Proceed
+            </Button>
           </Grid>
+
+          {resultCount !== null && (
+            <Grid xs={12} sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+              <Paper sx={{ padding: 2, display: 'flex', alignItems: 'center' }}>
+                <span style={{ marginRight: 5 }}>🔍</span>
+                <span>{resultCount} Results</span>
+              </Paper>
+            </Grid>
+          )}
+
         </Grid>
       </form>
     </Paper>
