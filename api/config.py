@@ -8,11 +8,6 @@ class Config:
     DEFAULT_QUERY = 'crash' # default query for rating papers
 
     SECRET_KEY = os.environ.get('SECRET_KEY') # for session management
-
-    ELS_API_KEY = os.environ.get('ELS_API_KEY') # Elsevier API key
-    ELS_TOKEN = os.environ.get('ELS_TOKEN') # Elsevier token for usage outside campus
-
-    LLM_API_KEY = os.environ.get('LLM_API_KEY') # Gemini API key
     
     LLM_MODEL_NAME = 'gemini-1.5-flash' # gemini-1.5-flash or gemini-1.5-pro
 

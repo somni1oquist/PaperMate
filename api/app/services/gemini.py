@@ -1,4 +1,5 @@
 import json
+from sqlite3 import DataError, OperationalError
 from flask import current_app as app
 from app import db
 from app.models.paper import Paper
@@ -7,9 +8,6 @@ import google.generativeai as genai
 
 class GeminiService:
     model = None
-    
-    def __init__(self):
-        self.session = None
 
     @classmethod
     def load_model(cls):
@@ -34,23 +32,6 @@ class GeminiService:
                 system_instruction=system_instruction,
                 generation_config={'response_mime_type': 'application/json'}
             )
-    
-    def renew_chat_session(self, chat: Chat):
-        """Renew or start a chat session based on the provided chat history."""
-        GeminiService.load_model()
-        chat_history = []
-        if chat.parent_id:
-            chat_history = [item.query for item in Chat.chats if chat.parent_id]
-        self.session = GeminiService.model.start_chat(history=chat_history)
-
-    def get_papers_for_chat(self, chat_id):
-        """Fetch related papers based on the chat history or return all papers if no chat history exists."""
-        if chat_id:
-            prev_chat = Chat.query.get(chat_id)
-            if prev_chat:
-                self.renew_chat_session(prev_chat)
-                return prev_chat.get_related_papers()
-        return Paper.query.all()
     
     def create_prompt(self, papers, query):
         """Create a structured prompt from the papers and query."""
@@ -102,13 +83,12 @@ class GeminiService:
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
     
-    def mutate_papers(self, query, chat_id=None):
+    def mutate_papers(self, query):
         """
         Mutate papers based on a query.
 
         Args:
             query: The criteria to mutate papers.
-            chat_id: The chat ID to continue the conversation.
 
         Returns:
             The mutated papers in JSON format.
@@ -116,21 +96,43 @@ class GeminiService:
         Raises:
             ValueError: If no query or invalid response from Gemini.
         """
+        GeminiService.load_model()
         if not query:
             raise ValueError('Missing query to interact with Gemini', 400)
         
-        papers = self.get_papers_for_chat(chat_id)
-        prompt = self.create_prompt(papers, query)
+        # Prepare chat history
+        current_chat = Chat.query.order_by(Chat.timestamp.desc()).first()
 
-        current_chat = Chat(query, parent_id=chat_id)
-        self.renew_chat_session(current_chat)
-        response = self.session.send_message(prompt)
+        papers = current_chat.get_related_papers() if current_chat else Paper.query.all()
+
+        if not current_chat:
+            current_chat = Chat(history=[])
+            db.session.add(current_chat)
+        
+        prompt = self.create_prompt(papers, query)
+        session = GeminiService.model.start_chat(history=current_chat.history)
+        response = session.send_message(prompt)
 
         try:
             papers_json = json.loads(response.text)
-            current_chat.response = response.text
-            db.session.add(current_chat)
-            db.session.commit()
-            return papers_json
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
+        
+
+        # Save chat history
+        user_content = { 'role': 'user', 'parts': [ { 'text': query } ] }
+        model_content = { 'role': 'model', 'parts': [ { 'text': response.text } ] }
+        # Content(parts=[Part(text=query)], role='user'),
+        # Content(parts=[Part(text=response.text)], role='model')
+        current_chat.history.append(user_content)
+        current_chat.history.append(model_content)
+
+        # Handle database errors
+        try:
+            db.session.commit()
+        except OperationalError as op_err:
+            raise ValueError(f'Error saving chat history: {str(op_err)}', 500)
+        except DataError as data_err:
+            raise ValueError(f'Error saving chat history: {str(data_err)}', 500)
+        
+        return papers_json

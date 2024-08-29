@@ -47,9 +47,8 @@ class Mutate(Resource):
     @api.doc(params={'query': 'The criteria to mutate papers.'})
     def put(self, query):
         '''Mutate papers based on a query'''
-        chat_id = request.args.get('chat', None)
         gemini = GeminiService()
-        papers = gemini.mutate_papers(query, chat_id) # Should contain only doi and mutation
+        papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
         return ElsevierService.update_papers_by_doi(papers)
     
 @api.route('/export')
