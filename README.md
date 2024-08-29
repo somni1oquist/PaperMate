@@ -74,8 +74,34 @@ Generate an `.en.local` file uder `ui/` that specify the url for api app:
 NEXT_PUBLIC_API_URL=http://127.0.0.1:5001
 ```
 
+### 2.5. Create `launch.json`
+If you would like to use vscode debugger function, add the following content to cofiguration file `launch.json`:
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Remote Attach",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "127.0.0.1",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/api",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "justMyCode": true
+        }
+    ]
+}
+```
+
 ### 3. Run `docker compose`
-Open the terminal that is under root foler, choose an environment e.g. `docker-compose.dev.yml` and enter command:
+Open the terminal that is under root foler, choose an environment e.g. `docker-compose.dev.yml` (which enables debugger for api) and enter command:
 ```
 docker compose -f docker-compose.<env>.yml up --build
 ```
