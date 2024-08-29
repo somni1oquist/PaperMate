@@ -1,3 +1,4 @@
+import json
 from flask import current_app as app
 from datetime import datetime
 import requests
@@ -22,7 +23,24 @@ class ElsevierService:
         }
 
     @staticmethod
+    def update_papers_by_doi(papers:dict):
+        '''
+        Update papers in database by DOI.\n
+        `papers` is a dictionary containing DOI and mutation data.
+        '''
+        mutated_papers = []
+        for doi, mutation in papers.items():
+            paper = Paper.query.filter_by(doi=doi).first()
+            if paper:
+                paper.mutation = json.dumps(mutation)
+                db.session.commit()
+                mutated_papers.append(paper)
+        return mutated_papers
+        
+
+    @staticmethod
     def fetch_papers(params:dict):
+        # @TODO: Check publish date correctness
         '''
         Fetch papers from Elsevier.\n
         `params` is a dictionary containing query parameters.
@@ -53,9 +71,7 @@ class ElsevierService:
                 author=paper['author'],
                 publish_date=datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
                 abstract=paper['abstract'],
-                url=paper['url'],
-                synopsis=None,
-                relevance=None
+                url=paper['url']
             ) for paper in papers_json]
 
             db.session.add_all(papers)
@@ -90,7 +106,7 @@ class ElsevierService:
             if key in switcher and value:
                 query_parts.append(switcher[key])
         query = ' AND '.join(query_parts)
-        scopus_url += f'?query={query}&count=25&start={params["start"]}'
+        scopus_url += f'?query={query}&count=5&start={params["start"]}'
 
         # Make request to ScienceDirect and Scopus
         scopus_res = requests.get(scopus_url, headers=ElsevierService.headers)
@@ -100,7 +116,7 @@ class ElsevierService:
         # Extract papers from response
         scopus_data = scopus_res.json().get('search-results', {})
         total_results = scopus_data.get('opensearch:totalResults', 0)
-        items_per_page = scopus_data.get('opensearch:itemsPerPage', 25)
+        items_per_page = scopus_data.get('opensearch:itemsPerPage', 5)
         papers = ElsevierService.transform_entries(scopus_data, params)
         # Iterate over all pages
         # for i in range(params['start'] + items_per_page, total_results, items_per_page):
@@ -137,9 +153,7 @@ class ElsevierService:
                 author=author,
                 publish_date=publish_date,
                 abstract=abstract,
-                url=url,
-                synopsis=None,
-                relevance=None
+                url=url
             )
             # Apply date range filter
             if (params.get('fromDate', None) and paper.publish_date > params['fromDate']) or\
