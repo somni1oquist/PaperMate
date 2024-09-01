@@ -8,7 +8,7 @@
 
 .papermate-container {
   position: absolute;
-  inset: 75px;
+  inset: 50px;
   background-color: rgba(219, 188, 73, 0.25);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
