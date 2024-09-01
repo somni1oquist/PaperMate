@@ -38,7 +38,6 @@ The Western Australian Centre for Road Safety Research (WACRSR) is initiating a 
 ├── ui/
 │   ├── app/
 │   ├── public/
-│   ├── .env.local
 │   ├── .eslintrc.json
 │   ├── .gitignore
 │   ├── <env>.Dockerfile
@@ -59,7 +58,7 @@ The Western Australian Centre for Road Safety Research (WACRSR) is initiating a 
 Go to [Docker](https://www.docker.com/products/docker-desktop/) website to download and install the application. Once Installed, make sure the docker engine is running.
 
 ### 1. Secrets
-Contact developers to acquire the necessary three secret files: API key for Gemini, API key for Elsevier and Institutional token (optional for remote connection).
+Contact developers to acquire the necessary three secret files: API key for Gemini, API key for Elsevier and Institutional token.
 After getting the files, create a folder named `secrets/` under root folder:
 ```
 ├── secrets/
@@ -67,14 +66,7 @@ After getting the files, create a folder named `secrets/` under root folder:
 │   ├── els_token.txt
 │   └── llm_api_key.txt
 ```
-
-### 2. Create `.env.local`
-Generate an `.en.local` file uder `ui/` that specify the url for api app:
-```
-NEXT_PUBLIC_API_URL=http://127.0.0.1:5001
-```
-
-### 2.5. Create `launch.json`
+### 1.5. Create `launch.json`
 If you would like to use vscode debugger function, add the following content to cofiguration file `launch.json`:
 ```
 {
@@ -100,11 +92,11 @@ If you would like to use vscode debugger function, add the following content to 
 }
 ```
 
-### 3. Run `docker compose`
+### 2. Run `docker compose`
 Open the terminal that is under root foler, choose an environment e.g. `docker-compose.dev.yml` (which enables debugger for api) and enter command:
 ```
 docker compose -f docker-compose.<env>.yml up --build
 ```
 
-### 4. Access Papermate
+### 3. Access Papermate
 Go to the url of Papermate `http://localhost:3000/`, the app should be up and running now.

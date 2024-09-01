@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Switch, FormControlLabel, Paper, TextField, Button, Autocomplete, Chip } from '@mui/material';
-import axios from 'axios';
+import { searchPapers } from '../actions';
 
 interface SearchFormData {
   query: string;
@@ -48,9 +48,7 @@ const SearchForm: React.FC = () => {
       params.append('publications', formData.publications.join(','));
     }
 
-    const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const apiUrl = `${baseApiUrl}/papers/search?${params.toString()}`;
-    axios.get(apiUrl)
+    searchPapers(params.toString())
       .then((response) => {
         sessionStorage.setItem('papersData', JSON.stringify(response.data));
         setResultCount(response.data.length); // Set the number of results

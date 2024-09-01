@@ -2,34 +2,26 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@mui/material';
-
+import { exportPapers } from '../actions';
 
 export default function Export() {
   const router = useRouter();
   // Send POST request to export the data
-  const handleExport = async () => {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const apiUrl = `${baseUrl}/papers/export`;
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  const handleExport = () => {
+    exportPapers()
+      .then((response) => {
+        const data = new Blob([response.data], { type: 'text/csv' });
+
+        const url = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'papers.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+      }).catch((error) => {
+        alert('Error exporting data.');
       });
-      if (!response.ok) {
-        console.log(response);
-        throw new Error(response.statusText);
-      }
-      const data = await response.blob();
-      const url = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'papers.csv';
-      a.click();
-    } catch (error) {
-      console.error('Error exporting data:', error);
-    }
   }
   
   return (
