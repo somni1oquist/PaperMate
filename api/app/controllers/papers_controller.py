@@ -1,3 +1,4 @@
+import json
 from flask import request, current_app as app
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
@@ -17,7 +18,8 @@ paper_model = api.model('Paper', {
     'publish_date': fields.Date(required=True, description='Cover date'),
     'url': fields.String(required=True, description='URL to the paper'),
     'relevance': fields.Float(description='Relevance to query'),
-    'synopsis': fields.String(description='Synopsis of the paper')
+    'synopsis': fields.String(description='Synopsis of the paper'),
+    'mutation': fields.String(description='Mutated json data of the paper')
 })
 
 @api.route('/')
@@ -29,27 +31,40 @@ class PaperList(Resource):
         return papers, 200
 
 @api.route('/rate/<string:query>')
-class process(Resource):
+class Rate(Resource):
     @api.marshal_list_with(paper_model, code=200)
     @api.doc(params={'query': 'The criteria to rate papers.'})
     def put(self, query):
         '''Rate papers based on relevance to a query'''
-        db_papers = ElsevierService.fetch_papers({'query': query})
-        papers = GeminiService.rate_papers(db_papers, query)
+        ElsevierService.fetch_papers({'query': query})
+        gemini = GeminiService()
+        papers = gemini.analyse_papers(query)
         return papers
+    
+@api.route('/mutate/<string:query>')
+class Mutate(Resource):
+    @api.marshal_list_with(paper_model, code=200)
+    @api.doc(params={'query': 'The criteria to mutate papers.'})
+    def put(self, query):
+        '''Mutate papers based on a query'''
+        gemini = GeminiService()
+        papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
+        return ElsevierService.update_papers_by_doi(papers)
     
 @api.route('/export')
 class Export(Resource):
     def post(self):
         '''Export relevant papers to CSV'''
         # Get top 5 papers sorted by relevance
-        papers = Paper.query.order_by(Paper.relevance.desc()).limit(5).all()
+        papers = Paper.query.all()
         
         if not papers:
             return "No paper to export.", 404
         
-        # Convert the papers to a pandas DataFrame
-        df = pd.DataFrame([{key: value for key, value in paper.__dict__.items() if key not in ['_sa_instance_state', 'id']} for paper in papers])
+        papers_dict = [paper.mutation_dict() for paper in papers]
+
+        # Create DataFrame
+        df = pd.DataFrame(papers_dict)
 
         # Convert DataFrame to CSV
         csv_data = df.to_csv(index=False)
@@ -91,6 +106,7 @@ class PaperSearch(Resource):
             return 'No papers found, try other search query.', 404
 
         # Rate papers using Gemini API
-        papers_rated = GeminiService.rate_papers(papers, query_params.get('query'))
+        gemini = GeminiService()
+        papers_rated = gemini.analyse_papers(query_params.get('query'))
         
         return papers_rated, 200

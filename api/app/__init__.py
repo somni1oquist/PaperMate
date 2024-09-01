@@ -2,7 +2,6 @@ from datetime import datetime
 import logging
 import os
 from flask import Flask
-from flask_migrate import Migrate, upgrade
 from flask_restx import Api
 from config import Config
 from flask_cors import CORS
@@ -10,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 api = Api()
-migrate = Migrate()
 cors = CORS()
 def create_app(config=None):
     app = Flask(__name__)
@@ -22,30 +20,36 @@ def create_app(config=None):
    
     cors.init_app(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)
-    migrate.init_app(app, db)
     api.init_app(app, version='1.0.1',
                  title='PaperMate API',
                  description='A REST API for searching and rating road safety literature')
+    # Logging setup
+    logger = init_logging()
+    # Log application start
+    logger.info(f'{api.title} started')
     
     from app.controllers.papers_controller import api as papers_ns
     api.add_namespace(papers_ns, path='/papers')
 
     # Load secrets from Docker secrets path
-    with open('/run/secrets/llm_api_key', 'r') as file:
-        app.config['LLM_API_KEY'] = file.read().strip()
+    try:
+        with open('/run/secrets/llm_api_key', 'r') as file:
+            app.config['LLM_API_KEY'] = file.read().strip()
 
-    with open('/run/secrets/els_api_key', 'r') as file:
-        app.config['ELS_API_KEY'] = file.read().strip()
+        with open('/run/secrets/els_api_key', 'r') as file:
+            app.config['ELS_API_KEY'] = file.read().strip()
 
-    with open('/run/secrets/els_token', 'r') as file:
-        app.config['ELS_TOKEN'] = file.read().strip()
+        with open('/run/secrets/els_token', 'r') as file:
+            app.config['ELS_TOKEN'] = file.read().strip()
+    except FileNotFoundError:
+        logger.warning('Secrets not found in Docker secrets path. Loading from environment variables.')
+        app.config['LLM_API_KEY'] = os.environ.get('LLM_API_KEY')
+        app.config['ELS_API_KEY'] = os.environ.get('ELS_API_KEY')
+        app.config['ELS_TOKEN'] = os.environ.get('ELS_TOKEN')
+        pass
 
     from app.models.paper import Paper
-
-    # Logging setup
-    logger = init_logging()
-    # Log application start
-    logger.info(f'{api.title} started')
+    from app.models.chat import Chat
 
     # Return error messages if any Errors occur
     @app.errorhandler(Exception)
