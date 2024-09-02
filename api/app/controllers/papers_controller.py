@@ -6,6 +6,8 @@ from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
 import pandas as pd
 from flask import make_response
+from app.models.chat import Chat
+
 
 api = Namespace('papers', description='Operations related to papers')
 
@@ -50,7 +52,44 @@ class Mutate(Resource):
         gemini = GeminiService()
         papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
         return ElsevierService.update_papers_by_doi(papers)
-    
+
+@api.route('/mutate_from_chat/<int:chat_id>')
+class MutateFromChat(Resource):
+    @api.marshal_list_with(paper_model, code=200, description='Mutation successful')
+    def post(self, chat_id):
+        '''
+        Mutate papers based on the latest chat history from the specified chat.
+        '''
+        # Fetch the chat by ID
+        chat = Chat.query.get_or_404(chat_id)
+        
+        # Extract related papers based on the latest chat history
+        related_papers = chat.get_related_papers()
+        
+        if not related_papers:
+            return {'message': 'No related papers found in the chat history.'}, 404
+        
+        # Generate mutations using GeminiService
+        mutation_criteria = "Generated mutation criteria based on chat history"
+        mutated_papers = GeminiService.mutate_papers(related_papers, mutation_criteria)
+        
+        # Serialize response excluding 'mutation' column
+        response_papers = [{
+            'id': paper.id,
+            'doi': paper.doi,
+            'title': paper.title,
+            'abstract': paper.abstract,
+            'author': paper.author,
+            'publication': paper.publication,
+            'publish_date': paper.publish_date,
+            'url': paper.url,
+            'relevance': paper.relevance,
+            'synopsis': paper.synopsis
+        } for paper in mutated_papers]
+
+        return response_papers, 200
+
+
 @api.route('/export')
 class Export(Resource):
     def post(self):
