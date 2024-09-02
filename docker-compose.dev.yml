@@ -24,8 +24,6 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:5001
-      - WDS_SOCKET_HOST=127.0.0.1 
-      - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true 
     volumes:
       - ./ui:/app
