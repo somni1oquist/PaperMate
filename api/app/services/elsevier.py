@@ -156,9 +156,9 @@ class ElsevierService:
                 url=url
             )
             # Apply date range filter
-            if (params.get('fromDate', None) and paper.publish_date > params['fromDate']) or\
-                (params.get('toDate', None) and paper.publish_date < params['toDate']):
-                 continue
+            if (params.get('fromDate', None) and paper.publish_date < params['fromDate']) or\
+            (params.get('toDate', None) and paper.publish_date > params['toDate']):
+                continue
             papers.append(paper)
         return papers
     
