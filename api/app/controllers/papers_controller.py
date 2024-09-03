@@ -51,29 +51,28 @@ class Mutate(Resource):
         '''Mutate papers based on a query'''
         gemini = GeminiService()
         papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
-        return ElsevierService.update_papers_by_doi(papers)
+        ElsevierService.update_papers(papers)
+        return papers, 200
 
 @api.route('/mutate_from_chat')
 class MutateFromChat(Resource):
-    @api.marshal_list_with(paper_model, code=200, description='Mutation successful')
     def post(self):
         '''
-        Mutate papers based on the latest chat history from the specified chat.
+        Extract relevant information from chat and update papers
         '''
-        # TODO request criteria
-        # Generate mutations using GeminiService
-        mutation_criteria = "Label by Study Type"
+        chat_id = request.args.get('chat', None)
+        query = request.args.get('query', None)
         gemini = GeminiService()
-        mutated_papers = gemini.mutate_papers(mutation_criteria)
-        
-        papers = ElsevierService.update_papers_by_doi(mutated_papers)
+        # Extract relevant information from chat
+        # @TODO: Test chat history
+        mutated_papers = gemini.mutate_papers(query)
+        # Update papers with mutated data
+        ElsevierService.update_papers(mutated_papers)
 
-        # TODO integrate mutation_dict()
-        # Serialize response excluding 'mutation' column
-        # response_papers = [paper.mutation_dict() for paper in papers]
-
-        # return response_papers, 200
-        return papers
+        doi_list = [doi for doi in mutated_papers]
+        # Get papers from database
+        papers = ElsevierService.get_papers_by_dois(doi_list)
+        return [paper.mutation_dict() for paper in papers], 200
 
 
 @api.route('/export')
