@@ -24,6 +24,7 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:5001
+      - WATCHPACK_POLLING=true 
     volumes:
       - ./ui:/app
       - /app/node_modules
