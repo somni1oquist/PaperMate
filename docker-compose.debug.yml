@@ -1,0 +1,40 @@
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: debug.Dockerfile
+    ports:
+      - "5001:5000"
+      - "5678:5678"
+    environment:
+      - FLASK_ENV=development
+    secrets:
+      - llm_api_key
+      - els_api_key
+      - els_token
+    volumes:
+      - ./api:/app
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: dev.Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5001
+      - WATCHPACK_POLLING=true 
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+secrets:
+  llm_api_key:
+    file: ./secrets/llm_api_key.txt
+  els_api_key:
+    file: ./secrets/els_api_key.txt
+  els_token:
+    file: ./secrets/els_token.txt
