@@ -24,10 +24,10 @@ class Paper(db.Model):
         '''
         Return a JSON object of the mutation data
         '''
-        if self.mutation is None:
-            return
         # Remove sa_instance_state, id and mutation from json object
         json_obj = { key: value for key, value in self.__dict__.items() if key not in ['_sa_instance_state', 'id', 'mutation']}
+        if self.mutation is None:
+            return json_obj
         mutation = json.loads(self.mutation)
         json_obj.update(mutation)
         return json_obj

@@ -6,6 +6,8 @@ from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
 import pandas as pd
 from flask import make_response
+from app.models.chat import Chat
+
 
 api = Namespace('papers', description='Operations related to papers')
 
@@ -50,7 +52,30 @@ class Mutate(Resource):
         gemini = GeminiService()
         papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
         return ElsevierService.update_papers_by_doi(papers)
-    
+
+@api.route('/mutate_from_chat')
+class MutateFromChat(Resource):
+    @api.marshal_list_with(paper_model, code=200, description='Mutation successful')
+    def post(self):
+        '''
+        Mutate papers based on the latest chat history from the specified chat.
+        '''
+        # TODO request criteria
+        # Generate mutations using GeminiService
+        mutation_criteria = "Label by Study Type"
+        gemini = GeminiService()
+        mutated_papers = gemini.mutate_papers(mutation_criteria)
+        
+        papers = ElsevierService.update_papers_by_doi(mutated_papers)
+
+        # TODO integrate mutation_dict()
+        # Serialize response excluding 'mutation' column
+        # response_papers = [paper.mutation_dict() for paper in papers]
+
+        # return response_papers, 200
+        return papers
+
+
 @api.route('/export')
 class Export(Resource):
     def post(self):
