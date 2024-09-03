@@ -53,41 +53,27 @@ class Mutate(Resource):
         papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
         return ElsevierService.update_papers_by_doi(papers)
 
-@api.route('/mutate_from_chat/<int:chat_id>')
+@api.route('/mutate_from_chat')
 class MutateFromChat(Resource):
     @api.marshal_list_with(paper_model, code=200, description='Mutation successful')
-    def post(self, chat_id):
+    def post(self):
         '''
         Mutate papers based on the latest chat history from the specified chat.
         '''
-        # Fetch the chat by ID
-        chat = Chat.query.get_or_404(chat_id)
-        
-        # Extract related papers based on the latest chat history
-        related_papers = chat.get_related_papers()
-        
-        if not related_papers:
-            return {'message': 'No related papers found in the chat history.'}, 404
-        
+        # TODO request criteria
         # Generate mutations using GeminiService
-        mutation_criteria = "Generated mutation criteria based on chat history"
-        mutated_papers = GeminiService.mutate_papers(related_papers, mutation_criteria)
+        mutation_criteria = "Label by Study Type"
+        gemini = GeminiService()
+        mutated_papers = gemini.mutate_papers(mutation_criteria)
         
-        # Serialize response excluding 'mutation' column
-        response_papers = [{
-            'id': paper.id,
-            'doi': paper.doi,
-            'title': paper.title,
-            'abstract': paper.abstract,
-            'author': paper.author,
-            'publication': paper.publication,
-            'publish_date': paper.publish_date,
-            'url': paper.url,
-            'relevance': paper.relevance,
-            'synopsis': paper.synopsis
-        } for paper in mutated_papers]
+        papers = ElsevierService.update_papers_by_doi(mutated_papers)
 
-        return response_papers, 200
+        # TODO integrate mutation_dict()
+        # Serialize response excluding 'mutation' column
+        # response_papers = [paper.mutation_dict() for paper in papers]
+
+        # return response_papers, 200
+        return papers
 
 
 @api.route('/export')
