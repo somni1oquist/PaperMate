@@ -1,0 +1,18 @@
+# Ignore virtual environment
+.venv/
+venv/
+
+# Ignore editor files
+.vscode/
+
+# Ignore compiled python files
+__pycache__/
+
+# Ignore database file
+*.db
+
+# Ignore logs
+logs/
+
+# Ignore secret files
+secrets/ui/.env.local
