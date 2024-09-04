@@ -23,36 +23,60 @@ class ElsevierService:
         }
 
     @staticmethod
-    def update_papers_by_doi(papers:dict):
+    def update_papers(papers:dict):
         '''
-        Update papers in database by DOI.\n
-        `papers` is a dictionary containing DOI and mutation data.
+        Update papers in the database with mutated data.
+
+        Args:
+            papers: A dictionary containing DOIs as keys and mutated data as values.
+
+        Returns:
+            None
         '''
-        mutated_papers = []
         for doi, mutation in papers.items():
             paper = Paper.query.filter_by(doi=doi).first()
             if paper:
                 paper.mutation = json.dumps(mutation)
                 db.session.commit()
-                mutated_papers.append(paper)
-        return mutated_papers
-        
+    
+    @staticmethod
+    def get_papers_by_dois(doi_list:list):
+        """
+        Get papers from the database
+
+        Args:
+            doi_list: A list of DOIs to search for.
+
+        Returns:
+            A list of papers.
+        """
+        papers = []
+        for doi in doi_list:
+            paper = Paper.query.filter_by(doi=doi).first()
+            if paper:
+                papers.append(paper)
+        return papers
 
     @staticmethod
     def fetch_papers(params:dict):
         # @TODO: Check publish date correctness
-        '''
-        Fetch papers from Elsevier.\n
-        `params` is a dictionary containing query parameters.
-        - `start`: Index of the first paper to fetch, default is 0
-        - `query`: **Required.** String describing the search criteria. If empty, use default query in `config.py`
-        - `title`: String describing the title of the paper
-        - `author`: String describing the author of the paper
-        - `publication`: String describing the publication of the paper
-        - `fromDate`: String describing the start date of the search range
-        - `toDate`: String describing the end date of the search range
-        - `keyword`: String describing the keyword of the paper
-        '''
+        """
+        Fetches papers from the Elsevier API based on the provided query parameters.
+
+        Args:
+            params (dict): A dictionary of query parameters, which may include:
+                - `start` (int): Optional. The index of the first paper to fetch. Defaults to 0.
+                - `query` (str): Required. The search criteria for finding papers. If not provided, a default query from `config.py` will be used.
+                - `title` (str): Optional.
+                - `author` (str): Optional.
+                - `publication` (str): Optional.
+                - `fromDate` (str): Optional. The start date of the search range (format: YYYY-MM-DD).
+                - `toDate` (str): Optional. The end date of the search range (format: YYYY-MM-DD).
+
+        Returns:
+            list: A list of papers that match the search criteria.
+        """
+
         # Set API key
         ElsevierService.set_api_key()
         # Clear existing papers to start new search

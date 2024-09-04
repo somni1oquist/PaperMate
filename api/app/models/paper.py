@@ -19,15 +19,18 @@ class Paper(db.Model):
     
     def to_dict(self):
         return {key: value for key, value in self.__dict__.items() if key not in ['_sa_instance_state', 'id']}
-    
+            
     def mutation_dict(self):
         '''
-        Return a JSON object of the mutation data
+        Return a JSON object with mutated data
         '''
-        # Remove sa_instance_state, id and mutation from json object
-        json_obj = { key: value for key, value in self.__dict__.items() if key not in ['_sa_instance_state', 'id', 'mutation']}
-        if self.mutation is None:
-            return json_obj
-        mutation = json.loads(self.mutation)
-        json_obj.update(mutation)
-        return json_obj
+        item = {}
+        items = self.to_dict().items()
+        for key, value in items:
+            if key == 'publish_date':
+                item[key] = value.strftime('%Y-%m-%d')
+            elif key == 'mutation' and value:
+                item.update(json.loads(value))
+            else:
+                item[key] = value
+        return item
