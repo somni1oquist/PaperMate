@@ -22,8 +22,7 @@ class Chat(db.Model):
         Get related papers from the latest chat history.
         '''
         papers = []
-        latest_output = [content for content in self.history if content['role'] == 'model'][-1]
-        response_text = latest_output['parts'][0]['text']
+        response_text = self.history[-1]['parts'][0]['text']
         for doi in json.loads(response_text):
             paper = Paper.query.filter_by(doi=doi).first()
             if paper:
