@@ -83,15 +83,16 @@ class GeminiService:
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
     
-    def mutate_papers(self, query):
+    def mutate_papers(self, query, chat_id=None):
         """
         Mutate papers based on a query.
 
         Args:
             query: The criteria to mutate papers.
+            chat_id: The ID of the chat to continue from.
 
         Returns:
-            The mutated papers in JSON format.
+            The mutated papers in JSON format and the chat ID.
 
         Raises:
             ValueError: If no query or invalid response from Gemini.
@@ -101,16 +102,27 @@ class GeminiService:
             raise ValueError('Missing query to interact with Gemini', 400)
         
         # Prepare chat history
-        current_chat = Chat.query.order_by(Chat.timestamp.desc()).first()
+        parent_chat = Chat.query.get(chat_id) if chat_id else None
 
-        papers = current_chat.get_related_papers() if current_chat else Paper.query.all()
+        papers = parent_chat.get_related_papers() if parent_chat else Paper.query.all()
 
-        if not current_chat:
-            current_chat = Chat(history=[])
-            db.session.add(current_chat)
+        current_chat = Chat(history=[])
+        # Get chat history
+        history = []
+        if parent_chat:
+            current_chat.parent_id = parent_chat.id
+            # Load the parent chat history
+            for content in parent_chat.history:
+                history.append(content)
+            # Load the child chat history
+            chats = parent_chat.chats.all()
+            for chat in chats:
+                for content in chat.history:
+                    history.append(content)
+        db.session.add(current_chat)
         
         prompt = self.create_prompt(papers, query)
-        session = GeminiService.model.start_chat(history=current_chat.history)
+        session = GeminiService.model.start_chat(history=history)
         response = session.send_message(prompt)
 
         try:
@@ -126,13 +138,7 @@ class GeminiService:
         # Content(parts=[Part(text=response.text)], role='model')
         current_chat.history.append(user_content)
         current_chat.history.append(model_content)
+        db.session.commit()
 
-        # Handle database errors
-        try:
-            db.session.commit()
-        except OperationalError as op_err:
-            raise ValueError(f'Error saving chat history: {str(op_err)}', 500)
-        except DataError as data_err:
-            raise ValueError(f'Error saving chat history: {str(data_err)}', 500)
-        
-        return papers_json
+        id = parent_chat.id if parent_chat else current_chat.id # For tracking the chat
+        return papers_json, id
