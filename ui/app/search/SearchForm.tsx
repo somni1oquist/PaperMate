@@ -120,8 +120,6 @@ const SearchForm: React.FC = () => {
       params.append("author", formData.author);  
     }
 
-    console.log(params.toString());
-
     searchPapers(params.toString())
       .then((response) => {
         sessionStorage.setItem("papersData", JSON.stringify(response.data));
