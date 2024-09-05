@@ -10,6 +10,7 @@ import {
   Button,
   Autocomplete,
   Chip,
+  Alert
 } from "@mui/material";
 import { searchPapers } from "../actions";
 import Loading from "../components/Loading";
@@ -44,22 +45,79 @@ const SearchForm: React.FC = () => {
   const [resultCount, setResultCount] = useState<number | null>(null); // State for result count
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
+
+  const isValidDate = (dateString: string):boolean => {
+    // Check if the date matches the format dd-mm-yyyy
+    const regex = /^\d{2}-\d{2}-\d{4}$/;
+    if (!regex.test(dateString)) return false;
+
+    const [day, month, year] = dateString.split("-").map(Number);
+    
+    const date = new Date(year, month - 1, day);
+    return (
+      date &&
+      date.getDate() === day &&
+      date.getMonth() === month - 1 &&
+      date.getFullYear() === year
+    );
+  };
+  const isValidData = ():boolean => {
+    if (!formData.query.trim()) {
+      setError("Query field is required.");
+      return false;
+    }
+    if (formData.advanced) {
+      if (!isValidDate(formData.fromDate) || !isValidDate(formData.toDate)) {
+        setError("Please enter valid dates in the format dd-mm-yyyy.");
+        return false;
+      }
+      const fromDate = new Date(formData.fromDate.split("-").reverse().join("-")).getTime();
+      const toDate = new Date(formData.toDate.split("-").reverse().join("-")).getTime();
+      
+      if (fromDate > toDate) {
+        setError("From Date should not be later than To Date.");
+        return false;
+      }
+      // if (!formData.title.trim() && !formData.author.trim()) {
+      //   setError(
+      //     "Either Title or Author must be filled for an advanced search."
+      //   );
+      //   return;
+      // }
+
+      // Length and character restrictions
+      if (formData.title.length > 100) {
+        setError("Title should not exceed 100 characters.");
+        return false;
+      }
+
+      if (!/^[a-zA-Z\s]*$/.test(formData.author)) {
+        setError("Author name should contain only letters and spaces.");
+        return false;
+      }
+    }
+    return true;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isValidData()) return;
+    setError("");
+
 
     setLoading(true);
 
     const params = new URLSearchParams();
     params.append("query", formData.query);
-    if (!formData.advanced) {
-      params.append("fromDate", "");
-      params.append("toDate", "");
-      params.append("title", "");
-      params.append("author", "");
-      params.append("publications", "");
-    } else {
-      params.append("publications", formData.publications.join(","));
+    params.append("publications", formData.publications.join(","));
+    if (formData.advanced) 
+    {
+      params.append("fromDate", formData.fromDate);
+      params.append("toDate", formData.toDate);
+      params.append("title", formData.title);
+      params.append("author", formData.author);  
     }
 
     searchPapers(params.toString())
@@ -88,13 +146,13 @@ const SearchForm: React.FC = () => {
     setFormData({ ...formData, publications: value });
   };
 
-
   return (
     <>
       {loading ? (
         <Loading />
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
+          {error && <Alert severity="error">{error}</Alert>}
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid
