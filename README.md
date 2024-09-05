@@ -92,10 +92,14 @@ If you would like to use vscode debugger function, add the following content to 
 }
 ```
 
-### 2. Run `docker compose`
-Open the terminal that is under root foler, choose an environment e.g. `docker-compose.dev.yml` (which enables debugger for api) and enter command:
+### 2. Run `docker-compose`
+Open the terminal that is under root foler, choose an environment e.g. `docker-compose.debug.yml` (which enables vscode debugger for api, without reloading):
 ```
-docker compose -f docker-compose.<env>.yml up --build
+docker compose up --build # With reloading enabled
+
+or
+
+docker compose -f docker-compose.debug.yml up --build # For using debugger
 ```
 
 ### 3. Access Papermate
