@@ -16,3 +16,6 @@ logs/
 
 # Ignore secret files
 secrets/
+
+# Ignore DS_Store friles
+.DS_Store
