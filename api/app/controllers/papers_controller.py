@@ -10,6 +10,7 @@ from app.models.chat import Chat
 
 
 api = Namespace('papers', description='Operations related to papers')
+gemini = GeminiService()
 
 paper_model = api.model('Paper', {
     'doi': fields.String(required=True, description='DOI of the paper'),
@@ -39,7 +40,6 @@ class Rate(Resource):
     def put(self, query):
         '''Rate papers based on relevance to a query'''
         ElsevierService.fetch_papers({'query': query})
-        gemini = GeminiService()
         papers = gemini.analyse_papers(query)
         return papers
     
@@ -49,7 +49,6 @@ class Mutate(Resource):
     @api.doc(params={'query': 'The criteria to mutate papers.'})
     def put(self, query):
         '''Mutate papers based on a query'''
-        gemini = GeminiService()
         papers = gemini.mutate_papers(query) # Result should contain only doi and mutation
         ElsevierService.update_papers(papers)
         return papers, 200
@@ -62,18 +61,19 @@ class MutateFromChat(Resource):
         '''
         chat_id = request.args.get('chat', None)
         query = request.args.get('query', None)
-        gemini = GeminiService()
         # Extract relevant information from chat
-        # @TODO: Test chat history
-        mutated_papers = gemini.mutate_papers(query)
+        mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
         # Update papers with mutated data
         ElsevierService.update_papers(mutated_papers)
 
         doi_list = [doi for doi in mutated_papers]
         # Get papers from database
         papers = ElsevierService.get_papers_by_dois(doi_list)
-        return [paper.mutation_dict() for paper in papers], 200
-
+        response = {
+            'data': [paper.mutation_dict() for paper in papers],
+            'chat': chat_id
+        }
+        return response, 200
 
 @api.route('/export')
 class Export(Resource):
