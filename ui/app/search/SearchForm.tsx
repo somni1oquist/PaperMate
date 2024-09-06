@@ -191,7 +191,7 @@ const SearchForm: React.FC = () => {
         <Loading />
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error" sx={{display: "flex", justifyContent: "center"}}>{error}</Alert>}
           <form>
             <Grid container spacing={2}>
               <Grid
