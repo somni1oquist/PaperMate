@@ -41,6 +41,8 @@ interface SearchFormData {
 const SearchForm: React.FC = () => {
   const router = useRouter();
 
+  /* States declaration */
+
   const [formData, setFormData] = useState<SearchFormData>({
     query: "Crash",
     fromDate: getSixMonthsAgo(),  // Default from 6 months ago
@@ -106,14 +108,8 @@ const SearchForm: React.FC = () => {
     return true;
   };
 
-  const handleSearchSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!isValidData()) return;
-    setError("");
-
-    setLoading(true);
-
+  // Build the search query
+  const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
     if (formData.advanced) {
@@ -122,24 +118,59 @@ const SearchForm: React.FC = () => {
       params.append("title", formData.title);
       params.append("author", formData.author);
     }
+    return params.toString();
+  }
 
-    try {
-      const response = await searchPapers(params.toString());
-      sessionStorage.setItem("papersData", JSON.stringify(response.data));
-
-      const countResponse = await getTotalCount(params.toString());
-      setResultCount(countResponse.data.total_count);
-    } catch (error) {
-      console.error("Error:", error);
-      setResultCount(0);
-    } finally {
-      setLoading(false);
-    }
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  
+    if (!isValidData()) return;
+    setError("");
+  
+    // Put loading mask on
+    setLoading(true);
+  
+    // Construct query
+    const query = buildQuery();
+    // Get search total count
+    getTotalCount(query)
+      .then((response) => {
+        setResultCount(response.data.total_count);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setError("An error occurred while searching.");
+        setResultCount(0);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push("/results");
+    if (!isValidData()) return;
+    setError("");
+  
+    // Put loading mask on
+    setLoading(true);
+
+    // Construct query
+    const query = buildQuery();
+
+    // Get search results
+    searchPapers(query)
+      .then((response) => {
+        const papers = response.data;
+        sessionStorage.setItem("papers", JSON.stringify(papers));
+        router.push("/results");
+      })
+      .catch((error) => {
+        setError("An error occurred while searching.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleInputChange =
@@ -264,14 +295,32 @@ const SearchForm: React.FC = () => {
                   </Grid>
                 </>
               )}
+              
+              {resultCount !== null && (
+                <Grid 
+                xs={12}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 2
+                }}
+                >
+                  <Paper elevation={1} 
+                  sx={{
+                    backgroundColor: "#f6f6f6",
+                    padding: 2,
+                    display: "flex",
+                    alignItems: "center"
+                  }}
+                  >
+                    <span style={{ marginRight: 5 }}>🔍</span>
+                    <span>Total Results: {resultCount}</span>
+                  </Paper>
+                </Grid>
+              )}
 
               <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSearchSubmit}
-                >
+                <Button type="submit" variant="contained" color="primary" onClick={handleSearch}>
                   Search
                 </Button>
                 <Button
@@ -283,22 +332,6 @@ const SearchForm: React.FC = () => {
                   Proceed
                 </Button>
               </Grid>
-
-              {resultCount !== null && (
-                <Grid
-                  xs={12}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: 2,
-                  }}
-                >
-                  <Paper sx={{ padding: 2, display: "flex", alignItems: "center" }}>
-                    <span style={{ marginRight: 5 }}>🔍</span>
-                    <span>Total Results: {resultCount}</span>
-                  </Paper>
-                </Grid>
-              )}
             </Grid>
           </form>
         </Paper>
