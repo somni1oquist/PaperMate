@@ -1,13 +1,15 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
+import {
+  InputAdornment,
+  IconButton,
+  TextField,
+  Box,
+  Paper,
+} from '@mui/material';
 
 const columns: GridColDef[] = [
-  { field: 'instruction', headerName: 'Instruction', width: 300 },
+  { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
 ];
 
 // New InputContainer component with a white background
@@ -16,23 +18,31 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
     <Box
       component="div"
       sx={{
-        backgroundColor: 'white', // White background
         padding: 2,
-        borderRadius: 2,
-        boxShadow: 1,
         display: 'flex',
         gap: 2,
       }}
     >
-      <TextField
-        label="Add Instruction"
+      <TextField placeholder="Add Instruction"
+        variant="standard"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={onSubmit}>
+                ⏎
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
         value={inputValue}
         onChange={onChange}
+        onKeyPress={(e: any) => {
+          if (e.key === 'Enter') {
+            onSubmit();
+          }
+        }}
         fullWidth
       />
-      <Button variant="contained" color="primary" onClick={onSubmit}>
-        Send
-      </Button>
     </Box>
   );
 }
@@ -67,27 +77,19 @@ export default function InstructionBox() {
   };
 
   return (
-    <Paper style={{ height: '50.5vh', width: '100%' }}>
+    <Paper style={{ height: '100%', width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id} // Ensure each row has a unique ID
-        sx={{ 
-          border: 0,
-          '& .MuiDataGrid-virtualScroller': {
-            overflowX: 'hidden', // Hide horizontal scrollbar
-          },
-        }}
-        hideFooterPagination // Remove the pagination bar
-        pagination={false} // Disable pagination
+        disableColumnSelector={true}
+        hideFooter
       />
-      <Stack direction="row" spacing={2} style={{ marginTop: 15 }}>
-        <InputContainer
-          inputValue={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onSubmit={handleSend}
-        />
-      </Stack>
+      <InputContainer
+        inputValue={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onSubmit={handleSend}
+      />
     </Paper>
   );
 }
