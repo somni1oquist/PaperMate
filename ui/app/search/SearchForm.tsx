@@ -12,7 +12,7 @@ import {
   Chip,
   Alert
 } from "@mui/material";
-import { searchPapers } from "../actions";
+import { searchPapers, getTotalCount } from "../actions";
 import Loading from "../components/Loading";
 
 interface SearchFormData {
@@ -100,42 +100,47 @@ const SearchForm: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearchSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
     if (!isValidData()) return;
     setError("");
-
-
+  
     setLoading(true);
-
+  
     const params = new URLSearchParams();
     params.append("query", formData.query);
     params.append("publications", formData.publications.join(","));
-    if (formData.advanced) 
-    {
+    if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
       params.append("toDate", formData.toDate);
       params.append("title", formData.title);
-      params.append("author", formData.author);  
+      params.append("author", formData.author);
     }
-
-    searchPapers(params.toString())
-      .then((response) => {
-        sessionStorage.setItem("papersData", JSON.stringify(response.data));
-        setResultCount(response.data.length); // Set the number of results
-        router.push("/results");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setResultCount(0); // Set to 0 if there's an error
-      })
-      .finally(() => {
-        setLoading(false);
-        // alert(`Request completed.`);
-      });
+  
+    try {
+      // Fetch paper results
+      const response = await searchPapers(params.toString());
+      sessionStorage.setItem("papersData", JSON.stringify(response.data));
+      
+      // Fetch total count
+      const countResponse = await getTotalCount(params.toString());
+      setResultCount(countResponse.data.total_count);
+      
+    } catch (error) {
+      console.error("Error:", error);
+      setResultCount(0); // Set to 0 if there's an error
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
+  const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // Any additional logic for "Proceed" can be handled here
+    router.push("/results");
+  };
+  
   const handleInputChange =
     (key: keyof SearchFormData) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +158,7 @@ const SearchForm: React.FC = () => {
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
           {error && <Alert severity="error">{error}</Alert>}
-          <form onSubmit={handleSubmit}>
+          <form >
             <Grid container spacing={2}>
               <Grid
                 xs={12}
@@ -270,13 +275,15 @@ const SearchForm: React.FC = () => {
               )}
 
               <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained" color="primary" onClick={handleSearchSubmit}>
                   Search
                 </Button>
-                <Button
+                <Button 
                   variant="contained"
                   color="secondary"
                   sx={{ marginLeft: 2 }}
+                  onClick={handleProceedSubmit}
+
                 >
                   Proceed
                 </Button>
@@ -284,21 +291,21 @@ const SearchForm: React.FC = () => {
 
               {resultCount !== null && (
                 <Grid
-                  xs={12}
-                  sx={{
+                xs={12}
+                sx={{
                     display: "flex",
-                    justifyContent: "center",
+                   justifyContent: "center",
                     marginTop: 2,
-                  }}
+                }}
                 >
-                  <Paper
-                    sx={{ padding: 2, display: "flex", alignItems: "center" }}
-                  >
-                    <span style={{ marginRight: 5 }}>🔍</span>
-                    <span>{resultCount} Results</span>
-                  </Paper>
-                </Grid>
-              )}
+              <Paper sx={{ padding: 2, display: "flex", alignItems: "center" }}>
+                <span style={{ marginRight: 5 }}>🔍</span>
+                <span>Total Results: {resultCount}</span> {/* 更新这里显示总数量 */}
+    </Paper>
+  </Grid>
+)}
+
+
             </Grid>
           </form>
         </Paper>

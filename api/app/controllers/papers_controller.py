@@ -134,3 +134,10 @@ class PaperSearch(Resource):
         papers_rated = gemini.analyse_papers(query_params.get('query'))
         
         return papers_rated, 200
+    
+@api.route('/getTotalCount')
+class get_total_count(Resource):
+    def get(self):
+        params = request.args.to_dict()
+        total_count = ElsevierService.get_total_count(params)
+        return {'total_count': total_count}, 200

@@ -25,3 +25,13 @@ export const exportPapers = async (): Promise<any> => {
   const response = await axios.post(apiUrl, { headers });
   return response;
 }
+
+/**
+ * Export the papers data.
+ * @returns The response from the API.
+ */
+export const getTotalCount = async (query: String): Promise<any> => {
+  const apiUrl = `${baseApiUrl}/papers/getTotalCount?${query}`;
+  const response = await axios.get(apiUrl, { headers });
+  return response;
+}
