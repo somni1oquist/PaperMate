@@ -1,39 +1,65 @@
 import * as React from 'react';
-import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'instruction', headerName: 'Instruction', width: 130 },
+  { field: 'instruction', headerName: 'Instruction', width: 300 },
 ];
 
-export default function DataTable() {
-  const [rows, setRows] = React.useState([]);
-  const [selectedRows, setSelectedRows] = React.useState<GridSelectionModel>([]);
+// New InputContainer component with a white background
+function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, onSubmit: () => void }) {
+  return (
+    <Box
+      component="div"
+      sx={{
+        backgroundColor: 'white', // White background
+        padding: 2,
+        borderRadius: 2,
+        boxShadow: 1,
+        display: 'flex',
+        gap: 2,
+      }}
+    >
+      <TextField
+        label="Add Instruction"
+        value={inputValue}
+        onChange={onChange}
+        fullWidth
+      />
+      <Button variant="contained" color="primary" onClick={onSubmit}>
+        Send
+      </Button>
+    </Box>
+  );
+}
+
+export default function InstructionBox() {
+  const [rows, setRows] = React.useState<{ id: number; instruction: string }[]>([]);
   const [inputValue, setInputValue] = React.useState('');
 
-  const handleDelete = () => {
-    setRows((prevRows) => {
-      const newRows = prevRows.filter((row) => !selectedRows.includes(row.id));
-      return newRows;
-    });
-    setSelectedRows([]); // Clear selection after deletion
-  };
+  // Load rows from localStorage on component mount
+  React.useEffect(() => {
+    const savedRows = localStorage.getItem('instructions');
+    if (savedRows) {
+      setRows(JSON.parse(savedRows));
+    }
+  }, []);
+
+  // Save rows to localStorage whenever rows state changes
+  React.useEffect(() => {
+    localStorage.setItem('instructions', JSON.stringify(rows));
+  }, [rows]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
       setRows((prevRows) => {
         const newRows = [...prevRows];
-        if (newRows.length > 0) {
-          // Insert the new instruction at the top and move the original first row to second position
-          newRows.unshift({ id: newRows.length + 1, instruction: inputValue });
-        } else {
-          // Add a new row if the array is empty
-          newRows.push({ id: 1, instruction: inputValue });
-        }
+        const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID
+        newRows.push({ id: newId, instruction: inputValue }); // Insert new instruction at the end
         return newRows;
       });
       setInputValue(''); // Clear the input field after updating
@@ -41,27 +67,26 @@ export default function DataTable() {
   };
 
   return (
-    <Paper style={{ height: 400, width: '100%' }}>
+    <Paper style={{ height: '50.5vh', width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
-        checkboxSelection
-        onSelectionModelChange={(newSelection) => {
-          setSelectedRows(newSelection);
+        getRowId={(row) => row.id} // Ensure each row has a unique ID
+        sx={{ 
+          border: 0,
+          '& .MuiDataGrid-virtualScroller': {
+            overflowX: 'hidden', // Hide horizontal scrollbar
+          },
         }}
-        sx={{ border: 0 }}
-        getRowId={(row) => row.id} // Ensure that each row has a unique ID
+        hideFooterPagination // Remove the pagination bar
+        pagination={false} // Disable pagination
       />
-      <Stack direction="row" spacing={2} style={{ marginTop: 16 }}>
-        <TextField
-          label="Add Instruction"
-          value={inputValue}
+      <Stack direction="row" spacing={2} style={{ marginTop: 15 }}>
+        <InputContainer
+          inputValue={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          sx={{ marginTop: 2 }}
+          onSubmit={handleSend}
         />
-        <Button variant="contained" color="primary" onClick={handleSend}>
-          Send
-        </Button>
       </Stack>
     </Paper>
   );

@@ -88,24 +88,24 @@ export default function ResultGrid() {
   };
 
   return (
-    <div style={{ display: 'flex', height: 580, width: '100%' }}>
+    <div style={{ display: 'flex', height: '62vh', width: '100%' }}>
       <Paper
         style={{
           width: darkMode ? '75%' : '100%',
           height: '100%',
           transition: 'width 0.3s',
           padding: '20px',
-          paddingTop: '50px',
+          paddingTop: '20px',
           position: 'relative',
           boxSizing: 'border-box',
-          margin: '0 auto',
+          margin: '15px 0 30px',
         }}
       >
         <DataGrid
           rows={rows}
           columns={genColDefs(expandedRowId)}
           initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
+            pagination: { paginationModel: { pageSize: 5 } },
           }}
           loading={loading}
           getRowId={(row) => row.doi}
@@ -126,8 +126,8 @@ export default function ResultGrid() {
         <Box
           style={{
             position: 'absolute',
-            top: 10,
-            right: 10,
+            top: 20,
+            right: 20,
             display: 'flex',
             alignItems: 'center',
           }}
@@ -145,8 +145,8 @@ export default function ResultGrid() {
         </Box>
       </Paper>
       {darkMode && (
-        <div style={{ width: '25%', padding: '16px' }}>
-          <InstructionBox instructions="This is the instruction box. Adjust the content as needed." />
+        <div style={{ width: '25%', padding: '15px' }}>
+          <InstructionBox/>
         </div>
       )}
     </div>
