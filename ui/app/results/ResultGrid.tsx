@@ -7,16 +7,6 @@ import { useError } from '../context/ErrorProvider';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
 
-interface Result {
-  title: string;
-  abstract: string;
-  author: string;
-  publication: string;
-  publish_date: string;
-  relevance: number | null;
-  synopsis: string;
-}
-
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
   return text.length > length ? text.substring(0, length) + '...' : text;
@@ -24,44 +14,36 @@ const truncateText = (text: string, length: number) => {
 
 // Define grid columns
 const genColDefs = (expandedRowId: number | null): GridColDef[] => {
-  const resultKeys: (keyof Result)[] = [
-    'title',
-    'abstract',
-    'author',
-    'publication',
-    'publish_date',
-    'relevance',
-    'synopsis'
-  ];
+  const { data } = useData();
+  if (!data || data.length === 0)
+    return []; // Return an empty array if there's no data
 
-  return resultKeys.map((key) => {
-    const baseColumn: GridColDef = {
-      field: key,
-      headerName: key.charAt(0).toUpperCase() + key.slice(1),
-      flex: 1,  // Increase the width if needed
-      sortable: true,
-      renderCell: (params) => {
-        const isExpanded = expandedRowId === params.id;
-        const text = params.value as string;
-        const displayedText = isExpanded ? text : truncateText(text, 50); // Adjust the truncate length as needed
-        return (
-          <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', lineHeight: 1.5 }}>
-            {displayedText}
-          </div>
-        );
-      },
-    };
+  const resultKeys = Object.keys(data[0]);
 
-    if (key === 'abstract' || key === 'synopsis') {
-      baseColumn.width = 300;
-    }
+  return resultKeys
+    .filter((key) => key !== 'mutation')
+    .map((key) => {
+      const baseColumn: GridColDef = {
+        field: key,
+        headerName: key.charAt(0).toUpperCase() + key.slice(1),
+        flex: 1,  // Increase the width if needed
+        sortable: true,
+        // renderCell: (params) => {
+        //   const isExpanded = expandedRowId === params.id;
+        //   const text = params.value as string;
+        //   const displayedText = text ? (isExpanded ? text : truncateText(text, 50)) : '';
+        //   return (
+        //     <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', lineHeight: 1.5 }}>
+        //       {displayedText}
+        //     </div>
+        //   );
+        // },
+      };
+      if (key === 'abstract' || key === 'synopsis')
+        baseColumn.width = 300;
 
-    if (key === 'relevance') {
-      baseColumn.type = '100';
-    }
-
-    return baseColumn;
-  });
+      return baseColumn;
+    });
 };
 
 export default function ResultGrid() {
@@ -123,7 +105,6 @@ export default function ResultGrid() {
           }}
           loading={loading}
           getRowId={(row) => row.doi}
-          checkboxSelection
           disableRowSelectionOnClick
           disableColumnMenu={true}
           slots={{

@@ -46,7 +46,7 @@ const SearchForm: React.FC = () => {
   /* States declaration */
 
   const [formData, setFormData] = useState<SearchFormData>({
-    query: "Crash",
+    query: "",
     fromDate: getSixMonthsAgo(),  // Default from 6 months ago
     toDate: getCurrentMonth(),    // Default to current month
     title: "",
@@ -71,12 +71,10 @@ const SearchForm: React.FC = () => {
     }));
   }, [formData.toDate]);
 
+  // Clear session when first mounted
   useEffect(() => {
-    // Clear session when the component unmounts
-    return () => {
-      sessionStorage.clear();
-    };
-  });
+    sessionStorage.clear();
+  }, []);
 
   const isValidMonthYear = (dateString: string): boolean => {
     const regex = /^\d{4}-\d{2}$/;

@@ -63,7 +63,7 @@ class MutateFromChat(Resource):
         query = request.json.get('query', None)
         if not query:
             abort(400, 'Instruction is required.')
-            
+        app.logger.info(f'Chat ID: {chat_id}, Query: {query}')
         # Extract relevant information from chat
         mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
         # Update papers with mutated data
@@ -110,7 +110,7 @@ class PaperSearch(Resource):
         '''Search papers based on query parameters'''
         # Extract query parameters
         # @TODO: Conform to UI specification
-        query = request.args.get('query', app.config['DEFAULT_QUERY'])
+        query = request.args.get('query', None)
         title = request.args.get('title', None)
         author = request.args.get('author', None)
         keyword = request.args.get('keyword', None)
@@ -129,7 +129,7 @@ class PaperSearch(Resource):
         total_count = ElsevierService.get_total_count(query_params)
         if total_count == 0:
             abort(404, 'No papers found.')
-        
+        app.logger.info(f'Seaching papers with query: {query_params}')
         # Search through Elsevier API
         ElsevierService.fetch_papers(query_params)
 

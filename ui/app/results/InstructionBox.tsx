@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { giveInstruction } from '../actions';
 import { useData } from '../context/DataProvider';
+import { useError } from '../context/ErrorProvider';
 
 const columns: GridColDef[] = [
   { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
@@ -53,6 +54,7 @@ export default function InstructionBox() {
   const [rows, setRows] = React.useState<{ id: number; instruction: string }[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const { data, setData } = useData();
+  const { setError } = useError(null);
 
   // Load rows from localStorage on component mount
   React.useEffect(() => {
@@ -77,12 +79,11 @@ export default function InstructionBox() {
       });
       giveInstruction(inputValue)
         .then((response) => {
-          console.log(response);
-          setData(response.data.data);
+          setData(response.data.papers);
           setInputValue(''); // Clear the input field after updating
         })
         .catch((error) => {
-          alert(error);
+          setError(error.response.data.message);
         });
     }
   };

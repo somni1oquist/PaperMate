@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 import os
-from flask import Flask
+from flask import Flask, abort
 from flask_restx import Api
 from config import Config
 from flask_cors import CORS
@@ -58,7 +58,7 @@ def create_app(config=None):
         logger.error(f'{type(error).__name__}: {str(error)}')
         if app.debug:
             raise error
-        return {'message': str(error)}, 500
+        return abort(500, str(error))
 
     # Create database
     with app.app_context():
