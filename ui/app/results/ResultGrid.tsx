@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
 import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
+import { useData } from '../context/DataProvider';
+import { useRouter } from 'next/navigation';
+import { searchPapers } from '../actions';
 
 interface Result {
   title: string;
@@ -61,23 +64,30 @@ const genColDefs = (expandedRowId: number | null): GridColDef[] => {
 };
 
 export default function ResultGrid() {
+  const router = useRouter();
+  const { data, setData } = useData();
   const [rows, setRows] = useState<GridRowsProp>([]);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);  // State for switch
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null); // State to track expanded row
 
   useEffect(() => {
-    // Check if data exists in sessionStorage
-    const storedData = sessionStorage.getItem('papersData');
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      setRows(parsedData);
-      setLoading(false);
+    // Fetch data from API if not already loaded
+    if (!data && sessionStorage.getItem('query')) {
+      searchPapers(sessionStorage.getItem('query') as string)
+        .then((response) => {
+          setData(response.data.data);
+          setRows(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          alert(error);
+        });
     } else {
-      // Fetch data if necessary
-      // ...
+      setRows(data);
+      setLoading(false);
     }
-  }, []);
+  }, [data]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDarkMode(event.target.checked);

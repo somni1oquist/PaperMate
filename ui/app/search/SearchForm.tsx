@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import Loading from "../components/Loading";
+import { useData } from "../context/DataProvider";
 
 // Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
@@ -59,6 +60,7 @@ const SearchForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
 
+  const { data, setData } = useData();
   // If you want to recalculate the "From Date" when "To Date" changes
   useEffect(() => {
     const sixMonthsAgo = getSixMonthsAgo();
@@ -162,7 +164,7 @@ const SearchForm: React.FC = () => {
     searchPapers(query)
       .then((response) => {
         const papers = response.data;
-        sessionStorage.setItem("papers", JSON.stringify(papers));
+        setData(papers);
         router.push("/results");
       })
       .catch((error) => {

@@ -59,8 +59,8 @@ class MutateFromChat(Resource):
         '''
         Extract relevant information from chat and update papers
         '''
-        chat_id = request.args.get('chat', None)
-        query = request.args.get('query', None)
+        chat_id = request.json.get('chat_id', None)
+        query = request.json.get('query', None)
         # Extract relevant information from chat
         mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
         # Update papers with mutated data
