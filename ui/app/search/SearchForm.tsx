@@ -1,5 +1,4 @@
-"use client"; // Add this at the top
-
+"use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -9,11 +8,13 @@ import {
   Paper,
   TextField,
   Button,
-  Alert,
+  Autocomplete,
+  Chip
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import Loading from "../components/Loading";
 import { useData } from "../context/DataProvider";
+import { useError } from "../context/ErrorProvider";
 
 // Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
@@ -58,7 +59,7 @@ const SearchForm: React.FC = () => {
 
   const [resultCount, setResultCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState("");
+  const { setError } = useError();
 
   const { data, setData } = useData();
   // If you want to recalculate the "From Date" when "To Date" changes
@@ -69,6 +70,13 @@ const SearchForm: React.FC = () => {
       fromDate: sixMonthsAgo,
     }));
   }, [formData.toDate]);
+
+  useEffect(() => {
+    // Clear session when the component unmounts
+    return () => {
+      sessionStorage.clear();
+    };
+  });
 
   const isValidMonthYear = (dateString: string): boolean => {
     const regex = /^\d{4}-\d{2}$/;
@@ -152,7 +160,7 @@ const SearchForm: React.FC = () => {
   const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
-    setError("");
+    setError(null);
   
     // Put loading mask on
     setLoading(true);
@@ -168,7 +176,7 @@ const SearchForm: React.FC = () => {
         router.push("/results");
       })
       .catch((error) => {
-        setError("An error occurred while searching.");
+        setError(error.response.data.message);
       })
       .finally(() => {
         setLoading(false);
@@ -193,7 +201,6 @@ const SearchForm: React.FC = () => {
         <Loading />
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
-          {error && <Alert severity="error" sx={{display: "flex", justifyContent: "center"}}>{error}</Alert>}
           <form>
             <Grid container spacing={2}>
               <Grid

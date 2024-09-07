@@ -3,6 +3,7 @@ import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-gri
 import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
 import { useData } from '../context/DataProvider';
+import { useError } from '../context/ErrorProvider';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
 
@@ -65,6 +66,7 @@ const genColDefs = (expandedRowId: number | null): GridColDef[] => {
 
 export default function ResultGrid() {
   const router = useRouter();
+  const { setError } = useError(null);
   const { data, setData } = useData();
   const [rows, setRows] = useState<GridRowsProp>([]);
   const [loading, setLoading] = useState(true);
@@ -76,13 +78,15 @@ export default function ResultGrid() {
     if (!data && sessionStorage.getItem('query')) {
       searchPapers(sessionStorage.getItem('query') as string)
         .then((response) => {
-          setData(response.data.data);
+          setData(response.data);
           setRows(data);
           setLoading(false);
         })
         .catch((error) => {
-          alert(error);
+          setError(error.response.data.message);
         });
+    } else if (!data) {
+      router.push('/'); // Redirect to home page if no query is found
     } else {
       setRows(data);
       setLoading(false);

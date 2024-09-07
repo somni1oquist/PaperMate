@@ -1,5 +1,5 @@
 import json
-from flask import request, current_app as app
+from flask import request, abort, current_app as app
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
@@ -61,6 +61,9 @@ class MutateFromChat(Resource):
         '''
         chat_id = request.json.get('chat_id', None)
         query = request.json.get('query', None)
+        if not query:
+            abort(400, 'Instruction is required.')
+            
         # Extract relevant information from chat
         mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
         # Update papers with mutated data
@@ -70,7 +73,7 @@ class MutateFromChat(Resource):
         # Get papers from database
         papers = ElsevierService.get_papers_by_dois(doi_list)
         response = {
-            'data': [paper.mutation_dict() for paper in papers],
+            'papers': [paper.mutation_dict() for paper in papers],
             'chat': chat_id
         }
         return response, 200
@@ -123,16 +126,15 @@ class PaperSearch(Resource):
             'fromDate': from_date,
             'toDate': to_date
         }
+        total_count = ElsevierService.get_total_count(query_params)
+        if total_count == 0:
+            abort(404, 'No papers found.')
         
         # Search through Elsevier API
-        papers = ElsevierService.fetch_papers(query_params)
-        if not papers:
-            return 'No papers found, try other search query.', 404
+        ElsevierService.fetch_papers(query_params)
 
         # Rate papers using Gemini API
-        gemini = GeminiService()
         papers_rated = gemini.analyse_papers(query_params.get('query'))
-        
         return papers_rated, 200
     
 @api.route('/getTotalCount')
