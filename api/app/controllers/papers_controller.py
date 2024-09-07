@@ -143,3 +143,18 @@ class get_total_count(Resource):
         params = request.args.to_dict()
         total_count = ElsevierService.get_total_count(params)
         return {'total_count': total_count}, 200
+
+@api.route('/chat_history')
+class ChatHistory(Resource):
+    def get(self):
+        '''Get chat history'''
+        chat_id = request.args.get('chat_id', None)
+        chat_list = []
+        print(chat_id)
+        if not chat_id:
+            return chat_list, 200
+        main_chat = Chat.query.get(chat_id)
+        chat_list.append(main_chat.__str__())
+        for chat in main_chat.chats:
+            chat_list.append(chat.__str__())
+        return chat_list, 200

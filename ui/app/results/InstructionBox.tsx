@@ -7,7 +7,7 @@ import {
   Box,
   Paper,
 } from '@mui/material';
-import { giveInstruction } from '../actions';
+import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataProvider';
 import { useError } from '../context/ErrorProvider';
 
@@ -56,31 +56,35 @@ export default function InstructionBox() {
   const { data, setData } = useData();
   const { setError } = useError(null);
 
-  // Load rows from localStorage on component mount
   React.useEffect(() => {
-    const savedRows = localStorage.getItem('instructions');
-    if (savedRows) {
-      setRows(JSON.parse(savedRows));
+    const sessionData = sessionStorage.getItem('chatHistory') as string;
+    setRows(sessionData ? JSON.parse(sessionData) : []);
+    if (!sessionData) {
+      getChatHistory()
+        .then((response) => {
+          let chatHistory = [];
+          for (let i = 0; i < response.data.length; i++) {
+            chatHistory.push({ id: i, instruction: response.data[i] });
+          }
+          sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+          setRows(chatHistory);
+        })
     }
   }, []);
-
-  // Save rows to localStorage whenever rows state changes
-  React.useEffect(() => {
-    localStorage.setItem('instructions', JSON.stringify(rows));
-  }, [rows]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
       setRows((prevRows) => {
-        const newRows = [...prevRows];
+        const newRows = prevRows ? [...prevRows] : [];
         const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID
         newRows.push({ id: newId, instruction: inputValue }); // Insert new instruction at the end
+        sessionStorage.setItem('chatHistory', JSON.stringify(newRows));
         return newRows;
       });
+      setInputValue(''); // Clear the input field after updating
       giveInstruction(inputValue)
         .then((response) => {
           setData(response.data.papers);
-          setInputValue(''); // Clear the input field after updating
         })
         .catch((error) => {
           setError(error.response.data.message);

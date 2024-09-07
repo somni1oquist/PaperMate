@@ -52,3 +52,10 @@ export const giveInstruction = async (instruction: String): Promise<any> => {
   }
   return response;
 }
+
+export const getChatHistory = async (): Promise<any> => {
+  const apiUrl = `${baseApiUrl}/papers/chat_history`;
+  const chatId = sessionStorage.getItem('chatId') || '';
+  const response = await axios.get(`${apiUrl}?chat_id=${chatId}`);
+  return response;
+}
