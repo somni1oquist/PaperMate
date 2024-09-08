@@ -215,7 +215,7 @@ const SearchForm: React.FC = () => {
               <Grid xs={6}>
                 <TextField
                   type="file"
-                  inputProps={{ accept: ".pdf,.doc,.docx" }} // Accepting specific file formats
+                  inputProps={{ accept: ".pdf,.doc,.docx" }} // Krish needs to update this line for validation
                   fullWidth
                   onChange={handleFileChange}
                   helperText={
