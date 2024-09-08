@@ -1,6 +1,6 @@
 "use client"; // Add this at the top
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Grid from "@mui/material/Unstable_Grid2";
 import {
@@ -14,13 +14,25 @@ import {
 import { searchPapers, getTotalCount } from "../actions";
 import Loading from "../components/Loading";
 
+// Helper function to calculate the date 6 months ago
+const getSixMonthsAgo = (): string => {
+  const today = new Date();
+  today.setMonth(today.getMonth() - 6); // Subtract 6 months
+  return today.toISOString().slice(0, 7); // Return as "yyyy-mm"
+};
+
+// Helper function to get the current month and year
+const getCurrentMonth = (): string => {
+  return new Date().toISOString().slice(0, 7); // Return as "yyyy-mm"
+};
+
 interface SearchFormData {
   query: string;
   fromDate: string;
   toDate: string;
   title: string;
   author: string;
-  publicationFile: File | null; // Field for uploaded file
+  publicationFile: File | null;
   advanced: boolean;
   chat: boolean;
   geminiPro: boolean;
@@ -31,11 +43,11 @@ const SearchForm: React.FC = () => {
 
   const [formData, setFormData] = useState<SearchFormData>({
     query: "Crash",
-    fromDate: "01-01-2021",
-    toDate: "31-01-2022",
+    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
+    toDate: getCurrentMonth(),    // Default to current month
     title: "",
     author: "",
-    publicationFile: null, // Initialize as null
+    publicationFile: null,
     advanced: true,
     chat: false,
     geminiPro: false,
@@ -45,18 +57,21 @@ const SearchForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const isValidDate = (dateString: string): boolean => {
-    const regex = /^\d{2}-\d{2}-\d{4}$/;
+  // If you want to recalculate the "From Date" when "To Date" changes
+  useEffect(() => {
+    const sixMonthsAgo = getSixMonthsAgo();
+    setFormData((prevData) => ({
+      ...prevData,
+      fromDate: sixMonthsAgo,
+    }));
+  }, [formData.toDate]);
+
+  const isValidMonthYear = (dateString: string): boolean => {
+    const regex = /^\d{4}-\d{2}$/;
     if (!regex.test(dateString)) return false;
 
-    const [day, month, year] = dateString.split("-").map(Number);
-    const date = new Date(year, month - 1, day);
-    return (
-      date &&
-      date.getDate() === day &&
-      date.getMonth() === month - 1 &&
-      date.getFullYear() === year
-    );
+    const [year, month] = dateString.split("-").map(Number);
+    return year >= 1900 && month >= 1 && month <= 12;
   };
 
   const isValidData = (): boolean => {
@@ -65,16 +80,13 @@ const SearchForm: React.FC = () => {
       return false;
     }
     if (formData.advanced) {
-      if (!isValidDate(formData.fromDate) || !isValidDate(formData.toDate)) {
-        setError("Please enter valid dates in the format dd-mm-yyyy.");
+      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
+        setError("Please enter valid months and years in the format yyyy-mm.");
         return false;
       }
-      const fromDate = new Date(
-        formData.fromDate.split("-").reverse().join("-")
-      ).getTime();
-      const toDate = new Date(
-        formData.toDate.split("-").reverse().join("-")
-      ).getTime();
+
+      const fromDate = new Date(`${formData.fromDate}-01`).getTime();
+      const toDate = new Date(`${formData.toDate}-01`).getTime();
 
       if (fromDate > toDate) {
         setError("From Date should not be later than To Date.");
@@ -218,7 +230,8 @@ const SearchForm: React.FC = () => {
                 <>
                   <Grid xs={6}>
                     <TextField
-                      label="From Date (dd-mm-yyyy)"
+                      label="From Date (yyyy-mm)"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.fromDate}
                       onChange={handleInputChange("fromDate")}
@@ -226,7 +239,8 @@ const SearchForm: React.FC = () => {
                   </Grid>
                   <Grid xs={6}>
                     <TextField
-                      label="To Date (dd-mm-yyyy)"
+                      label="To Date (yyyy-mm)"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.toDate}
                       onChange={handleInputChange("toDate")}
