@@ -1,5 +1,6 @@
-"use client";
-import React, { useState } from "react";
+"use client"; // Add this at the top
+
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Grid from "@mui/material/Unstable_Grid2";
 import {
@@ -8,12 +9,22 @@ import {
   Paper,
   TextField,
   Button,
-  Autocomplete,
-  Chip,
-  Alert
+  Alert,
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import Loading from "../components/Loading";
+
+// Helper function to calculate the date 6 months ago
+const getSixMonthsAgo = (): string => {
+  const today = new Date();
+  today.setMonth(today.getMonth() - 6); // Subtract 6 months
+  return today.toISOString().slice(0, 7); // Return as "yyyy-mm"
+};
+
+// Helper function to get the current month and year
+const getCurrentMonth = (): string => {
+  return new Date().toISOString().slice(0, 7); // Return as "yyyy-mm"
+};
 
 interface SearchFormData {
   query: string;
@@ -21,7 +32,7 @@ interface SearchFormData {
   toDate: string;
   title: string;
   author: string;
-  publications: string[]; // Field for publications
+  publicationFile: File | null;
   advanced: boolean;
   chat: boolean;
   geminiPro: boolean;
@@ -32,61 +43,56 @@ const SearchForm: React.FC = () => {
 
   const [formData, setFormData] = useState<SearchFormData>({
     query: "Crash",
-    fromDate: "01-01-2021",
-    toDate: "31-01-2022",
+    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
+    toDate: getCurrentMonth(),    // Default to current month
     title: "",
     author: "",
-    publications: [],
+    publicationFile: null,
     advanced: true,
     chat: false,
     geminiPro: false,
   });
 
-  const [resultCount, setResultCount] = useState<number | null>(null); // State for result count
-
+  const [resultCount, setResultCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const isValidDate = (dateString: string):boolean => {
-    // Check if the date matches the format dd-mm-yyyy
-    const regex = /^\d{2}-\d{2}-\d{4}$/;
+  // If you want to recalculate the "From Date" when "To Date" changes
+  useEffect(() => {
+    const sixMonthsAgo = getSixMonthsAgo();
+    setFormData((prevData) => ({
+      ...prevData,
+      fromDate: sixMonthsAgo,
+    }));
+  }, [formData.toDate]);
+
+  const isValidMonthYear = (dateString: string): boolean => {
+    const regex = /^\d{4}-\d{2}$/;
     if (!regex.test(dateString)) return false;
 
-    const [day, month, year] = dateString.split("-").map(Number);
-    
-    const date = new Date(year, month - 1, day);
-    return (
-      date &&
-      date.getDate() === day &&
-      date.getMonth() === month - 1 &&
-      date.getFullYear() === year
-    );
+    const [year, month] = dateString.split("-").map(Number);
+    return year >= 1900 && month >= 1 && month <= 12;
   };
-  const isValidData = ():boolean => {
+
+  const isValidData = (): boolean => {
     if (!formData.query.trim()) {
       setError("Query field is required.");
       return false;
     }
     if (formData.advanced) {
-      if (!isValidDate(formData.fromDate) || !isValidDate(formData.toDate)) {
-        setError("Please enter valid dates in the format dd-mm-yyyy.");
+      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
+        setError("Please enter valid months and years in the format yyyy-mm.");
         return false;
       }
-      const fromDate = new Date(formData.fromDate.split("-").reverse().join("-")).getTime();
-      const toDate = new Date(formData.toDate.split("-").reverse().join("-")).getTime();
-      
+
+      const fromDate = new Date(`${formData.fromDate}-01`).getTime();
+      const toDate = new Date(`${formData.toDate}-01`).getTime();
+
       if (fromDate > toDate) {
         setError("From Date should not be later than To Date.");
         return false;
       }
-      // if (!formData.title.trim() && !formData.author.trim()) {
-      //   setError(
-      //     "Either Title or Author must be filled for an advanced search."
-      //   );
-      //   return;
-      // }
 
-      // Length and character restrictions
       if (formData.title.length > 100) {
         setError("Title should not exceed 100 characters.");
         return false;
@@ -102,53 +108,50 @@ const SearchForm: React.FC = () => {
 
   const handleSearchSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (!isValidData()) return;
     setError("");
-  
+
     setLoading(true);
-  
+
     const params = new URLSearchParams();
     params.append("query", formData.query);
-    params.append("publications", formData.publications.join(","));
     if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
       params.append("toDate", formData.toDate);
       params.append("title", formData.title);
       params.append("author", formData.author);
     }
-  
+
     try {
-      // Fetch paper results
       const response = await searchPapers(params.toString());
       sessionStorage.setItem("papersData", JSON.stringify(response.data));
-      
-      // Fetch total count
+
       const countResponse = await getTotalCount(params.toString());
       setResultCount(countResponse.data.total_count);
-      
     } catch (error) {
       console.error("Error:", error);
-      setResultCount(0); // Set to 0 if there's an error
+      setResultCount(0);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Any additional logic for "Proceed" can be handled here
     router.push("/results");
   };
-  
+
   const handleInputChange =
     (key: keyof SearchFormData) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [key]: event.target.value });
     };
 
-  const handlePublicationChange = (event: any, value: string[]) => {
-    setFormData({ ...formData, publications: value });
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFormData({ ...formData, publicationFile: event.target.files[0] });
+    }
   };
 
   return (
@@ -158,7 +161,7 @@ const SearchForm: React.FC = () => {
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
           {error && <Alert severity="error">{error}</Alert>}
-          <form >
+          <form>
             <Grid container spacing={2}>
               <Grid
                 xs={12}
@@ -207,33 +210,19 @@ const SearchForm: React.FC = () => {
                   onChange={handleInputChange("query")}
                 />
               </Grid>
+
+              {/* File upload field */}
               <Grid xs={6}>
-                <Autocomplete
-                  multiple
-                  options={[
-                    "Accident Analysis and Prevention",
-                    "Journal of Safety Research",
-                    "Transportation Research Part F",
-                    "Journal of Road Engineering",
-                  ]} // Updated publication options
-                  value={formData.publications}
-                  onChange={handlePublicationChange}
-                  renderTags={(value: string[], getTagProps) =>
-                    value.map((option: string, index: number) => (
-                      <Chip
-                        label={option}
-                        {...getTagProps({ index })}
-                        key={option}
-                      />
-                    ))
+                <TextField
+                  type="file"
+                  inputProps={{ accept: ".pdf,.doc,.docx" }} // Krish needs to update this line for validation
+                  fullWidth
+                  onChange={handleFileChange}
+                  helperText={
+                    formData.publicationFile
+                      ? `Selected file: ${formData.publicationFile.name}`
+                      : "Choose your file to filter publications"
                   }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Publication"
-                      placeholder="Select journals"
-                    />
-                  )}
                 />
               </Grid>
 
@@ -241,7 +230,8 @@ const SearchForm: React.FC = () => {
                 <>
                   <Grid xs={6}>
                     <TextField
-                      label="From Date (dd-mm-yyyy)"
+                      label="From Date (yyyy-mm)"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.fromDate}
                       onChange={handleInputChange("fromDate")}
@@ -249,7 +239,8 @@ const SearchForm: React.FC = () => {
                   </Grid>
                   <Grid xs={6}>
                     <TextField
-                      label="To Date (dd-mm-yyyy)"
+                      label="To Date (yyyy-mm)"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.toDate}
                       onChange={handleInputChange("toDate")}
@@ -275,15 +266,19 @@ const SearchForm: React.FC = () => {
               )}
 
               <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-                <Button type="submit" variant="contained" color="primary" onClick={handleSearchSubmit}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSearchSubmit}
+                >
                   Search
                 </Button>
-                <Button 
+                <Button
                   variant="contained"
                   color="secondary"
                   sx={{ marginLeft: 2 }}
                   onClick={handleProceedSubmit}
-
                 >
                   Proceed
                 </Button>
@@ -291,21 +286,19 @@ const SearchForm: React.FC = () => {
 
               {resultCount !== null && (
                 <Grid
-                xs={12}
-                sx={{
+                  xs={12}
+                  sx={{
                     display: "flex",
-                   justifyContent: "center",
+                    justifyContent: "center",
                     marginTop: 2,
-                }}
+                  }}
                 >
-              <Paper sx={{ padding: 2, display: "flex", alignItems: "center" }}>
-                <span style={{ marginRight: 5 }}>🔍</span>
-                <span>Total Results: {resultCount}</span> {/* 更新这里显示总数量 */}
-    </Paper>
-  </Grid>
-)}
-
-
+                  <Paper sx={{ padding: 2, display: "flex", alignItems: "center" }}>
+                    <span style={{ marginRight: 5 }}>🔍</span>
+                    <span>Total Results: {resultCount}</span>
+                  </Paper>
+                </Grid>
+              )}
             </Grid>
           </form>
         </Paper>
