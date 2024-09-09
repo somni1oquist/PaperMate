@@ -21,11 +21,12 @@ class GeminiService:
             genai.configure(api_key=key)
             system_instruction = '''
                 1. This is a system for automating search, scanning, and analysis for literature.
-                2. Researchers are the target users.
+                2. Researchers are the main users.
                 3. Based on the given query, you may need to rate or add columns to the data.
                 4. Store data in a fixed format:
                 [ { doi: mutation: { ... } }, ... ]
                 5. Only include doi as object ID in JSON response to avoid long text.
+                6. If user query is to rate, follow column naming e.g. rate based on keyword = `relevance_keyword`.
             '''
             cls.model = genai.GenerativeModel(
                 name,
@@ -75,9 +76,13 @@ class GeminiService:
         try:
             papers_json = json.loads(response.text)
             for doi, analysis in papers_json.items():
-                paper = next((p for p in papers if p.doi == doi))
-                paper.relevance = analysis['relevance']
-                paper.synopsis = analysis['synopsis']
+                paper = Paper.query.filter_by(doi=doi).first()
+                # Update relevance by get key starting with 'relevance_'
+                for key, value in analysis.items():
+                    if key.startswith('relevance_'):
+                        paper.relevance = value
+                    elif key == 'synopsis':
+                        paper.synopsis = value
             db.session.commit()
             return papers
         except json.JSONDecodeError:
