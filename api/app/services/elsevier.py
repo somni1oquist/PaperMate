@@ -43,39 +43,18 @@ class ElsevierService:
         ElsevierService.delete_papers()
 
         if app.config['TESTING']:
-            with open('sample.json', encoding='utf-8') as f:
-                papers_json = json.load(f)
-            papers = [Paper(**{
-                'publication': paper['publication'],
-                'doi': paper['doi'],
-                'title': paper['title'],
-                'author': paper['author'],
-                'publish_date': datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
-                'abstract': paper['abstract'],
-                'url': paper['url']
-            }) for paper in papers_json]
-            db.session.add_all(papers)
-            db.session.commit()
-            return papers
+            return ElsevierService.load_sample_papers()
 
         params.setdefault('start', 0)
         params['query'] = params.get('query', app.config['DEFAULT_QUERY'])
+
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
 
-        for date_key in ['fromDate', 'toDate']:
-            if params.get(date_key) and isinstance(params[date_key], str):
-                params[date_key] = datetime.strptime(params[date_key], '%d-%m-%Y').date()
-
-        scopus_url = f"https://api.elsevier.com/content/search/scopus?query={ElsevierService.build_query(params)}&count=5&start={params['start']}"
-        scopus_res = requests.get(scopus_url, headers=ElsevierService.headers)
-        if scopus_res.status_code != 200:
-            raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')
-
-        scopus_data = scopus_res.json().get('search-results', {})
+        ElsevierService.normalize_dates(params)
+        scopus_data = ElsevierService.fetch_scopus_data(params)
         papers = ElsevierService.transform_entries(scopus_data, params)
-        db.session.add_all(papers)
-        db.session.commit()
+        ElsevierService.save_papers(papers)
         return papers
 
     @staticmethod
@@ -131,13 +110,50 @@ class ElsevierService:
     def get_total_count(params: dict) -> int:
         """Fetch total count of papers from Elsevier API based on query parameters."""
         ElsevierService.set_api_key()
+        params.setdefault('start', 0)
         params['query'] = params.get('query', app.config['DEFAULT_QUERY'])
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
+        scopus_data = ElsevierService.fetch_scopus_data(params)
+        return int(scopus_data.get('opensearch:totalResults', 0))
 
-        scopus_url = f"https://api.elsevier.com/content/search/scopus?query={ElsevierService.build_query(params)}&count=0"
+    @staticmethod
+    def fetch_scopus_data(params):
+        """Fetch data from Scopus API based on the query parameters."""
+        scopus_url = f"https://api.elsevier.com/content/search/scopus?query={ElsevierService.build_query(params)}&count=5&start={params['start']}"
         scopus_res = requests.get(scopus_url, headers=ElsevierService.headers)
         if scopus_res.status_code != 200:
-            raise ValueError(f'Error fetching total count from Elsevier (Scopus: {scopus_res.status_code})')
+            raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')
+        return scopus_res.json().get('search-results', {})
+    
+    @staticmethod
+    def normalize_dates(params):
+        """Convert date strings in the parameters to date objects."""
+        for date_key in ['fromDate', 'toDate']:
+            if params.get(date_key) and isinstance(params[date_key], str):
+                params[date_key] = datetime.strptime(params[date_key], '%d-%m-%Y').date()
 
-        return int(scopus_res.json().get('search-results', {}).get('opensearch:totalResults', 0))
+    @staticmethod
+    def save_papers(papers):
+        """Save papers to the database."""
+        db.session.add_all(papers)
+        db.session.commit()
+
+    @staticmethod
+    def load_sample_papers():
+        """Load local sample paper data (for testing only)."""
+        with open('sample.json', encoding='utf-8') as f:
+            papers_json = json.load(f)
+        papers = [
+            Paper(**{
+                'publication': paper['publication'],
+                'doi': paper['doi'],
+                'title': paper['title'],
+                'author': paper['author'],
+                'publish_date': datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
+                'abstract': paper['abstract'],
+                'url': paper['url']
+        }) for paper in papers_json
+        ]
+        ElsevierService.save_papers(papers)
+        return papers
