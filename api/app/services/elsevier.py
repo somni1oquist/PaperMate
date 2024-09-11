@@ -109,6 +109,7 @@ class ElsevierService:
     def get_total_count(params: dict) -> int:
         """Fetch total count of papers from Elsevier API based on query parameters."""
         ElsevierService.set_api_key()
+        params.setdefault('start', 0)
         params['query'] = params.get('query', None)
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
