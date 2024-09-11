@@ -23,6 +23,14 @@ class ElsevierService:
         }
 
     @staticmethod
+    def convert_date_format(date_str):
+        """Convert date from yyyy-mm to 'Month Year' format."""
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m')
+            return date_obj.strftime('%B %Y')  # Convert to "Month Year" format
+        except ValueError:
+            return None 
+    @staticmethod
     def update_papers(papers: dict):
         """Update papers in the database with mutated data."""
         for doi, mutation in papers.items():
@@ -60,32 +68,58 @@ class ElsevierService:
     def build_query(params):
         """Build query string from parameters."""
         query_parts = [f"{field}({value})" for field, value in {
-            'TITLE-ABS-KEY': params.get('query'),
-            'TITLE': params.get('title'),
-            'AUTHOR-NAME': params.get('author'),
-            'SRCTITLE': params.get('publication'),
-            'KEY': params.get('keyword')
+        'TITLE-ABS-KEY': params.get('query'),
+        'TITLE': params.get('title'),
+        'AUTHOR-NAME': params.get('author'),
+        'SRCTITLE': params.get('publication'),
+        'KEY': params.get('keyword')
         }.items() if value]
+
+        if params.get('fromDate') and params.get('toDate'):
+            try:
+                from_date = datetime.strptime(params['fromDate'], '%Y-%m')
+                to_date = datetime.strptime(params['toDate'], '%Y-%m')
+            except ValueError as e:
+                print(f"Date parsing error: {e}")
+            raise ValueError("Invalid date format. Expected format: yyyy-mm")
+        
+        # Generate all months in the range
+        months = []
+        while from_date <= to_date:
+            months.append(from_date.strftime('%B %Y'))
+            from_date = from_date + relativedelta(months=1)
+        
+        # Join months with OR operator
+        month_query = ' OR '.join(months)
+        query_parts.append(f"pubdate({month_query})")
+    
         return ' AND '.join(query_parts)
+
+
 
     @staticmethod
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
+        from_date = datetime.strptime(params.get('fromDate', '01-01-1970'), '%d-%m-%Y').date()
+        to_date = datetime.strptime(params.get('toDate', '31-12-9999'), '%d-%m-%Y').date()
+
         for entry in response.get('entry', []):
+            paper_publish_date = datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date()
+            if from_date and paper_publish_date < from_date:
+                continue
+            if to_date and paper_publish_date > to_date:
+                continue
+
             paper = Paper(
                 title=entry.get('dc:title', 'No Title'),
                 author=entry.get('dc:creator', 'Unknown Author'),
                 publication=entry.get('prism:publicationName', 'No Publication Name'),
-                publish_date=datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date(),
+                publish_date=paper_publish_date,
                 doi=entry.get('prism:doi'),
                 abstract=ElsevierService.get_abstract(entry.get('prism:doi')) if entry.get('prism:doi') else "No Abstract.",
                 url=f"https://doi.org/{entry.get('prism:doi')}" if entry.get('prism:doi') else None
             )
-            if params.get('fromDate') and paper.publish_date < params['fromDate']:
-                continue
-            if params.get('toDate') and paper.publish_date > params['toDate']:
-                continue
             papers.append(paper)
         return papers
 
