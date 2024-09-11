@@ -16,6 +16,9 @@ class Chat(db.Model):
     def __repr__(self):
         return f'<Chat instruction: {self.history[0]["parts"][0]["text"]}>'
     
+    def __str__(self):
+        return self.history[0]["parts"][0]["text"]
+    
     
     def get_related_papers(self):
         '''

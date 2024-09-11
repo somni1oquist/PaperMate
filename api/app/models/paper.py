@@ -18,7 +18,19 @@ class Paper(db.Model):
         return f'<Paper {self.title}>'
     
     def to_dict(self):
-        return {key: value for key, value in self.__dict__.items() if key not in ['_sa_instance_state', 'id']}
+        # Return a dictionary of the object and keys sorted by model
+        return {
+            'doi': self.doi,
+            'title': self.title,
+            'abstract': self.abstract,
+            'author': self.author,
+            'publication': self.publication,
+            'publish_date': self.publish_date,
+            'url': self.url,
+            'relevance': self.relevance,
+            'synopsis': self.synopsis,
+            'mutation': self.mutation
+        }
             
     def mutation_dict(self):
         '''

@@ -2,16 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
 import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
-
-interface Result {
-  title: string;
-  abstract: string;
-  author: string;
-  publication: string;
-  publish_date: string;
-  relevance: number | null;
-  synopsis: string;
-}
+import { useData } from '../context/DataProvider';
+import { useError } from '../context/ErrorProvider';
+import { useRouter } from 'next/navigation';
+import { searchPapers } from '../actions';
+import PaperDetail from './PaperDetail';
 
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
@@ -19,72 +14,65 @@ const truncateText = (text: string, length: number) => {
 };
 
 // Define grid columns
-const genColDefs = (expandedRowId: number | null): GridColDef[] => {
-  const resultKeys: (keyof Result)[] = [
-    'title',
-    'abstract',
-    'author',
-    'publication',
-    'publish_date',
-    'relevance',
-    'synopsis'
-  ];
+const genColDefs = (): GridColDef[] => {
+  const { data } = useData();
+  if (!data || data.length === 0)
+    return []; // Return an empty array if there's no data
 
-  return resultKeys.map((key) => {
-    const baseColumn: GridColDef = {
-      field: key,
-      headerName: key.charAt(0).toUpperCase() + key.slice(1),
-      flex: 1,  // Increase the width if needed
-      sortable: true,
-      renderCell: (params) => {
-        const isExpanded = expandedRowId === params.id;
-        const text = params.value as string;
-        const displayedText = isExpanded ? text : truncateText(text, 50); // Adjust the truncate length as needed
-        return (
-          <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', lineHeight: 1.5 }}>
-            {displayedText}
-          </div>
-        );
-      },
-    };
+  const resultKeys = Object.keys(data[0]);
 
-    if (key === 'abstract' || key === 'synopsis') {
-      baseColumn.width = 300;
-    }
+  return resultKeys
+    .filter((key) => key !== 'mutation')
+    .map((key) => {
+      const baseColumn: GridColDef = {
+        field: key,
+        headerName: key.charAt(0).toUpperCase() + key.slice(1),
+        flex: 1,  // Increase the width if needed
+        sortable: true
+      };
 
-    if (key === 'relevance') {
-      baseColumn.type = '100';
-    }
-
-    return baseColumn;
-  });
+      return baseColumn;
+    });
 };
 
 export default function ResultGrid() {
+  const router = useRouter();
+  const { setError } = useError(null);
+  const { data, setData } = useData();
   const [rows, setRows] = useState<GridRowsProp>([]);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);  // State for switch
-  const [expandedRowId, setExpandedRowId] = useState<number | null>(null); // State to track expanded row
+  const [selectedRow, setSelectedRow] = useState<any | null>(null); // State for selected row
+  const [open, setOpen] = useState<boolean | null>(false); // State for dialog
 
   useEffect(() => {
-    // Check if data exists in sessionStorage
-    const storedData = sessionStorage.getItem('papersData');
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      setRows(parsedData);
-      setLoading(false);
+    // Fetch data from API if not already loaded
+    if (!data && sessionStorage.getItem('query')) {
+      searchPapers(sessionStorage.getItem('query') as string)
+        .then((response) => {
+          setData(response.data);
+          setRows(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setError(error.response.data.message);
+        });
+    } else if (!data) {
+      router.push('/'); // Redirect to home page if no query is found
     } else {
-      // Fetch data if necessary
-      // ...
+      setRows(data);
+      setLoading(false);
     }
-  }, []);
+  }, [data]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDarkMode(event.target.checked);
   };
 
   const handleRowClick = (params: any) => {
-    setExpandedRowId(params.id === expandedRowId ? null : params.id); // Toggle row expansion
+    // Open dialog when a row is clicked and set the selected row
+    setOpen(true);
+    setSelectedRow(params.row);
   };
 
   return (
@@ -101,15 +89,15 @@ export default function ResultGrid() {
           margin: '15px 0 30px',
         }}
       >
+        {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
         <DataGrid
           rows={rows}
-          columns={genColDefs(expandedRowId)}
+          columns={genColDefs()}
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}
           loading={loading}
           getRowId={(row) => row.doi}
-          checkboxSelection
           disableRowSelectionOnClick
           disableColumnMenu={true}
           slots={{
@@ -120,7 +108,6 @@ export default function ResultGrid() {
             width: '100%',
             lineHeight: '1.5',
           }}
-          getRowHeight={(params) => params.id === expandedRowId ? 'auto' : 65} // Adjust row height based on expansion
           onRowClick={handleRowClick} // Handle row click to expand
         />
         <Box

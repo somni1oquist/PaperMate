@@ -1,5 +1,5 @@
 import json
-from flask import request, current_app as app
+from flask import request, abort, current_app as app
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
@@ -59,8 +59,11 @@ class MutateFromChat(Resource):
         '''
         Extract relevant information from chat and update papers
         '''
-        chat_id = request.args.get('chat', None)
-        query = request.args.get('query', None)
+        chat_id = request.json.get('chat_id', None)
+        query = request.json.get('query', None)
+        if not query:
+            abort(400, 'Instruction is required.')
+        app.logger.info(f'Chat ID: {chat_id}, Query: {query}')
         # Extract relevant information from chat
         mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
         # Update papers with mutated data
@@ -70,7 +73,7 @@ class MutateFromChat(Resource):
         # Get papers from database
         papers = ElsevierService.get_papers_by_dois(doi_list)
         response = {
-            'data': [paper.mutation_dict() for paper in papers],
+            'papers': [paper.mutation_dict() for paper in papers],
             'chat': chat_id
         }
         return response, 200
@@ -107,7 +110,7 @@ class PaperSearch(Resource):
         '''Search papers based on query parameters'''
         # Extract query parameters
         # @TODO: Conform to UI specification
-        query = request.args.get('query', app.config['DEFAULT_QUERY'])
+        query = request.args.get('query', None)
         title = request.args.get('title', None)
         author = request.args.get('author', None)
         keyword = request.args.get('keyword', None)
@@ -123,16 +126,15 @@ class PaperSearch(Resource):
             'fromDate': from_date,
             'toDate': to_date
         }
-        
+        total_count = ElsevierService.get_total_count(query_params)
+        if total_count == 0:
+            abort(404, 'No papers found.')
+        app.logger.info(f'Seaching papers with query: {query_params}')
         # Search through Elsevier API
-        papers = ElsevierService.fetch_papers(query_params)
-        if not papers:
-            return 'No papers found, try other search query.', 404
+        ElsevierService.fetch_papers(query_params)
 
         # Rate papers using Gemini API
-        gemini = GeminiService()
         papers_rated = gemini.analyse_papers(query_params.get('query'))
-        
         return papers_rated, 200
     
 @api.route('/getTotalCount')
@@ -141,3 +143,18 @@ class get_total_count(Resource):
         params = request.args.to_dict()
         total_count = ElsevierService.get_total_count(params)
         return {'total_count': total_count}, 200
+
+@api.route('/chat_history')
+class ChatHistory(Resource):
+    def get(self):
+        '''Get chat history'''
+        chat_id = request.args.get('chat_id', None)
+        chat_list = []
+        print(chat_id)
+        if not chat_id:
+            return chat_list, 200
+        main_chat = Chat.query.get(chat_id)
+        chat_list.append(main_chat.__str__())
+        for chat in main_chat.chats:
+            chat_list.append(chat.__str__())
+        return chat_list, 200

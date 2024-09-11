@@ -1,13 +1,18 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
+import {
+  InputAdornment,
+  IconButton,
+  TextField,
+  Box,
+  Paper,
+} from '@mui/material';
+import { getChatHistory, giveInstruction } from '../actions';
+import { useData } from '../context/DataProvider';
+import { useError } from '../context/ErrorProvider';
 
 const columns: GridColDef[] = [
-  { field: 'instruction', headerName: 'Instruction', width: 300 },
+  { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
 ];
 
 // New InputContainer component with a white background
@@ -16,23 +21,31 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
     <Box
       component="div"
       sx={{
-        backgroundColor: 'white', // White background
         padding: 2,
-        borderRadius: 2,
-        boxShadow: 1,
         display: 'flex',
         gap: 2,
       }}
     >
-      <TextField
-        label="Add Instruction"
+      <TextField placeholder="Add Instruction"
+        variant="standard"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={onSubmit}>
+                ⏎
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
         value={inputValue}
         onChange={onChange}
+        onKeyPress={(e: any) => {
+          if (e.key === 'Enter') {
+            onSubmit();
+          }
+        }}
         fullWidth
       />
-      <Button variant="contained" color="primary" onClick={onSubmit}>
-        Send
-      </Button>
     </Box>
   );
 }
@@ -40,54 +53,59 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
 export default function InstructionBox() {
   const [rows, setRows] = React.useState<{ id: number; instruction: string }[]>([]);
   const [inputValue, setInputValue] = React.useState('');
+  const { data, setData } = useData();
+  const { setError } = useError(null);
 
-  // Load rows from localStorage on component mount
   React.useEffect(() => {
-    const savedRows = localStorage.getItem('instructions');
-    if (savedRows) {
-      setRows(JSON.parse(savedRows));
+    const sessionData = sessionStorage.getItem('chatHistory') as string;
+    setRows(sessionData ? JSON.parse(sessionData) : []);
+    if (!sessionData) {
+      getChatHistory()
+        .then((response) => {
+          let chatHistory = [];
+          for (let i = 0; i < response.data.length; i++) {
+            chatHistory.push({ id: i, instruction: response.data[i] });
+          }
+          sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+          setRows(chatHistory);
+        })
     }
   }, []);
-
-  // Save rows to localStorage whenever rows state changes
-  React.useEffect(() => {
-    localStorage.setItem('instructions', JSON.stringify(rows));
-  }, [rows]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
       setRows((prevRows) => {
-        const newRows = [...prevRows];
+        const newRows = prevRows ? [...prevRows] : [];
         const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID
         newRows.push({ id: newId, instruction: inputValue }); // Insert new instruction at the end
+        sessionStorage.setItem('chatHistory', JSON.stringify(newRows));
         return newRows;
       });
       setInputValue(''); // Clear the input field after updating
+      giveInstruction(inputValue)
+        .then((response) => {
+          setData(response.data.papers);
+        })
+        .catch((error) => {
+          setError(error.response.data.message);
+        });
     }
   };
 
   return (
-    <Paper style={{ height: '50.5vh', width: '100%' }}>
+    <Paper style={{ height: '100%', width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id} // Ensure each row has a unique ID
-        sx={{ 
-          border: 0,
-          '& .MuiDataGrid-virtualScroller': {
-            overflowX: 'hidden', // Hide horizontal scrollbar
-          },
-        }}
-        hideFooterPagination // Remove the pagination bar
-        pagination={false} // Disable pagination
+        disableColumnSelector={true}
+        hideFooter
       />
-      <Stack direction="row" spacing={2} style={{ marginTop: 15 }}>
-        <InputContainer
-          inputValue={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onSubmit={handleSend}
-        />
-      </Stack>
+      <InputContainer
+        inputValue={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onSubmit={handleSend}
+      />
     </Paper>
   );
 }
