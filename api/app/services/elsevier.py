@@ -68,32 +68,37 @@ class ElsevierService:
     def build_query(params):
         """Build query string from parameters."""
         query_parts = [f"{field}({value})" for field, value in {
-        'TITLE-ABS-KEY': params.get('query'),
-        'TITLE': params.get('title'),
-        'AUTHOR-NAME': params.get('author'),
-        'SRCTITLE': params.get('publication'),
-        'KEY': params.get('keyword')
+            'TITLE-ABS-KEY': params.get('query'),
+            'TITLE': params.get('title'),
+            'AUTHOR-NAME': params.get('author'),
+            'SRCTITLE': params.get('publication'),
+            'KEY': params.get('keyword')
         }.items() if value]
 
-        if params.get('fromDate') and params.get('toDate'):
+        # Handle date range
+        from_date_str = params.get('fromDate')
+        to_date_str = params.get('toDate')
+
+        if from_date_str and to_date_str:
             try:
-                from_date = datetime.strptime(params['fromDate'], '%Y-%m')
-                to_date = datetime.strptime(params['toDate'], '%Y-%m')
+                from_date = datetime.strptime(from_date_str, '%Y-%m')
+                to_date = datetime.strptime(to_date_str, '%Y-%m')
             except ValueError as e:
-                print(f"Date parsing error: {e}")
-            raise ValueError("Invalid date format. Expected format: yyyy-mm")
+                raise ValueError(f"Invalid date format. Expected format: yyyy-mm. Error: {e}")
+
+            # Generate all months in the range
+            months = []
+            current_date = from_date
+            while current_date <= to_date:
+                months.append(current_date.strftime('%B %Y'))
+                current_date = current_date + relativedelta(months=1)
         
-        # Generate all months in the range
-        months = []
-        while from_date <= to_date:
-            months.append(from_date.strftime('%B %Y'))
-            from_date = from_date + relativedelta(months=1)
-        
-        # Join months with OR operator
-        month_query = ' OR '.join(months)
-        query_parts.append(f"pubdate({month_query})")
+            # Join months with OR operator
+            month_query = ' OR '.join(months)
+            query_parts.append(f"pubdate({month_query})")
     
         return ' AND '.join(query_parts)
+
 
 
 
@@ -101,8 +106,10 @@ class ElsevierService:
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
-        from_date = datetime.strptime(params.get('fromDate', '01-01-1970'), '%d-%m-%Y').date()
-        to_date = datetime.strptime(params.get('toDate', '31-12-9999'), '%d-%m-%Y').date()
+        from_date_str = params.get('fromDate', '1970-01')
+        to_date_str = params.get('toDate', '9999-12')
+        from_date = datetime.strptime(from_date_str, '%Y-%m').date()
+        to_date = datetime.strptime(to_date_str, '%Y-%m').date()
 
         for entry in response.get('entry', []):
             paper_publish_date = datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date()
@@ -122,6 +129,7 @@ class ElsevierService:
             )
             papers.append(paper)
         return papers
+
 
     @staticmethod
     def get_abstract(doi: str):
