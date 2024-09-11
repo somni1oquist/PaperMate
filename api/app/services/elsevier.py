@@ -4,6 +4,8 @@ from datetime import datetime
 import requests
 from app.models.paper import Paper
 from app import db
+from dateutil.relativedelta import relativedelta
+
 
 class ElsevierService:
     api_key = None
@@ -95,7 +97,7 @@ class ElsevierService:
         
             # Join months with OR operator
             month_query = ' OR '.join(months)
-            query_parts.append(f"pubdate({month_query})")
+            query_parts.append(f"PUBDATETXT({month_query})")
     
         return ' AND '.join(query_parts)
 
