@@ -52,15 +52,11 @@ class ElsevierService:
         ElsevierService.set_api_key()
         ElsevierService.delete_papers()
 
-        if app.config['TESTING']:
-            return ElsevierService.load_sample_papers()
-
         params.setdefault('start', 0)
         params['query'] = params.get('query', None)
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
 
-        ElsevierService.normalize_dates(params)
         scopus_data = ElsevierService.fetch_scopus_data(params)
         papers = ElsevierService.transform_entries(scopus_data, params)
         ElsevierService.save_papers(papers)
@@ -73,8 +69,7 @@ class ElsevierService:
             'TITLE-ABS-KEY': params.get('query'),
             'TITLE': params.get('title'),
             'AUTHOR-NAME': params.get('author'),
-            'SRCTITLE': params.get('publication'),
-            'KEY': params.get('keyword')
+            'SRCTITLE': params.get('publication')
         }.items() if value]
 
         # Handle date range
@@ -92,7 +87,8 @@ class ElsevierService:
             months = []
             current_date = from_date
             while current_date <= to_date:
-                months.append(current_date.strftime('%B %Y'))
+                month_str = '"' + current_date.strftime('%B %Y') + '"'
+                months.append(month_str)
                 current_date = current_date + relativedelta(months=1)
         
             # Join months with OR operator
@@ -108,17 +104,9 @@ class ElsevierService:
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
-        from_date_str = params.get('fromDate', '1970-01')
-        to_date_str = params.get('toDate', '9999-12')
-        from_date = datetime.strptime(from_date_str, '%Y-%m').date()
-        to_date = datetime.strptime(to_date_str, '%Y-%m').date()
 
         for entry in response.get('entry', []):
             paper_publish_date = datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date()
-            if from_date and paper_publish_date < from_date:
-                continue
-            if to_date and paper_publish_date > to_date:
-                continue
 
             paper = Paper(
                 title=entry.get('dc:title', 'No Title'),
@@ -168,35 +156,9 @@ class ElsevierService:
         if scopus_res.status_code != 200:
             raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')
         return scopus_res.json().get('search-results', {})
-    
-    @staticmethod
-    def normalize_dates(params):
-        """Convert date strings in the parameters to date objects."""
-        for date_key in ['fromDate', 'toDate']:
-            if params.get(date_key) and isinstance(params[date_key], str):
-                params[date_key] = datetime.strptime(params[date_key], '%d-%m-%Y').date()
 
     @staticmethod
     def save_papers(papers):
         """Save papers to the database."""
         db.session.add_all(papers)
         db.session.commit()
-
-    @staticmethod
-    def load_sample_papers():
-        """Load local sample paper data (for testing only)."""
-        with open('sample.json', encoding='utf-8') as f:
-            papers_json = json.load(f)
-        papers = [
-            Paper(**{
-                'publication': paper['publication'],
-                'doi': paper['doi'],
-                'title': paper['title'],
-                'author': paper['author'],
-                'publish_date': datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
-                'abstract': paper['abstract'],
-                'url': paper['url']
-        }) for paper in papers_json
-        ]
-        ElsevierService.save_papers(papers)
-        return papers

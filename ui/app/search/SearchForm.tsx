@@ -60,16 +60,7 @@ const SearchForm: React.FC = () => {
   const [resultCount, setResultCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { setError } = useError();
-
   const { data, setData } = useData();
-  // If you want to recalculate the "From Date" when "To Date" changes
-  useEffect(() => {
-    const sixMonthsAgo = getSixMonthsAgo();
-    setFormData((prevData) => ({
-      ...prevData,
-      fromDate: sixMonthsAgo,
-    }));
-  }, [formData.toDate]);
 
   // Clear session when first mounted
   useEffect(() => {
