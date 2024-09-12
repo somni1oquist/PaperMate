@@ -4,6 +4,8 @@ from datetime import datetime
 import requests
 from app.models.paper import Paper
 from app import db
+from dateutil.relativedelta import relativedelta
+
 
 class ElsevierService:
     api_key = None
@@ -22,6 +24,14 @@ class ElsevierService:
             'Accept': 'application/json'
         }
 
+    @staticmethod
+    def convert_date_format(date_str):
+        """Convert date from yyyy-mm to 'Month Year' format."""
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m')
+            return date_obj.strftime('%B %Y')  # Convert to "Month Year" format
+        except ValueError:
+            return None 
     @staticmethod
     def update_papers(papers: dict):
         """Update papers in the database with mutated data."""
@@ -42,15 +52,11 @@ class ElsevierService:
         ElsevierService.set_api_key()
         ElsevierService.delete_papers()
 
-        if app.config['TESTING']:
-            return ElsevierService.load_sample_papers()
-
         params.setdefault('start', 0)
         params['query'] = params.get('query', None)
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
 
-        ElsevierService.normalize_dates(params)
         scopus_data = ElsevierService.fetch_scopus_data(params)
         papers = ElsevierService.transform_entries(scopus_data, params)
         ElsevierService.save_papers(papers)
@@ -63,31 +69,57 @@ class ElsevierService:
             'TITLE-ABS-KEY': params.get('query'),
             'TITLE': params.get('title'),
             'AUTHOR-NAME': params.get('author'),
-            'SRCTITLE': params.get('publication'),
-            'KEY': params.get('keyword')
+            'SRCTITLE': params.get('publication')
         }.items() if value]
+
+        # Handle date range
+        from_date_str = params.get('fromDate')
+        to_date_str = params.get('toDate')
+
+        if from_date_str and to_date_str:
+            try:
+                from_date = datetime.strptime(from_date_str, '%Y-%m')
+                to_date = datetime.strptime(to_date_str, '%Y-%m')
+            except ValueError as e:
+                raise ValueError(f"Invalid date format. Expected format: yyyy-mm. Error: {e}")
+
+            # Generate all months in the range
+            months = []
+            current_date = from_date
+            while current_date <= to_date:
+                month_str = '"' + current_date.strftime('%B %Y') + '"'
+                months.append(month_str)
+                current_date = current_date + relativedelta(months=1)
+        
+            # Join months with OR operator
+            month_query = ' OR '.join(months)
+            query_parts.append(f"PUBDATETXT({month_query})")
+    
         return ' AND '.join(query_parts)
+
+
+
 
     @staticmethod
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
+
         for entry in response.get('entry', []):
+            paper_publish_date = datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date()
+
             paper = Paper(
                 title=entry.get('dc:title', 'No Title'),
                 author=entry.get('dc:creator', 'Unknown Author'),
                 publication=entry.get('prism:publicationName', 'No Publication Name'),
-                publish_date=datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date(),
+                publish_date=paper_publish_date,
                 doi=entry.get('prism:doi'),
                 abstract=ElsevierService.get_abstract(entry.get('prism:doi')) if entry.get('prism:doi') else "No Abstract.",
                 url=f"https://doi.org/{entry.get('prism:doi')}" if entry.get('prism:doi') else None
             )
-            if params.get('fromDate') and paper.publish_date < params['fromDate']:
-                continue
-            if params.get('toDate') and paper.publish_date > params['toDate']:
-                continue
             papers.append(paper)
         return papers
+
 
     @staticmethod
     def get_abstract(doi: str):
@@ -124,35 +156,9 @@ class ElsevierService:
         if scopus_res.status_code != 200:
             raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')
         return scopus_res.json().get('search-results', {})
-    
-    @staticmethod
-    def normalize_dates(params):
-        """Convert date strings in the parameters to date objects."""
-        for date_key in ['fromDate', 'toDate']:
-            if params.get(date_key) and isinstance(params[date_key], str):
-                params[date_key] = datetime.strptime(params[date_key], '%d-%m-%Y').date()
 
     @staticmethod
     def save_papers(papers):
         """Save papers to the database."""
         db.session.add_all(papers)
         db.session.commit()
-
-    @staticmethod
-    def load_sample_papers():
-        """Load local sample paper data (for testing only)."""
-        with open('sample.json', encoding='utf-8') as f:
-            papers_json = json.load(f)
-        papers = [
-            Paper(**{
-                'publication': paper['publication'],
-                'doi': paper['doi'],
-                'title': paper['title'],
-                'author': paper['author'],
-                'publish_date': datetime.strptime(paper['publish_date'], '%Y-%m-%d').date(),
-                'abstract': paper['abstract'],
-                'url': paper['url']
-        }) for paper in papers_json
-        ]
-        ElsevierService.save_papers(papers)
-        return papers
