@@ -38,16 +38,6 @@ class SelectModel(Resource):
         app.logger.info(f'Model selected: {selected_model}')
         return {'message': f'Model {selected_model} selected'}, 200
 
-@api.route('/rate/<string:query>')
-class Rate(Resource):
-    @api.marshal_list_with(paper_model, code=200)
-    @api.doc(params={'query': 'The criteria to rate papers.'})
-    def put(self, query):
-        '''Rate papers based on relevance to the provided query'''
-        papers = ElsevierService.fetch_papers({'query': query})
-        papers = gemini.analyse_papers(query)
-        return papers, 200
-
 @api.route('/')
 class PaperList(Resource):
     @api.marshal_list_with(paper_model)

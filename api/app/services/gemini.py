@@ -14,7 +14,7 @@ class GeminiService:
         """Load the LLM model if not already loaded."""
         if cls.model is None:
             key = app.config.get('LLM_API_KEY')
-            name = session.get('llm_model_name', 'gemini-1.5-flash')
+            name = session.get('llm_model_name', app.config.get('LLM_MODEL_NAME', 'gemini-1.5-flash'))
             if not key or not name:
                 raise ValueError('Missing API key or model name for LLM')
             
