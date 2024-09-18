@@ -1,20 +1,24 @@
+'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import Header from './components/Header';
-import SearchForm from './search/SearchForm';
+import HomePage from './home/page';
+import Search from './search/page';
+import Results from './results/page';
 import style from './page.module.css';
-import Footer from './components/Footer';
 
 export default function Home() {
   return (
-    <>
-      <div className={style.main}>
-        <div className={style["papermate-container"]}>
-          <Header />
-          <SearchForm />
-          <Footer />
-        </div>
+    <div className={style.main}>
+      <div className={style['home-container']}>
+        <HomePage />
       </div>
-    </>
+
+      <div className={style['search-container']}>
+        <Search />
+      </div>
+
+      <div className={style['result-container']}>
+        <Results />
+      </div>
+    </div>
   );
 }

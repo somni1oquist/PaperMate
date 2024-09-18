@@ -5,7 +5,7 @@ export default function Footer() {
     <footer style={{
       textAlign: 'center',
       fontFamily: 'Georgia, serif',
-      marginTop: '2rem',
+      marginTop: '5rem',
     }}>
       <p>&copy; 2024 PaperMate. All rights reserved.</p>
     </footer>

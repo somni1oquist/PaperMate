@@ -6,13 +6,45 @@
   padding: 4rem;
 }
 
-.papermate-container {
-  position: absolute;
-  inset: 50px;
-  background-color: rgba(219, 188, 73, 0.25);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+/* Homepage Styling */
+.home-container {
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 75vh; /* Ensure it takes full viewport height */
   padding: 2rem;
-  min-height: fit-content;
-  text-align: center;
+}
+
+.logo-section {
+  flex: 1; /* Allow logo section to take up available space */
+  display: flex;
+  justify-content: center; /* Center logo horizontally */
+  align-items: center; /* Center logo vertically */
+}
+
+.text-section {
+  flex: 1; /* Allow text section to take up available space */
+  display: flex;
+  flex-direction: column; /* Stack text vertically */
+  justify-content: center; /* Center text vertically */
+  align-items: flex-start; /* Align text to the left */
+  padding: 0 2rem; /* Add horizontal padding */
+}
+
+/* Search Page Styling */
+.search-container {
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 75vh; /* Ensure it takes full viewport height */
+  padding: 2rem;
+}
+
+/* Result Page Styling */
+.result-container {
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 75vh; /* Ensure it takes full viewport height */
+  padding: 2rem;
 }
