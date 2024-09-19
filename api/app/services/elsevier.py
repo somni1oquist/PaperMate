@@ -47,10 +47,11 @@ class ElsevierService:
         return [Paper.query.filter_by(doi=doi).first() for doi in doi_list if Paper.query.filter_by(doi=doi).first()]
 
     @staticmethod
-    def fetch_papers(params: dict):
+    def fetch_papers(params: dict, delete_existing=True):
         """Fetch papers from Elsevier API based on query parameters."""
         ElsevierService.set_api_key()
-        ElsevierService.delete_papers()
+        if delete_existing:
+            ElsevierService.delete_papers()
 
         params.setdefault('start', 0)
         params['query'] = params.get('query', None)
@@ -104,7 +105,6 @@ class ElsevierService:
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
-
         for entry in response.get('entry', []):
             paper_publish_date = datetime.strptime(entry.get('prism:coverDate', '1970-01-01'), '%Y-%m-%d').date()
 
@@ -117,6 +117,9 @@ class ElsevierService:
                 abstract=ElsevierService.get_abstract(entry.get('prism:doi')) if entry.get('prism:doi') else "No Abstract.",
                 url=f"https://doi.org/{entry.get('prism:doi')}" if entry.get('prism:doi') else None
             )
+            # Some entries may not have a DOI and are not digital objects
+            if not paper.doi:
+                continue
             papers.append(paper)
         return papers
 

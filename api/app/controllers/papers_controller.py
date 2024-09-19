@@ -4,6 +4,7 @@ from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
+from app import socketio
 import pandas as pd
 from flask import make_response
 from app.models.chat import Chat
@@ -139,12 +140,18 @@ class PaperSearch(Resource):
             'fromDate': from_date,
             'toDate': to_date
         }
+        batch_size = 5
         total_count = ElsevierService.get_total_count(query_params)
         if total_count == 0:
             abort(404, 'No papers found.')
         app.logger.info(f'Seaching papers with query: {query_params}')
         # Search through Elsevier API
-        ElsevierService.fetch_papers(query_params)
+        for i in range(0, total_count, batch_size):
+            query_params['start'] = i
+            ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            # Emit progress to the client
+            progress = int((i + batch_size) / total_count * 100)
+            socketio.emit('progress', {'progress': progress if progress < 100 else 100})
 
         # Rate papers using Gemini API
         papers_rated = gemini.analyse_papers(query_params.get('query'))
