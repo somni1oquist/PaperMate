@@ -13,6 +13,8 @@ import { useError } from '../context/ErrorProvider';
 
 const columns: GridColDef[] = [
   { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
+  { field: 'timestamp', headerName: 'Timestamp', width: 150, flex: 1 },
+
 ];
 
 // New InputContainer component with a white background
@@ -51,7 +53,7 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
 }
 
 export default function InstructionBox() {
-  const [rows, setRows] = React.useState<{ id: number; instruction: string }[]>([]);
+  const [rows, setRows] = React.useState<{ id: number; instruction: string ;timestamp: string}[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const { data, setData } = useData();
   const { setError } = useError(null);
@@ -62,22 +64,25 @@ export default function InstructionBox() {
     if (!sessionData) {
       getChatHistory()
         .then((response) => {
-          let chatHistory = [];
-          for (let i = 0; i < response.data.length; i++) {
-            chatHistory.push({ id: i, instruction: response.data[i] });
-          }
+          const chatHistory = response.data.map((instruction: string, index: number) => ({
+            id: index,
+            instruction,
+            timestamp: new Date().toLocaleString('en-AU', { timeZone: 'Australia/Perth' }), // Add timestamp in Perth timezone
+          }));
           sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
           setRows(chatHistory);
         })
+        .catch(error => setError(error.response.data.message));
     }
   }, []);
 
   const handleSend = () => {
     if (inputValue.trim()) {
+      const timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Perth' });
       setRows((prevRows) => {
         const newRows = prevRows ? [...prevRows] : [];
         const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID
-        newRows.push({ id: newId, instruction: inputValue }); // Insert new instruction at the end
+        newRows.push({ id: newId, instruction: inputValue, timestamp }); // Insert new instruction at the end
         sessionStorage.setItem('chatHistory', JSON.stringify(newRows));
         return newRows;
       });
