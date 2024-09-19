@@ -10,8 +10,8 @@ import {
   Button
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
-import { useData } from "../context/DataProvider";
-import { useError } from "../context/ErrorProvider";
+import { useData } from "../context/DataContext";
+import { useError } from "../context/ErrorContext";
 import Progress from "../components/Progress";
 
 // Helper function to calculate the date 6 months ago

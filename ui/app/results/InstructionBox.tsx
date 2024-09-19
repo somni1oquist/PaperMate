@@ -8,8 +8,8 @@ import {
   Paper,
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
-import { useData } from '../context/DataProvider';
-import { useError } from '../context/ErrorProvider';
+import { useData } from '../context/DataContext';
+import { useError } from '../context/ErrorContext';
 
 const columns: GridColDef[] = [
   { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
