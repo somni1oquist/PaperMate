@@ -1,6 +1,6 @@
 import json
 from sqlite3 import DataError, OperationalError
-from flask import current_app as app
+from flask import current_app as app, session
 from app import db
 from app.models.paper import Paper
 from app.models.chat import Chat
@@ -14,7 +14,7 @@ class GeminiService:
         """Load the LLM model if not already loaded."""
         if cls.model is None:
             key = app.config.get('LLM_API_KEY')
-            name = app.config.get('LLM_MODEL_NAME')
+            name = session.get('llm_model_name', app.config.get('LLM_MODEL_NAME', 'gemini-1.5-flash'))
             if not key or not name:
                 raise ValueError('Missing API key or model name for LLM')
             

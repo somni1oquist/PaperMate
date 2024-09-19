@@ -1,5 +1,5 @@
 import json
-from flask import request, abort, current_app as app
+from flask import request, session, current_app as app, abort
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
@@ -24,6 +24,19 @@ paper_model = api.model('Paper', {
     'synopsis': fields.String(description='Synopsis of the paper'),
     'mutation': fields.String(description='Mutated json data of the paper')
 })
+
+@api.route('/select_model', methods=['POST'])
+class SelectModel(Resource):
+    def post(self):
+        '''Allow the user to select the LLM model (gemini-1.5-flash or gemini-1.5-pro)'''
+        selected_model = request.json.get('model', None)
+        if selected_model not in ['gemini-1.5-flash', 'gemini-1.5-pro']:
+            abort(400, 'Invalid model selected')
+        
+        # Save the selected model name into the session
+        session['llm_model_name'] = selected_model
+        app.logger.info(f'Model selected: {selected_model}')
+        return {'message': f'Model {selected_model} selected'}, 200
 
 @api.route('/')
 class PaperList(Resource):
