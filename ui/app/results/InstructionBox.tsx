@@ -74,6 +74,7 @@ export default function InstructionBox() {
 
   const handleSend = () => {
     if (inputValue.trim()) {
+      setData(null);
       setRows((prevRows) => {
         const newRows = prevRows ? [...prevRows] : [];
         const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID

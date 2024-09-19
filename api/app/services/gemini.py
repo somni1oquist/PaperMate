@@ -87,7 +87,7 @@ class GeminiService:
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
     
-    def mutate_papers(self, query, chat_id=None):
+    def mutate_papers(self, papers, query, chat_id=None):
         """
         Mutate papers based on a query.
 
@@ -107,8 +107,6 @@ class GeminiService:
         
         # Prepare chat history
         parent_chat = Chat.query.get(chat_id) if chat_id else None
-
-        papers = parent_chat.get_related_papers() if parent_chat else Paper.query.all()
 
         current_chat = Chat(history=[])
         # Get chat history

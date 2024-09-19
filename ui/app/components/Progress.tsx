@@ -4,7 +4,20 @@ import CircularProgress, {
 } from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 import { io } from 'socket.io-client';
+
+const Overlay = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  backgroundColor: 'rgba(18, 18, 18, 0.9)',
+  ...theme.applyStyles('light', {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  }),
+}));
 
 function CircularProgressWithLabel(
   props: CircularProgressProps & { value: number },
@@ -34,19 +47,31 @@ function CircularProgressWithLabel(
   );
 }
 
-export default function Progress() {
+interface ProgressProps {
+  eventName: string; // Add an event name prop to listen to specific events
+}
+
+export default function Progress({ eventName }: ProgressProps) {
   const [progress, setProgress] = React.useState(0);
   const socket = io(process.env.NEXT_PUBLIC_API_URL, {
     transports: ['websocket']
   });
+
   useEffect(() => {
-    socket.on('progress', (data: any) => {
+    // Listen to the event passed as a prop
+    socket.on(eventName, (data: any) => {
       setProgress(data.progress);
     });
 
     return () => {
-      socket.off('progress');
+      // Cleanup the listener on unmount
+      socket.off(eventName);
     };
-	}, []);
-  return <CircularProgressWithLabel value={progress} />;
+  }, [eventName]);
+
+  return (
+    <Overlay>
+      <CircularProgressWithLabel value={progress} />
+    </Overlay>
+  );
 }

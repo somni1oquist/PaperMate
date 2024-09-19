@@ -7,6 +7,7 @@ import { useError } from '../context/ErrorProvider';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
 import PaperDetail from './PaperDetail';
+import Progress from '../components/Progress';
 
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
@@ -40,29 +41,12 @@ export default function ResultGrid() {
   const { setError } = useError(null);
   const { data, setData } = useData();
   const [rows, setRows] = useState<GridRowsProp>([]);
-  const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);  // State for switch
   const [selectedRow, setSelectedRow] = useState<any | null>(null); // State for selected row
   const [open, setOpen] = useState<boolean | null>(false); // State for dialog
 
   useEffect(() => {
-    // Fetch data from API if not already loaded
-    if (!data && sessionStorage.getItem('query')) {
-      searchPapers(sessionStorage.getItem('query') as string)
-        .then((response) => {
-          setData(response.data);
-          setRows(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setError(error.response.data.message);
-        });
-    } else if (!data) {
-      router.push('/'); // Redirect to home page if no query is found
-    } else {
-      setRows(data);
-      setLoading(false);
-    }
+    setRows(data);
   }, [data]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,12 +80,13 @@ export default function ResultGrid() {
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}
-          loading={loading}
+          loading={!data}
           getRowId={(row) => row.doi}
           disableRowSelectionOnClick
           disableColumnMenu={true}
           slots={{
             toolbar: GridToolbar,
+            loadingOverlay: () => <Progress eventName="chat-progress" />
           }}
           style={{
             maxHeight: 'calc(100vh - 50px)',

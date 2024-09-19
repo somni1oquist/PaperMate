@@ -78,16 +78,26 @@ class MutateFromChat(Resource):
         if not query:
             abort(400, 'Instruction is required.')
         app.logger.info(f'Chat ID: {chat_id}, Query: {query}')
-        # Extract relevant information from chat
-        mutated_papers, chat_id = gemini.mutate_papers(query, chat_id)
-        # Update papers with mutated data
-        ElsevierService.update_papers(mutated_papers)
 
-        doi_list = [doi for doi in mutated_papers]
-        # Get papers from database
-        papers = ElsevierService.get_papers_by_dois(doi_list)
+        batch_size = app.config.get('BATCH_SIZE', 5)
+        total_count = Paper.query.count()
+        mutated_papers = []
+        
+        # Batch process papers
+        for i in range(0, total_count, batch_size):
+            batch_papers = Paper.query.limit(batch_size).offset(i).all()
+            batch_result, chat_id = gemini.mutate_papers(batch_papers, query, chat_id)
+            # Update mutation column in the database
+            ElsevierService.update_papers(batch_result)
+            doi_list = [doi for doi in batch_result]
+            mutated_papers.extend(ElsevierService.get_papers_by_dois(doi_list))
+            # Emit progress to the client
+            progress = int((i + batch_size) / total_count * 100)
+            socketio.emit('chat-progress', {'progress': progress if progress < 100 else 100})
+        
+        # Organise result papers from database
         response = {
-            'papers': [paper.mutation_dict() for paper in papers],
+            'papers': [paper.mutation_dict() for paper in mutated_papers],
             'chat': chat_id
         }
         return response, 200
@@ -151,12 +161,13 @@ class PaperSearch(Resource):
             # Set index for pagination
             query_params['start'] = i
             # Fetch papers from Elsevier API. Delete existing papers for the first batch.
-            papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            batch_papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
             # Analyse papers using Gemini
-            papers_rated.extend(gemini.analyse_papers(papers, query))
+            batch_result = gemini.analyse_papers(batch_papers, query)
+            papers_rated.extend(batch_result)
             # Emit progress to the client
             progress = int((i + batch_size) / total_count * 100)
-            socketio.emit('progress', {'progress': progress if progress < 100 else 100})
+            socketio.emit('search-progress', {'progress': progress if progress < 100 else 100})
 
         return papers_rated, 200
     

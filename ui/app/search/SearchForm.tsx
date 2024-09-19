@@ -184,7 +184,7 @@ const SearchForm: React.FC = () => {
   return (
     <>
       {loading ? (
-        <Progress />
+        <Progress eventName="search-progress" />
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
           <form>
