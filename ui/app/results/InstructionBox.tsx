@@ -93,7 +93,18 @@ export default function InstructionBox() {
   };
 
   return (
-    <Paper style={{ height: '100%', width: '100%' }}>
+    <Paper 
+    style={{
+      width:  '100%' ,
+      height: '100%',
+      transition: 'width 0.3s',
+      padding: '10px',
+      paddingTop: '10px',
+      position: 'relative',
+      boxSizing: 'border-box',
+      margin: '15px 0 30px',
+    }}
+  >
       <DataGrid
         rows={rows}
         columns={columns}
