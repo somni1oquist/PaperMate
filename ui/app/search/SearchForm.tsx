@@ -13,6 +13,7 @@ import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
 import { useError } from "../context/ErrorContext";
 import Progress from "../components/Progress";
+import BottomBar from "../components/Bottom-Bar"; // Correct import for BottomBar
 
 // Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
@@ -46,11 +47,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   const router = useRouter();
 
   /* States declaration */
-
   const [formData, setFormData] = useState<SearchFormData>({
     query: "",
-    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
-    toDate: getCurrentMonth(),    // Default to current month
+    fromDate: getSixMonthsAgo(), // Default from 6 months ago
+    toDate: getCurrentMonth(), // Default to current month
     title: "",
     author: "",
     publicationFile: null,
@@ -131,46 +131,54 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
       params.append("author", formData.author);
     }
     return params.toString();
-  }
+  };
+
+  // Scroll to the search section on search button click
+  const scrollToSearchSection = () => {
+    const searchSection = document.getElementById('search-results-section');
+    if (searchSection) {
+      searchSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (!isValidData()) return;
     setError("");
-  
-    // Put loading mask on
-    setLoading(true);
-  
-    // Construct query
-    const query = buildQuery();
-    // Get search total count
-    getTotalCount(query)
-      .then((response) => {
-        setResultCount(response.data.total_count);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setError("An error occurred while searching.");
-        setResultCount(0);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    // Scroll to the results section
+    scrollToSearchSection();
+
+    // Simulate a delay for search
+    setTimeout(() => {
+      setLoading(true);
+
+      const query = buildQuery();
+      getTotalCount(query)
+        .then((response) => {
+          setResultCount(response.data.total_count);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          setError("An error occurred while searching.");
+          setResultCount(0);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, 500); // Simulate a slight delay before loading
   };
 
   const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
     setError(null);
-  
-    // Put loading mask on
+
     setLoading(true);
 
-    // Construct query
     const query = buildQuery();
 
-    // Get search results
     searchPapers(query)
       .then((response) => {
         const papers = response.data;
@@ -282,7 +290,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   <Grid xs={6}>
                     <TextField
                       label="From Date (yyyy-mm)"
-                      type="month"  // Changed input type to "month"
+                      type="month"
                       fullWidth
                       value={formData.fromDate}
                       onChange={handleInputChange("fromDate")}
@@ -291,7 +299,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   <Grid xs={6}>
                     <TextField
                       label="To Date (yyyy-mm)"
-                      type="month"  // Changed input type to "month"
+                      type="month"
                       fullWidth
                       value={formData.toDate}
                       onChange={handleInputChange("toDate")}
@@ -315,23 +323,24 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   </Grid>
                 </>
               )}
-              
+
               {resultCount !== null && (
-                <Grid 
-                xs={12}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: 2
-                }}
-                >
-                  <Paper elevation={1} 
+                <Grid
+                  xs={12}
                   sx={{
-                    backgroundColor: "#f6f6f6",
-                    padding: 2,
                     display: "flex",
-                    alignItems: "center"
+                    justifyContent: "center",
+                    marginTop: 2,
                   }}
+                >
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      backgroundColor: "#f6f6f6",
+                      padding: 2,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
                   >
                     <span style={{ marginRight: 5 }}>🔍</span>
                     <span>Total Results: {resultCount}</span>
@@ -356,6 +365,11 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
           </form>
         </Paper>
       )}
+
+      {/* Add the BottomBar component here */}
+      <BottomBar />
+
+      
     </>
   );
 };
