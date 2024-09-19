@@ -4,6 +4,7 @@ import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
 import { useData } from '../context/DataContext';
 import { useError } from '../context/ErrorContext';
+import { useLoading } from '../context/LoadingContext';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
 import PaperDetail from './PaperDetail';
@@ -40,6 +41,7 @@ export default function ResultGrid() {
   const router = useRouter();
   const { setError } = useError(null);
   const { data, setData } = useData();
+  const { loading } = useLoading();
   const [rows, setRows] = useState<GridRowsProp>([]);
   const [darkMode, setDarkMode] = useState(false);  // State for switch
   const [selectedRow, setSelectedRow] = useState<any | null>(null); // State for selected row
@@ -80,13 +82,18 @@ export default function ResultGrid() {
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}
-          loading={!data}
+          loading={loading}
+          slotProps={{
+            loadingOverlay: {
+              variant: 'skeleton',
+              noRowsVariant: 'skeleton',
+            },
+          }}
           getRowId={(row) => row.doi}
           disableRowSelectionOnClick
           disableColumnMenu={true}
           slots={{
-            toolbar: GridToolbar,
-            loadingOverlay: () => <Progress eventName="chat-progress" />
+            toolbar: GridToolbar
           }}
           style={{
             maxHeight: 'calc(100vh - 50px)',
