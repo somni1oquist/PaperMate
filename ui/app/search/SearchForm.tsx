@@ -7,14 +7,12 @@ import {
   FormControlLabel,
   Paper,
   TextField,
-  Button,
-  Autocomplete,
-  Chip
+  Button
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
-import Loading from "../components/Loading";
 import { useData } from "../context/DataProvider";
 import { useError } from "../context/ErrorProvider";
+import Progress from "../components/Progress";
 
 // Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
@@ -162,7 +160,6 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
-        router.push("/results");
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -187,7 +184,7 @@ const SearchForm: React.FC = () => {
   return (
     <>
       {loading ? (
-        <Loading />
+        <Progress />
       ) : (
         <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
           <form>

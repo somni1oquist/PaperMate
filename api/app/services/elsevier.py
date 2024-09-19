@@ -154,7 +154,9 @@ class ElsevierService:
     @staticmethod
     def fetch_scopus_data(params):
         """Fetch data from Scopus API based on the query parameters."""
-        scopus_url = f"https://api.elsevier.com/content/search/scopus?query={ElsevierService.build_query(params)}&count=5&start={params['start']}"
+        batch_size = app.config.get('BATCH_SIZE', 5)
+        start = params.get('start', 0)
+        scopus_url = f"https://api.elsevier.com/content/search/scopus?query={ElsevierService.build_query(params)}&count={batch_size}&start={start}"
         scopus_res = requests.get(scopus_url, headers=ElsevierService.headers)
         if scopus_res.status_code != 200:
             raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')

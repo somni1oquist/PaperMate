@@ -140,21 +140,24 @@ class PaperSearch(Resource):
             'fromDate': from_date,
             'toDate': to_date
         }
-        batch_size = 5
+        batch_size = app.config.get('BATCH_SIZE', 5)
+        papers_rated = []
         total_count = ElsevierService.get_total_count(query_params)
         if total_count == 0:
             abort(404, 'No papers found.')
         app.logger.info(f'Seaching papers with query: {query_params}')
-        # Search through Elsevier API
+        # Batch process papers
         for i in range(0, total_count, batch_size):
+            # Set index for pagination
             query_params['start'] = i
-            ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            # Fetch papers from Elsevier API. Delete existing papers for the first batch.
+            papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            # Analyse papers using Gemini
+            papers_rated.extend(gemini.analyse_papers(papers, query))
             # Emit progress to the client
             progress = int((i + batch_size) / total_count * 100)
             socketio.emit('progress', {'progress': progress if progress < 100 else 100})
 
-        # Rate papers using Gemini API
-        papers_rated = gemini.analyse_papers(query_params.get('query'))
         return papers_rated, 200
     
 @api.route('/getTotalCount')

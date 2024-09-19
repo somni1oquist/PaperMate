@@ -48,11 +48,12 @@ class GeminiService:
         '''
         return prompt
     
-    def analyse_papers(self, query):
+    def analyse_papers(self, papers: list, query):
         """
         Generate relevance and synopsis for papers based on a query.
 
         Args:
+            papers: The papers to rate.
             query: The criteria to rate papers.
 
         Returns:
@@ -63,8 +64,6 @@ class GeminiService:
         """
         GeminiService.load_model()
 
-        papers = Paper.query.all()
-        
         if not query:
             raise ValueError('Missing query for rating papers.', 400)
 
