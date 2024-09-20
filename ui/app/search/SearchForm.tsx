@@ -78,7 +78,7 @@ const SearchForm: React.FC = () => {
 
   const isValidData = (): boolean => {
 
-    const specialCharRegex = /^[a-zA-Z0-9\s\-_]*$/;  // Allow letters, numbers, spaces, dashes, underscores
+    const specialCharRegex = /^[a-zA-Z0-9\s\-_'"*]*$/;  // Allow letters, numbers, spaces, dashes, underscores, single and double quotes
 
     if (!formData.query.trim()) {
       setError("Query field is required.");
