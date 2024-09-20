@@ -6,13 +6,29 @@ import {
   TextField,
   Box,
   Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Tooltip,
+  Divider
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataProvider';
 import { useError } from '../context/ErrorProvider';
 
 const columns: GridColDef[] = [
-  { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
+  {
+    field: 'instruction',
+    headerName: 'Instruction',
+    flex: 1,
+    renderCell: (params) => (
+      <Tooltip title={params.row.timestamp} placement="top" arrow>
+        <span>{params.value}</span>
+      </Tooltip>
+    ), // Show timestamp in tooltip on hover
+  }
 ];
 
 // New InputContainer component with a white background
@@ -59,8 +75,10 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
 }
 
 export default function InstructionBox() {
-  const [rows, setRows] = React.useState<{ id: number; instruction: string }[]>([]);
+  const [rows, setRows] = React.useState<{ id: number; instruction: string ;timestamp: string}[]>([]);
   const [inputValue, setInputValue] = React.useState('');
+  const [selectedInstruction, setSelectedInstruction] = React.useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   const { data, setData } = useData();
   const { setError } = useError(null);
 
@@ -70,26 +88,29 @@ export default function InstructionBox() {
     if (!sessionData) {
       getChatHistory()
         .then((response) => {
-          let chatHistory = [];
-          for (let i = 0; i < response.data.length; i++) {
-            chatHistory.push({ id: i, instruction: response.data[i] });
-          }
+          const chatHistory = response.data.map((instruction: string, index: number) => ({
+            id: index,
+            instruction,
+            timestamp: new Date().toLocaleString('en-AU', { timeZone: 'Australia/Perth' }), // Add timestamp in Perth timezone
+          }));
           sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
           setRows(chatHistory);
         })
+        .catch(error => setError(error.response.data.message));
     }
   }, []);
 
   const handleSend = () => {
     if (inputValue.trim()) {
+      const timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Perth' });
       setRows((prevRows) => {
         const newRows = prevRows ? [...prevRows] : [];
-        const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0; // Generate new ID
-        newRows.push({ id: newId, instruction: inputValue }); // Insert new instruction at the end
+        const newId = newRows.length ? newRows[newRows.length - 1].id + 1 : 0;
+        newRows.push({ id: newId, instruction: inputValue, timestamp });
         sessionStorage.setItem('chatHistory', JSON.stringify(newRows));
         return newRows;
       });
-      setInputValue(''); // Clear the input field after updating
+      setInputValue('');
       giveInstruction(inputValue)
         .then((response) => {
           setData(response.data.papers);
@@ -100,20 +121,53 @@ export default function InstructionBox() {
     }
   };
 
+  const handleRowClick = (params: any) => {
+    setSelectedInstruction(params.row.instruction);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
   return (
-    <Paper style={{ height: '100%', width: '100%' }}>
+    <Paper
+      style={{
+        width: '100%',
+        height: '100%',
+        padding: '5px',
+        paddingTop: '5px',
+        position: 'relative',
+        boxSizing: 'border-box',
+        margin: '15px 0 30px',
+      }}
+    >
       <DataGrid
         rows={rows}
         columns={columns}
-        getRowId={(row) => row.id} // Ensure each row has a unique ID
+        getRowId={(row) => row.id}
         disableColumnSelector={true}
         hideFooter
+        onRowClick={handleRowClick}
       />
       <InputContainer
         inputValue={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onSubmit={handleSend}
       />
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle sx={{ bgcolor: '#f5f5f5' }}>
+          Instruction Details:
+          </DialogTitle>
+          <Divider />
+        <DialogContent>
+          <Box>{selectedInstruction}</Box>
+        </DialogContent>
+        <DialogActions>
+          <Button  sx={{ bgcolor: '#f5f5f5' }}
+          onClick={handleCloseDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 }

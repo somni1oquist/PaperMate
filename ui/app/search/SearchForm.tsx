@@ -40,7 +40,11 @@ interface SearchFormData {
   geminiPro: boolean;
 }
 
-const SearchForm: React.FC = () => {
+interface SearchFormProps {
+  onProceedClick: () => void; // Add this to the props interface
+}
+
+const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   const router = useRouter();
 
   /* States declaration */
@@ -162,7 +166,7 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
-        router.push("/results");
+        onProceedClick(); // Call the prop function to display the result
       })
       .catch((error) => {
         setError(error.response.data.message);
