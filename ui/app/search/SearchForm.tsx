@@ -1,3 +1,4 @@
+// searchform.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   });
 
   const [resultCount, setResultCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
   const { setError } = useError();
   const { data, setData } = useData();
 
@@ -93,7 +94,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     }
     
     if (formData.advanced) {
-      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
+      if (
+        !isValidMonthYear(formData.fromDate) ||
+        !isValidMonthYear(formData.toDate)
+      ) {
         setError("Please enter valid months and years in the format yyyy-mm.");
         return false;
       }
@@ -135,12 +139,13 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
 
   // Scroll to the search section on search button click
   const scrollToSearchSection = () => {
-    const searchSection = document.getElementById('search-results-section');
+    const searchSection = document.getElementById("search-results-section");
     if (searchSection) {
-      searchSection.scrollIntoView({ behavior: 'smooth' });
+      searchSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
+  // Handle the Search button click
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -150,32 +155,31 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     // Scroll to the results section
     scrollToSearchSection();
 
-    // Simulate a delay for search
-    setTimeout(() => {
-      setLoading(true);
+    // Set loading state
+    setLoading(true);
 
-      const query = buildQuery();
-      getTotalCount(query)
-        .then((response) => {
-          setResultCount(response.data.total_count);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          setError("An error occurred while searching.");
-          setResultCount(0);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 500); // Simulate a slight delay before loading
+    const query = buildQuery();
+    try {
+      const response = await getTotalCount(query);
+      setResultCount(response.data.total_count);
+    } catch (error) {
+      console.error("Error:", error);
+      setError("An error occurred while searching.");
+      setResultCount(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // Handle the Proceed button click
+  const handleProceedSubmit = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
     if (!isValidData()) return;
     setError(null);
 
-    setLoading(true);
+    setLoading(true); // Show loading indicator
 
     const query = buildQuery();
 
@@ -227,7 +231,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
-                  alignItems: "center",
+                  marginTop: 2,
                 }}
               >
                 <FormControlLabel
@@ -328,48 +332,40 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                 <Grid
                   xs={12}
                   sx={{
+                    backgroundColor: "#f6f6f6",
+                    padding: 2,
                     display: "flex",
-                    justifyContent: "center",
-                    marginTop: 2,
+                    alignItems: "center",
                   }}
                 >
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      backgroundColor: "#f6f6f6",
-                      padding: 2,
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{ marginRight: 5 }}>🔍</span>
-                    <span>Total Results: {resultCount}</span>
-                  </Paper>
-                </Grid>
-              )}
-
-              <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-                <Button type="submit" variant="contained" color="primary" onClick={handleSearch}>
-                  Search
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{ marginLeft: 2 }}
-                  onClick={handleProceedSubmit}
-                >
-                  Proceed
-                </Button>
+                  <span style={{ marginRight: 5 }}>🔍</span>
+                  <span>Total Results: {resultCount}</span>
+                </Paper>
               </Grid>
-            </Grid>
-          </form>
-        </Paper>
-      )}
+            )}
 
-      {/* Add the BottomBar component here */}
-      <BottomBar />
+            <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+              <Button type="submit" variant="contained" color="primary">
+                Search
+              </Button>
+              <Button
+                type="button"
+                variant="contained"
+                color="secondary"
+                sx={{ marginLeft: 2 }}
+                onClick={handleProceedSubmit}
+              >
+                Proceed
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Paper>
 
       
+
+      {/* Pass the loading state to the BottomBar */}
+      <BottomBar loading={loading} />
     </>
   );
 };
