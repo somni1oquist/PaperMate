@@ -127,7 +127,7 @@ const SearchForm: React.FC = () => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
     if (formData.publicationFile) {
-      params.append("publicationFile",""); // How to pass the csv file
+      
     }
     if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
