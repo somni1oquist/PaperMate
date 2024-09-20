@@ -10,16 +10,25 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button
+  Button,
+  Tooltip,
+  Divider
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataProvider';
 import { useError } from '../context/ErrorProvider';
 
 const columns: GridColDef[] = [
-  { field: 'instruction', headerName: 'Instruction', width: '100px', flex: 1 },
-  { field: 'timestamp', headerName: 'Timestamp', width: 150, flex: 1 },
-
+  {
+    field: 'instruction',
+    headerName: 'Instruction',
+    flex: 1,
+    renderCell: (params) => (
+      <Tooltip title={params.row.timestamp} placement="top" arrow>
+        <span>{params.value}</span>
+      </Tooltip>
+    ), // Show timestamp in tooltip on hover
+  }
 ];
 
 // New InputContainer component with a white background
@@ -139,12 +148,16 @@ export default function InstructionBox() {
         onSubmit={handleSend}
       />
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Instruction Details</DialogTitle>
+        <DialogTitle sx={{ bgcolor: '#f5f5f5' }}>
+          Instruction Details:
+          </DialogTitle>
+          <Divider />
         <DialogContent>
           <Box>{selectedInstruction}</Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Close</Button>
+          <Button  sx={{ bgcolor: '#f5f5f5' }}
+          onClick={handleCloseDialog}>Close</Button>
         </DialogActions>
       </Dialog>
     </Paper>
