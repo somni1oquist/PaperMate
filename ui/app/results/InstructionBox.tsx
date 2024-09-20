@@ -118,8 +118,8 @@ export default function InstructionBox() {
       style={{
         width: '100%',
         height: '100%',
-        padding: '20px',
-        paddingTop: '20px',
+        padding: '5px',
+        paddingTop: '5px',
         position: 'relative',
         boxSizing: 'border-box',
         margin: '15px 0 30px',
