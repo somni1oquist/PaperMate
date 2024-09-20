@@ -28,6 +28,9 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
     >
       <TextField placeholder="Add Instruction"
         variant="standard"
+        multiline
+        minRows={1}
+        maxRows={5}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -40,11 +43,16 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
         value={inputValue}
         onChange={onChange}
         onKeyPress={(e: any) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();  // Prevents Enter from creating a new line
             onSubmit();
           }
         }}
         fullWidth
+        sx={{
+          overflow: 'auto',
+          resize: 'none',
+        }}
       />
     </Box>
   );
