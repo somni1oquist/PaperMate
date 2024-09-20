@@ -126,9 +126,7 @@ const SearchForm: React.FC = () => {
   const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
-    if (formData.publicationFile) {
-      
-    }
+    
     if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
       params.append("toDate", formData.toDate);
