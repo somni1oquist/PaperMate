@@ -7,7 +7,7 @@ import style from './page.module.css';
 
 export default function Page() {
   const [showResults, setShowResults] = useState(false); // Status to manage whether to display results
-  const resultsRef = useRef<HTMLDivElement>(null); // 创建一个引用
+  const resultsRef = useRef<HTMLDivElement>(null); // Create a reference
 
   const handleProceedClick = () => {
     setShowResults(true); // Set to true to show the Results component
@@ -15,13 +15,13 @@ export default function Page() {
 
   useEffect(() => {
     if (showResults && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth' }); // 平滑滚动到 Results 部分
+      resultsRef.current.scrollIntoView({ behavior: 'smooth' }); // Smooth scrolling to the Results section
     }
   }, [showResults]);
 
   return (
     <div className={style.main}>
-      {/* 显示 HomePage */}
+      {/* display HomePage */}
       <div className={style['home-container']}>
         <HomePage />
       </div>
