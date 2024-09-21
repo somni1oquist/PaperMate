@@ -9,15 +9,30 @@ export default function Page() {
   const [showResults, setShowResults] = useState(false); // Status to manage whether to display results
   const resultsRef = useRef<HTMLDivElement>(null); // Create a reference
 
-  const handleProceedClick = () => {
-    setShowResults(true); // Set to true to show the Results component
-  };
 
-  useEffect(() => {
-    if (showResults && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth' }); // Smooth scrolling to the Results section
-    }
-  }, [showResults]);
+  const handleProceedClick = () => {
+    setShowResults(true); // Set to true to display the result component
+  
+
+  // Make sure to scroll to the results section on each click
+  if (resultsRef.current) {
+    const elementPosition = resultsRef.current.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({
+      top: elementPosition + resultsRef.current.offsetHeight- 800, // Scroll to the bottom of the results section
+      behavior: 'smooth',
+    });
+  }
+};
+
+useEffect(() => {
+  if (showResults && resultsRef.current) {
+    const elementPosition = resultsRef.current.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({
+      top: elementPosition + resultsRef.current.offsetHeight -800, 
+      behavior: 'smooth',
+    });
+  }
+}, [showResults]); // Perform scrolling when showResults changes
 
   return (
     <div className={style.main}>
