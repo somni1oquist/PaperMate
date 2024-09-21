@@ -20,8 +20,9 @@ def create_app(config=None):
     else:
         app.config.from_object(config)
     # Enable CORS for 3000 port
-    cors.init_app(app, resources={r"/papers/*": {"origins": "http://localhost:3000"}})
-    socketio.init_app(app, cors_allowed_origins="http://localhost:3000")
+    cors_origin = os.getenv('CORS_ORIGIN', 'http://localhost:3000')
+    cors.init_app(app, resources={r"/papers/*": {"origins": cors_origin}})
+    socketio.init_app(app, cors_allowed_origins=cors_origin)
     db.init_app(app)
     api.init_app(app, version='1.0.1',
                  title='PaperMate API',

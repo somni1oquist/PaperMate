@@ -155,7 +155,7 @@ const SearchForm: React.FC = () => {
       });
   };
 
-  const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
     setError(null);
@@ -342,6 +342,7 @@ const SearchForm: React.FC = () => {
                   variant="contained"
                   color="secondary"
                   sx={{ marginLeft: 2 }}
+                  onClick={handleProceedSubmit}
                 >
                   Proceed
                 </Button>
