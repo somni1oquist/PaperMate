@@ -15,8 +15,9 @@ import {
   Divider
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
-import { useData } from '../context/DataProvider';
-import { useError } from '../context/ErrorProvider';
+import { useData } from '../context/DataContext';
+import { useError } from '../context/ErrorContext';
+import { useLoading } from '../context/LoadingContext';
 
 const columns: GridColDef[] = [
   {
@@ -81,6 +82,7 @@ export default function InstructionBox() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { data, setData } = useData();
   const { setError } = useError(null);
+  const { loading, setLoading } = useLoading();
 
   React.useEffect(() => {
     const sessionData = sessionStorage.getItem('chatHistory') as string;
@@ -102,6 +104,7 @@ export default function InstructionBox() {
 
   const handleSend = () => {
     if (inputValue.trim()) {
+      setLoading(true);
       const timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Perth' });
       setRows((prevRows) => {
         const newRows = prevRows ? [...prevRows] : [];
@@ -114,6 +117,7 @@ export default function InstructionBox() {
       giveInstruction(inputValue)
         .then((response) => {
           setData(response.data.papers);
+          setLoading(false);
         })
         .catch((error) => {
           setError(error.response.data.message);

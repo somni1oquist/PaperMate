@@ -3,9 +3,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    TESTING = False # testing with sample data
-
-    DEFAULT_QUERY = 'crash' # default query for rating papers
+    BATCH_SIZE = 5
 
     SECRET_KEY = os.environ.get('SECRET_KEY') # for session management
     

@@ -3,6 +3,7 @@ import logging
 import os
 from flask import Flask, abort
 from flask_restx import Api
+from flask_socketio import SocketIO
 from config import Config
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 api = Api()
 cors = CORS()
+socketio = SocketIO()
 def create_app(config=None):
     app = Flask(__name__)
     
@@ -17,8 +19,9 @@ def create_app(config=None):
         app.config.from_object(Config)
     else:
         app.config.from_object(config)
-   
-    cors.init_app(app, resources={r"/*": {"origins": "*"}})
+    # Enable CORS for 3000 port
+    cors.init_app(app, resources={r"/papers/*": {"origins": "http://localhost:3000"}})
+    socketio.init_app(app, cors_allowed_origins="http://localhost:3000")
     db.init_app(app)
     api.init_app(app, version='1.0.1',
                  title='PaperMate API',

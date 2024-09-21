@@ -48,11 +48,12 @@ class GeminiService:
         '''
         return prompt
     
-    def analyse_papers(self, query):
+    def analyse_papers(self, papers: list, query):
         """
         Generate relevance and synopsis for papers based on a query.
 
         Args:
+            papers: The papers to rate.
             query: The criteria to rate papers.
 
         Returns:
@@ -63,8 +64,6 @@ class GeminiService:
         """
         GeminiService.load_model()
 
-        papers = Paper.query.all()
-        
         if not query:
             raise ValueError('Missing query for rating papers.', 400)
 
@@ -88,7 +87,7 @@ class GeminiService:
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
     
-    def mutate_papers(self, query, chat_id=None):
+    def mutate_papers(self, papers, query, chat_id=None):
         """
         Mutate papers based on a query.
 
@@ -108,8 +107,6 @@ class GeminiService:
         
         # Prepare chat history
         parent_chat = Chat.query.get(chat_id) if chat_id else None
-
-        papers = parent_chat.get_related_papers() if parent_chat else Paper.query.all()
 
         current_chat = Chat(history=[])
         # Get chat history

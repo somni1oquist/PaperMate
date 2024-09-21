@@ -18,17 +18,3 @@ class Chat(db.Model):
     
     def __str__(self):
         return self.history[0]["parts"][0]["text"]
-    
-    
-    def get_related_papers(self):
-        '''
-        Get related papers from the latest chat history.
-        '''
-        papers = []
-        response_text = self.history[-1]['parts'][0]['text']
-        for doi in json.loads(response_text):
-            paper = Paper.query.filter_by(doi=doi).first()
-            if paper:
-                papers.append(paper)
-        
-        return papers

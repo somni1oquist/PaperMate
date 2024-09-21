@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
 import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
-import { useData } from '../context/DataProvider';
-import { useError } from '../context/ErrorProvider';
+import { useData } from '../context/DataContext';
+import { useError } from '../context/ErrorContext';
+import { useLoading } from '../context/LoadingContext';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
 import PaperDetail from './PaperDetail';
+import Progress from '../components/Progress';
 
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
@@ -39,30 +41,14 @@ export default function ResultGrid() {
   const router = useRouter();
   const { setError } = useError(null);
   const { data, setData } = useData();
+  const { loading } = useLoading();
   const [rows, setRows] = useState<GridRowsProp>([]);
-  const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);  // State for switch
   const [selectedRow, setSelectedRow] = useState<any | null>(null); // State for selected row
   const [open, setOpen] = useState<boolean | null>(false); // State for dialog
 
   useEffect(() => {
-    // Fetch data from API if not already loaded
-    if (!data && sessionStorage.getItem('query')) {
-      searchPapers(sessionStorage.getItem('query') as string)
-        .then((response) => {
-          setData(response.data);
-          setRows(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setError(error.response.data.message);
-        });
-    } else if (!data) {
-      router.push('/'); // Redirect to home page if no query is found
-    } else {
-      setRows(data);
-      setLoading(false);
-    }
+    setRows(data);
   }, [data]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +83,17 @@ export default function ResultGrid() {
             pagination: { paginationModel: { pageSize: 5 } },
           }}
           loading={loading}
+          slotProps={{
+            loadingOverlay: {
+              variant: 'skeleton',
+              noRowsVariant: 'skeleton',
+            },
+          }}
           getRowId={(row) => row.doi}
           disableRowSelectionOnClick
           disableColumnMenu={true}
           slots={{
-            toolbar: GridToolbar,
+            toolbar: GridToolbar
           }}
           style={{
             maxHeight: 'calc(100vh - 50px)',

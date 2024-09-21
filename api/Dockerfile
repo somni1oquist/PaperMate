@@ -18,4 +18,4 @@ COPY . /app/
 EXPOSE 5000
 
 # Run the application with debugger
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:create_app()"]
