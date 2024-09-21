@@ -38,11 +38,7 @@ interface SearchFormData {
   geminiPro: boolean;
 }
 
-interface SearchFormProps {
-  onProceedClick: () => void; // Add this to the props interface
-}
-
-const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
+const SearchForm: React.FC = () => {
   const router = useRouter();
 
   /* States declaration */
@@ -61,7 +57,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
 
   const [resultCount, setResultCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const { setError } = useError();
+  const { setError } = useError(null);
   const { data, setData } = useData();
 
   // Clear session when first mounted
@@ -133,7 +129,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     return params.toString();
   }
 
-  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   
     if (!isValidData()) return;
@@ -175,7 +171,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
-        onProceedClick(); // Call the prop function to display the result
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -347,7 +342,6 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   variant="contained"
                   color="secondary"
                   sx={{ marginLeft: 2 }}
-                  onClick={handleProceedSubmit}
                 >
                   Proceed
                 </Button>

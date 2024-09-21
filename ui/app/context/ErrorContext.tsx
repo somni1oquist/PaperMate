@@ -31,11 +31,11 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
         onClose={handleClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        {error && (
+        {!!error ? (  // Always pass valid children or undefined
           <Alert severity="error" variant="filled" onClose={handleClose}>
             {error}
           </Alert>
-        )}
+        ) : undefined}
       </Snackbar>
     </ErrorContext.Provider>
   );

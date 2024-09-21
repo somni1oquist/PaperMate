@@ -100,7 +100,7 @@ export default function InstructionBox() {
         })
         .catch(error => setError(error.response.data.message));
     }
-  }, []);
+  }, [setError]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
