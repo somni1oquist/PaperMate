@@ -38,7 +38,11 @@ interface SearchFormData {
   geminiPro: boolean;
 }
 
-const SearchForm: React.FC = () => {
+interface SearchFormProps {
+  onProceedClick: () => void; // Add this to the props interface
+}
+
+const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   const router = useRouter();
 
   /* States declaration */
@@ -72,31 +76,42 @@ const SearchForm: React.FC = () => {
     const [year, month] = dateString.split("-").map(Number);
     return year >= 1900 && month >= 1 && month <= 12;
   };
+  
 
   const isValidData = (): boolean => {
+
+    const specialCharRegex = /^[a-zA-Z0-9\s\-_'"*]*$/;  // Allow letters, numbers, spaces, dashes, underscores, single and double quotes
+
     if (!formData.query.trim()) {
       setError("Query field is required.");
       return false;
     }
+    // Validate query field for special characters
+    if (!specialCharRegex.test(formData.query)) {
+      setError("Query field contains invalid special characters.");
+      return false;
+    }
+    
     if (formData.advanced) {
       if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
         setError("Please enter valid months and years in the format yyyy-mm.");
         return false;
       }
-
       const fromDate = new Date(`${formData.fromDate}-01`).getTime();
       const toDate = new Date(`${formData.toDate}-01`).getTime();
-
       if (fromDate > toDate) {
         setError("From Date should not be later than To Date.");
         return false;
       }
-
       if (formData.title.length > 100) {
         setError("Title should not exceed 100 characters.");
         return false;
       }
-
+      // Validate title field for special characters
+      if (!specialCharRegex.test(formData.title)) {
+        setError("Title contains invalid special characters.");
+        return false;
+      }
       if (!/^[a-zA-Z\s]*$/.test(formData.author)) {
         setError("Author name should contain only letters and spaces.");
         return false;
@@ -109,6 +124,7 @@ const SearchForm: React.FC = () => {
   const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
+    
     if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
       params.append("toDate", formData.toDate);
@@ -160,6 +176,7 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
+        onProceedClick(); // Call the prop function to display the result
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -177,10 +194,19 @@ const SearchForm: React.FC = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      setFormData({ ...formData, publicationFile: event.target.files[0] });
+
+      const file = event.target.files[0];
+      const allowedTypes = ["text/csv"];
+      if (allowedTypes.includes(file.type)) {
+        setFormData({ ...formData, publicationFile: file });
+      } else {
+        setError("Please upload a valid CSV file.");
+        setFormData({ ...formData, publicationFile: null });
+      }
+
     }
   };
-
+  
   return (
     <>
       {loading ? (
@@ -241,7 +267,7 @@ const SearchForm: React.FC = () => {
               <Grid xs={6}>
                 <TextField
                   type="file"
-                  inputProps={{ accept: ".pdf,.doc,.docx" }} // Krish needs to update this line for validation
+                  inputProps={{ accept: ".csv" }} 
                   fullWidth
                   onChange={handleFileChange}
                   helperText={
