@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import CircularProgress, {
   CircularProgressProps,
 } from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 const Overlay = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -53,11 +53,14 @@ interface ProgressProps {
 
 export default function Progress({ eventName }: ProgressProps) {
   const [progress, setProgress] = React.useState(0);
-  const socket = io(process.env.NEXT_PUBLIC_API_URL, {
-    transports: ['websocket']
-  });
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    socketRef.current = io(process.env.NEXT_PUBLIC_API_URL || 'http//localhost:5000', {
+      transports: ['websocket'],
+    });
+    const socket = socketRef.current;
+
     // Listen to the event passed as a prop
     socket.on(eventName, (data: any) => {
       setProgress(data.progress);

@@ -15,6 +15,7 @@ export default function PaperDetail({ open, onClick, row }: PaperDetailProps) {
       <Dialog
         open={open}
         maxWidth={"md"}
+        scroll={"paper"}
         onBackdropClick={onClick}
         fullWidth>
         <DialogTitle>
@@ -22,7 +23,7 @@ export default function PaperDetail({ open, onClick, row }: PaperDetailProps) {
             {row.title}
           </Link>
         </DialogTitle>
-        <DialogContent scroll={"paper"}>
+        <DialogContent dividers={true}>
           <TableContainer>
             <Table>
               <TableBody>

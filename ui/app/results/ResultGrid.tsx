@@ -16,8 +16,7 @@ const truncateText = (text: string, length: number) => {
 };
 
 // Define grid columns
-const genColDefs = (): GridColDef[] => {
-  const { data } = useData();
+const genColDefs = (data: any[]): GridColDef[] => {
   if (!data || data.length === 0)
     return []; // Return an empty array if there's no data
 
@@ -48,7 +47,11 @@ export default function ResultGrid() {
   const [open, setOpen] = useState<boolean | null>(false); // State for dialog
 
   useEffect(() => {
-    setRows(data);
+    if (Array.isArray(data)) {
+      setRows(data);
+    } else {
+      setRows([]);
+    }
   }, [data]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +81,7 @@ export default function ResultGrid() {
         {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
         <DataGrid
           rows={rows}
-          columns={genColDefs()}
+          columns={genColDefs(data as any[])}
           initialState={{
             pagination: { paginationModel: { pageSize: 5 } },
           }}

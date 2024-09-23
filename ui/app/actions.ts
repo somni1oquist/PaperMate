@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const headers = {
   'Content-Type': 'application/json',
 };

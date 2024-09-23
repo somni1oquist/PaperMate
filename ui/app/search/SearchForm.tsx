@@ -40,11 +40,7 @@ interface SearchFormData {
   geminiPro: boolean;
 }
 
-interface SearchFormProps {
-  onProceedClick: () => void; // Add this to the props interface
-}
-
-const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
+const SearchForm: React.FC = () => {
   const router = useRouter();
 
   /* States declaration */
@@ -61,8 +57,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   });
 
   const [resultCount, setResultCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const { setError } = useError();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { setError } = useError(null);
   const { data, setData } = useData();
 
   // Clear session when first mounted
@@ -137,8 +133,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     return params.toString();
   };
 
-  // Handle the Search button click
-  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (!isValidData()) return;
@@ -160,10 +155,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     }
   };
 
-  // Handle the Proceed button click
-  const handleProceedSubmit = async (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
     setError(null);
@@ -171,12 +163,14 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     setLoading(true); // Show loading indicator
 
     const query = buildQuery();
-
+    // Reset data and chatId when proceeding
+    setData(null);
+    sessionStorage.removeItem("chatId");
+    // Get search results
     searchPapers(query)
       .then((response) => {
         const papers = response.data;
         setData(papers);
-        onProceedClick(); // Call the prop function to display the result
       })
       .catch((error) => {
         setError(error.response.data.message);
