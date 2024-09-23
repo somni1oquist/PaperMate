@@ -165,7 +165,9 @@ const SearchForm: React.FC = () => {
 
     // Construct query
     const query = buildQuery();
-
+    // Reset data and chatId when proceeding
+    setData(null);
+    sessionStorage.removeItem("chatId");
     // Get search results
     searchPapers(query)
       .then((response) => {
