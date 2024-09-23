@@ -1,5 +1,6 @@
-'use client'
-import React, { createContext, useState, useContext, useRef, ReactNode } from 'react';
+// context/DataProvider.tsx
+'use client';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 // Define a type for the dynamic data object
 type Data = Record<string, any>;

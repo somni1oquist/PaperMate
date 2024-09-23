@@ -1,0 +1,79 @@
+/* Bottom-Bar.css */
+
+/* Fixed bottom bar, centered with 50% width */
+.bottom-bar {
+  position: fixed;
+  bottom: 10px;
+  width: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #93c3f3; /* Dodger Blue background */
+  color: #fff; /* White text color for contrast */
+  text-align: center;
+  padding: 5px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 8px;
+}
+
+/* Traffic light CSS */
+.traffic-light {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  background-color: #93c3f3; /* Steel Blue background */
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.light {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin: 2px 0;
+  opacity: 1; /* All lights are on by default */
+}
+
+.red {
+  background-color: red;
+}
+
+.yellow {
+  background-color: yellow;
+}
+
+.green {
+  background-color: green;
+}
+
+/* Style for each option in the bottom bar */
+.bottom-bar-option {
+  color: #fff; /* White text color */
+  text-decoration: none;
+  padding: 10px;
+  margin: 0 5px;
+  background-color: #1C86EE; /* Medium Blue background */
+  transition: background-color 0.3s;
+}
+
+.bottom-bar-option:hover {
+  background-color: #1874CD; /* Slightly darker blue on hover */
+}
+
+/* Disabled style for the Results button */
+.bottom-bar-option.disabled {
+  color: #B0C4DE; /* Light Steel Blue text color */
+  pointer-events: none;
+  background-color: #ADD8E6; /* Light Blue background for disabled button */
+}
+
+/* Loading container styling */
+.loading-container {
+  display: flex;
+  align-items: center;
+  color: white;
+}

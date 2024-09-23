@@ -1,3 +1,4 @@
+// searchform.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
 import { useError } from "../context/ErrorContext";
 import Progress from "../components/Progress";
+import BottomBar from "../components/Bottom-Bar"; // Correct import for BottomBar
 
 // Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
@@ -46,11 +48,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   const router = useRouter();
 
   /* States declaration */
-
   const [formData, setFormData] = useState<SearchFormData>({
     query: "",
-    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
-    toDate: getCurrentMonth(),    // Default to current month
+    fromDate: getSixMonthsAgo(), // Default from 6 months ago
+    toDate: getCurrentMonth(), // Default to current month
     title: "",
     author: "",
     publicationFile: null,
@@ -60,7 +61,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
   });
 
   const [resultCount, setResultCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
   const { setError } = useError();
   const { data, setData } = useData();
 
@@ -93,7 +94,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     }
     
     if (formData.advanced) {
-      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
+      if (
+        !isValidMonthYear(formData.fromDate) ||
+        !isValidMonthYear(formData.toDate)
+      ) {
         setError("Please enter valid months and years in the format yyyy-mm.");
         return false;
       }
@@ -131,46 +135,43 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
       params.append("author", formData.author);
     }
     return params.toString();
-  }
-
-  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  
-    if (!isValidData()) return;
-    setError("");
-  
-    // Put loading mask on
-    setLoading(true);
-  
-    // Construct query
-    const query = buildQuery();
-    // Get search total count
-    getTotalCount(query)
-      .then((response) => {
-        setResultCount(response.data.total_count);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setError("An error occurred while searching.");
-        setResultCount(0);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
-  const handleProceedSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // Handle the Search button click
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!isValidData()) return;
+    setError("");
+
+    // Set loading state
+    setLoading(true);
+
+    const query = buildQuery();
+    try {
+      const response = await getTotalCount(query);
+      setResultCount(response.data.total_count);
+    } catch (error) {
+      console.error("Error:", error);
+      setError("An error occurred while searching.");
+      setResultCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle the Proceed button click
+  const handleProceedSubmit = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
     if (!isValidData()) return;
     setError(null);
-  
-    // Put loading mask on
-    setLoading(true);
 
-    // Construct query
+    setLoading(true); // Show loading indicator
+
     const query = buildQuery();
 
-    // Get search results
     searchPapers(query)
       .then((response) => {
         const papers = response.data;
@@ -356,6 +357,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
           </form>
         </Paper>
       )}
+      {/* Pass the loading state to the BottomBar */}
+      <BottomBar loading={loading} />
     </>
   );
 };
