@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
-import { useError } from "../context/ErrorContext";
+import { useError } from "../context/MessageContext";
 import Progress from "../components/Progress";
 
 // Helper function to calculate the date 6 months ago

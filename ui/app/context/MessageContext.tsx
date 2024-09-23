@@ -2,20 +2,20 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 
-interface ErrorContextType {
+interface MessageContextType {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 // Create the ErrorContext with an initial value of undefined
-const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
+const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
-interface ErrorProviderProps {
+interface MessageProviderProps {
   children: ReactNode;
 }
 
 // Create a provider component
-export function ErrorProvider({ children }: ErrorProviderProps) {
+export function MessageProvider({ children }: MessageProviderProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleClose = () => {
@@ -23,7 +23,7 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
   };
 
   return (
-    <ErrorContext.Provider value={{ error, setError }}>
+    <MessageContext.Provider value={{ error, setError }}>
       {children}
       <Snackbar
         open={!!error}
@@ -37,13 +37,13 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
           </Alert>
         ) : undefined}
       </Snackbar>
-    </ErrorContext.Provider>
+    </MessageContext.Provider>
   );
 }
 
 // Custom hook to use the ErrorContext
 export function useError(p0: null) {
-  const context = useContext(ErrorContext);
+  const context = useContext(MessageContext);
   if (!context) {
     throw new Error('useError must be used within an ErrorProvider');
   }

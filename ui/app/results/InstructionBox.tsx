@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataContext';
-import { useError } from '../context/ErrorContext';
+import { useError } from '../context/MessageContext';
 import { useLoading } from '../context/LoadingContext';
 
 const columns: GridColDef[] = [
