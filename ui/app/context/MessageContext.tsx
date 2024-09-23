@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 
-type SeverityType = 'error' | 'warning' | 'info' | null;
+type SeverityType = 'error' | 'warning' | 'info' | 'success' | null;
 
 interface MessageContextType {
   message: string | null;

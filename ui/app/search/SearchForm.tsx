@@ -179,6 +179,7 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
+        setMessage(`Found ${papers.length} papers.`, "success");
       })
       .catch((error) => {
         setMessage(`${error.response.data.message}`, "error");

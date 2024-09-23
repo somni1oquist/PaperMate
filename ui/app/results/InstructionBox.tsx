@@ -120,6 +120,7 @@ export default function InstructionBox() {
       giveInstruction(inputValue)
         .then((response) => {
           setData(response.data.papers);
+          setMessage("Instruction proccessed successfully", "success");
           setLoading(false);
         })
         .catch((error) => {
