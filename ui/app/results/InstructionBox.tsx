@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataContext';
-import { useError } from '../context/MessageContext';
+import { useMessage } from '../context/MessageContext';
 import { useLoading } from '../context/LoadingContext';
 
 const columns: GridColDef[] = [
@@ -81,7 +81,7 @@ export default function InstructionBox() {
   const [selectedInstruction, setSelectedInstruction] = React.useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { data, setData } = useData();
-  const { setError } = useError(null);
+  const { setMessage } = useMessage();
   const { loading, setLoading } = useLoading();
 
   React.useEffect(() => {
@@ -98,9 +98,12 @@ export default function InstructionBox() {
           sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
           setRows(chatHistory);
         })
-        .catch(error => setError(error.response.data.message));
+        .catch(error => {
+          console.log('Error fetching chat history:', error);
+          setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+        });
     }
-  }, [setError]);
+  }, [setMessage]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
@@ -120,7 +123,8 @@ export default function InstructionBox() {
           setLoading(false);
         })
         .catch((error) => {
-          setError(error.response.data.message);
+          setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+          setLoading(false);
         });
     }
   };

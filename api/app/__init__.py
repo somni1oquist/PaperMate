@@ -62,7 +62,11 @@ def create_app(config=None):
         logger.error(f'{type(error).__name__}: {str(error)}')
         if app.debug:
             raise error
-        return abort(500, str(error))
+        response = {
+            "error": type(error).__name__,
+            "message": str(error)
+        }
+        return response, 500
 
     # Create database
     with app.app_context():

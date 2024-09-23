@@ -3,7 +3,7 @@ import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-gri
 import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
 import { useData } from '../context/DataContext';
-import { useError } from '../context/MessageContext';
+import { useMessage } from '../context/MessageContext';
 import { useLoading } from '../context/LoadingContext';
 import { useRouter } from 'next/navigation';
 import { searchPapers } from '../actions';
@@ -38,7 +38,7 @@ const genColDefs = (data: any[]): GridColDef[] => {
 
 export default function ResultGrid() {
   const router = useRouter();
-  const { setError } = useError(null);
+  const { setMessage } = useMessage();
   const { data, setData } = useData();
   const { loading } = useLoading();
   const [rows, setRows] = useState<GridRowsProp>([]);
