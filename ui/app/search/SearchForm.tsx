@@ -231,7 +231,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
-                  marginTop: 2,
+                  alignItems: "center",
                 }}
               >
                 <FormControlLabel
@@ -294,7 +294,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   <Grid xs={6}>
                     <TextField
                       label="From Date (yyyy-mm)"
-                      type="month"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.fromDate}
                       onChange={handleInputChange("fromDate")}
@@ -303,7 +303,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   <Grid xs={6}>
                     <TextField
                       label="To Date (yyyy-mm)"
-                      type="month"
+                      type="month"  // Changed input type to "month"
                       fullWidth
                       value={formData.toDate}
                       onChange={handleInputChange("toDate")}
@@ -327,43 +327,47 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
                   </Grid>
                 </>
               )}
-
+              
               {resultCount !== null && (
-                <Grid
-                  xs={12}
+                <Grid 
+                xs={12}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 2
+                }}
+                >
+                  <Paper elevation={1} 
                   sx={{
                     backgroundColor: "#f6f6f6",
                     padding: 2,
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "center"
                   }}
+                  >
+                    <span style={{ marginRight: 5 }}>🔍</span>
+                    <span>Total Results: {resultCount}</span>
+                  </Paper>
+                </Grid>
+              )}
+
+              <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+                <Button type="submit" variant="contained" color="primary" onClick={handleSearch}>
+                  Search
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{ marginLeft: 2 }}
+                  onClick={handleProceedSubmit}
                 >
-                  <span style={{ marginRight: 5 }}>🔍</span>
-                  <span>Total Results: {resultCount}</span>
-                </Paper>
+                  Proceed
+                </Button>
               </Grid>
-            )}
-
-            <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-              <Button type="submit" variant="contained" color="primary">
-                Search
-              </Button>
-              <Button
-                type="button"
-                variant="contained"
-                color="secondary"
-                sx={{ marginLeft: 2 }}
-                onClick={handleProceedSubmit}
-              >
-                Proceed
-              </Button>
             </Grid>
-          </Grid>
-        </form>
-      </Paper>
-
-      
-
+          </form>
+        </Paper>
+      )}
       {/* Pass the loading state to the BottomBar */}
       <BottomBar loading={loading} />
     </>

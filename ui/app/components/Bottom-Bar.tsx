@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import '../Bottom-Bar.css'; // Import the CSS file
-import { useData } from '../context/DataProvider';
+import { useData } from '../context/DataContext';
 import { CircularProgress, Typography, Box } from '@mui/material'; // Import necessary components
 
 interface BottomBarProps {
