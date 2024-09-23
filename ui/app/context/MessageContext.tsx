@@ -2,12 +2,14 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 
+type SeverityType = 'error' | 'warning' | 'info' | null;
+
 interface MessageContextType {
-  error: string | null;
-  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  message: string | null;
+  severity: SeverityType;
+  setMessage: (message: string | null, severity?: SeverityType) => void;
 }
 
-// Create the ErrorContext with an initial value of undefined
 const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
 interface MessageProviderProps {
@@ -16,24 +18,34 @@ interface MessageProviderProps {
 
 // Create a provider component
 export function MessageProvider({ children }: MessageProviderProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessageState] = useState<string | null>(null);
+  const [severity, setSeverity] = useState<SeverityType>(null);
+
+  const setMessage = (msg: string | null, severity: SeverityType = 'info') => {
+    setMessageState(msg);
+    setSeverity(severity);
+  };
 
   const handleClose = () => {
-    setError(null);
+    setMessage(null);
   };
 
   return (
-    <MessageContext.Provider value={{ error, setError }}>
+    <MessageContext.Provider value={{ message, severity, setMessage }}>
       {children}
       <Snackbar
-        open={!!error}
+        open={!!message}
         autoHideDuration={3000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        {!!error ? (  // Always pass valid children or undefined
-          <Alert severity="error" variant="filled" onClose={handleClose}>
-            {error}
+        {!!message ? (
+          <Alert
+            severity={severity || 'info'}
+            variant="filled"
+            onClose={handleClose}
+          >
+            {message}
           </Alert>
         ) : undefined}
       </Snackbar>
@@ -41,11 +53,11 @@ export function MessageProvider({ children }: MessageProviderProps) {
   );
 }
 
-// Custom hook to use the ErrorContext
-export function useError(p0: null) {
+// Custom hook to use the MessageContext
+export function useMessage() {
   const context = useContext(MessageContext);
   if (!context) {
-    throw new Error('useError must be used within an ErrorProvider');
+    throw new Error('useMessage must be used within a MessageProvider');
   }
   return context;
 }
