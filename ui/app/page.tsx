@@ -37,17 +37,17 @@ useEffect(() => {
   return (
     <div className={style.main}>
       {/* display HomePage */}
-      <div className={style['home-container']}>
+      <div className={style['home-container']} id={"home"}>
         <HomePage />
       </div>
       {/* Display Search page*/}
-      <div className={style['search-container']}>
+      <div className={style['search-container']} id={"search"}>
         <Search onProceedClick={handleProceedClick} /> {/* Pass a function that handles the click*/}
       </div>
 
       {/* Display the Results page according to the showResults status */}
       {showResults && (
-        <div className={style['result-container']} ref={resultsRef} > {/* Make sure the class name is correct */}
+        <div className={style['result-container']} ref={resultsRef} id={"results"}> {/* Make sure the class name is correct */}
           <Results />
         </div>
       )}

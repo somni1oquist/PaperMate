@@ -137,23 +137,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onProceedClick }) => {
     return params.toString();
   };
 
-  // Scroll to the search section on search button click
-  const scrollToSearchSection = () => {
-    const searchSection = document.getElementById("search-results-section");
-    if (searchSection) {
-      searchSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   // Handle the Search button click
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!isValidData()) return;
     setError("");
-
-    // Scroll to the results section
-    scrollToSearchSection();
 
     // Set loading state
     setLoading(true);

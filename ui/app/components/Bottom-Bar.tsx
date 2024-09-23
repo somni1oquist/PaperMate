@@ -13,6 +13,14 @@ const BottomBar: React.FC<BottomBarProps> = ({ loading }) => {
   const { data } = useData();
   const resultsEnabled = data !== null;
 
+  const handleScroll = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
+    event.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="bottom-bar">
       {/* Conditionally display loading indicator or traffic light */}
@@ -32,17 +40,24 @@ const BottomBar: React.FC<BottomBarProps> = ({ loading }) => {
       )}
 
       {/* Navigation Links */}
-      <Link href="/" className="bottom-bar-option">
+      <Link href="#home"
+        className="bottom-bar-option"
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'home')}
+      >
         Home
       </Link>
-      <Link href="/search" className="bottom-bar-option">
+      <Link href="#search"
+        className="bottom-bar-option"
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
+      >
         Search
       </Link>
 
       {/* Conditionally disable the Results option */}
       <Link
-        href={resultsEnabled ? "/results" : "#"}
+        href={resultsEnabled ? "#results" : "#"}
         className={`bottom-bar-option ${resultsEnabled ? '' : 'disabled'}`}
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
       >
         Results
       </Link>
