@@ -1,8 +1,9 @@
 from datetime import datetime
 import logging
 import os
-from flask import Flask, abort
+from flask import Flask, jsonify
 from flask_restx import Api
+from werkzeug.exceptions import BadRequest
 from flask_socketio import SocketIO
 from config import Config
 from flask_cors import CORS
@@ -62,11 +63,14 @@ def create_app(config=None):
         logger.error(f'{type(error).__name__}: {str(error)}')
         if app.debug:
             raise error
+        status_code = 500
+        if isinstance(error, BadRequest):
+            status_code = 400
         response = {
             "error": type(error).__name__,
             "message": str(error)
         }
-        return response, 500
+        return jsonify(response), status_code
 
     # Create database
     with app.app_context():

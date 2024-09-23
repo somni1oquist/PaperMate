@@ -156,7 +156,7 @@ const SearchForm: React.FC = () => {
       .catch((error) => {
         console.error("Error:", error);
         setResultCount(0);
-        setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+        setMessage(`${error.response.data.message}`, "error");
       })
       .finally(() => {
         setLoading(false);
@@ -181,7 +181,7 @@ const SearchForm: React.FC = () => {
         setData(papers);
       })
       .catch((error) => {
-        setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+        setMessage(`${error.response.data.message}`, "error");
       })
       .finally(() => {
         setLoading(false);
