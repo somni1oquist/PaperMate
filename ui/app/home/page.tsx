@@ -39,13 +39,6 @@ export default function HomePage() {
           </p>
         </Box>
       </Grid>
-
-      {/* Feature Slider Section */}
-      <Grid xs={12}>
-        <Box textAlign="center">
-          <FeatureSlider />
-        </Box>
-      </Grid>
     </Grid>
   );
 }

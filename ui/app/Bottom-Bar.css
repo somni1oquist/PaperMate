@@ -3,20 +3,22 @@
 /* Fixed bottom bar, centered with 50% width */
 .bottom-bar {
   position: fixed;
-  bottom: 10px;
-  width: 50%;
+  bottom: 20px;
+  width: 25%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #93c3f3; /* Dodger Blue background */
+  background: rgba(147, 195, 243, 0.5); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Blur effect */
   color: #fff; /* White text color for contrast */
   text-align: center;
   padding: 5px;
-  z-index: 1000;
+  z-index: 500;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-radius: 8px;
-  height: 40px;
+  border-radius: 12px;
+  height: 75px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
 }
 
 /* Traffic light CSS */
@@ -26,7 +28,8 @@
   justify-content: center;
   align-items: center;
   width: 15px;
-  background-color: #93c3f3; /* Steel Blue background */
+  background: rgba(147, 195, 243, 0.5); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Blur effect */
   padding: 4px;
   border-radius: 4px;
 }
@@ -40,36 +43,45 @@
 }
 
 .red {
-  background-color: red;
+  background-color: rgba(255, 0, 0, 0.7); /* Semi-transparent red */
 }
 
 .yellow {
-  background-color: yellow;
+  background-color: rgba(255, 255, 0, 0.7); /* Semi-transparent yellow */
 }
 
 .green {
-  background-color: green;
+  background-color: rgba(0, 255, 0, 0.7); /* Semi-transparent green */
 }
 
 /* Style for each option in the bottom bar */
 .bottom-bar-option {
   color: #fff; /* White text color */
   text-decoration: none;
-  padding: 10px;
+  padding: 10px; /* Increased padding for larger clickable area */
   margin: 0 5px;
-  background-color: #1C86EE; /* Medium Blue background */
-  transition: background-color 0.3s;
+  font-size: 1.2em; /* Larger font size */
+  background: transparent; /* Transparent background */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+  border-radius: 8px; /* Optional rounded corners */
 }
 
+/* Highlight the current page button */
+.bottom-bar-option.active {
+  background: rgba(24, 116, 205, 0.7); /* Darker blue for active button */
+}
+
+/* Hover effect for buttons */
 .bottom-bar-option:hover {
-  background-color: #1874CD; /* Slightly darker blue on hover */
+  background: rgba(24, 116, 205, 0.5); /* Slightly darker background on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
 }
 
 /* Disabled style for the Results button */
 .bottom-bar-option.disabled {
   color: #B0C4DE; /* Light Steel Blue text color */
   pointer-events: none;
-  background-color: #ADD8E6; /* Light Blue background for disabled button */
+  background: rgba(173, 216, 230, 0.5); /* Semi-transparent light blue for disabled button */
 }
 
 /* Loading container styling */

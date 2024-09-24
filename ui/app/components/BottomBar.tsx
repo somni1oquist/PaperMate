@@ -52,7 +52,7 @@ const BottomBar: React.FC = () => {
         className={`bottom-bar-option ${resultsEnabled ? '' : 'disabled'}`}
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
       >
-        Results
+        Result
       </Link>
     </div>
   );
