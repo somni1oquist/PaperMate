@@ -3,6 +3,8 @@ import React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Box, Typography } from "@mui/material";
 import style from "../page.module.css"; // Assuming your CSS module file
+import Lottie from 'lottie-react';
+import animationData from '../assets/book-animation.json'; // Import the Lottie animation
 
 export default function HomePage() {
   return (
@@ -16,7 +18,7 @@ export default function HomePage() {
     >
       {/* Title Section */}
       <Grid xs={12} md={6} textAlign="center">
-        <Box>
+        <Box display="flex" alignItems="center" justifyContent="center"> {/* Flex container for title and animation */}
           <Typography
             variant="h1"
             sx={{
@@ -27,17 +29,18 @@ export default function HomePage() {
           >
             PaperMate
           </Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              fontSize: "1.25rem", // Medium-sized subtitle text
-              color: "#555", // Lighter color for description
-              marginTop: "1rem", // Space between title and description
-            }}
-          >
-            Your Gateway to Streamlined Research – Search, Analyse, and Excel in One Click.
-          </Typography>
+          <Lottie animationData={animationData} style={{ width: "14%", height: "auto" }} />
         </Box>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontSize: "1.25rem", // Medium-sized subtitle text
+            color: "#555", // Lighter color for description
+            marginTop: "1rem", // Space between title and description
+          }}
+        >
+          Your Gateway to Streamlined Research – Search, Analyse, and Excel in One Click.
+        </Typography>
       </Grid>
     </Grid>
   );
