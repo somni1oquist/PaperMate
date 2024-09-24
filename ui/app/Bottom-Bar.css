@@ -1,6 +1,4 @@
-/* Bottom-Bar.css */
-
-/* Fixed bottom bar, centered with 50% width */
+/* Fixed bottom bar, centered with 25% width */
 .bottom-bar {
   position: fixed;
   bottom: 20px;
@@ -25,20 +23,22 @@
 .bottom-bar-option {
   color: #fff; /* White text color */
   text-decoration: none;
-  padding: 10px; /* Increased padding for larger clickable area */
-  margin: 0 5px;
+  padding: 10px 20px; /* Increased padding for larger clickable area */
+  margin: 0; /* Remove default margin */
   font-size: 1.2em; /* Larger font size */
   background: transparent; /* Transparent background */
   transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
   border-radius: 8px; /* Optional rounded corners */
   position: relative; /* Needed for pseudo-element positioning */
+  display: flex; /* Use flexbox to center text */
+  justify-content: center; /* Center text horizontally */
 }
 
 /* Add a pseudo-element for the white line between buttons */
 .bottom-bar-option:not(:last-child)::after {
   content: ""; /* Create an empty element */
   position: absolute;
-  right: -3px; /* Position it slightly to the right of the button */
+  right: -4.5px; /* Position it slightly to the right of the button */
   top: 50%; /* Center it vertically */
   transform: translateY(-50%); /* Adjust for vertical centering */
   width: 1px; /* Set the width of the line */
