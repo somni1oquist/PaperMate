@@ -10,7 +10,7 @@ export default function Search() {
   return (
     <>
       <div className={style.main}>
-        <div className={style['papermate-container']}>
+        <div>
           <Header />
           <SearchForm /> {/* Transferring properties */}
         </div>

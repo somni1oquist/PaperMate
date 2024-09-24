@@ -12,8 +12,16 @@
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
   min-height: 75vh; /* Ensure it takes full viewport height */
+  width: 100vw;
   padding: 2rem;
+  
+  /* Background image properties */
+  background-image: url('./assets/purple.jpg'); /* Replace with your image path */
+  background-size: cover; /* Cover ensures the image covers the entire container */
+  background-repeat: no-repeat; /* Prevent repeating */
+  background-position: center; /* Centers the image */
 }
+
 
 .logo-section {
   flex: 1; /* Allow logo section to take up available space */
