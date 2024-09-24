@@ -13,7 +13,6 @@ export default function Results() {
         <div className={style["papermate-container"]}>
           <Header />
           <ResultGrid />
-          <Footer />
         </div>
       </div>
     </>

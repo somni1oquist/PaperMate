@@ -56,3 +56,14 @@
   min-height: 75vh; /* Ensure it takes full viewport height */
   padding: 2rem;
 }
+
+/* General Styles for About Page */
+.about-container {
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 75vh; /* Ensure it takes full viewport height */
+  padding: 2rem;
+}
+
+

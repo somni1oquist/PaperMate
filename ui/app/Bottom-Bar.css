@@ -21,39 +21,6 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
 }
 
-/* Traffic light CSS */
-.traffic-light {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 15px;
-  background: rgba(147, 195, 243, 0.5); /* Semi-transparent background */
-  backdrop-filter: blur(10px); /* Blur effect */
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.light {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin: 2px 0;
-  opacity: 1; /* All lights are on by default */
-}
-
-.red {
-  background-color: rgba(255, 0, 0, 0.7); /* Semi-transparent red */
-}
-
-.yellow {
-  background-color: rgba(255, 255, 0, 0.7); /* Semi-transparent yellow */
-}
-
-.green {
-  background-color: rgba(0, 255, 0, 0.7); /* Semi-transparent green */
-}
-
 /* Style for each option in the bottom bar */
 .bottom-bar-option {
   color: #fff; /* White text color */
@@ -64,6 +31,19 @@
   background: transparent; /* Transparent background */
   transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
   border-radius: 8px; /* Optional rounded corners */
+  position: relative; /* Needed for pseudo-element positioning */
+}
+
+/* Add a pseudo-element for the white line between buttons */
+.bottom-bar-option:not(:last-child)::after {
+  content: ""; /* Create an empty element */
+  position: absolute;
+  right: -3px; /* Position it slightly to the right of the button */
+  top: 50%; /* Center it vertically */
+  transform: translateY(-50%); /* Adjust for vertical centering */
+  width: 1px; /* Set the width of the line */
+  height: 40%; /* Height of the line */
+  background-color: white; /* Color of the line */
 }
 
 /* Highlight the current page button */

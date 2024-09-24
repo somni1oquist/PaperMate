@@ -21,16 +21,10 @@ const BottomBar: React.FC = () => {
 
   return (
     <div className="bottom-bar">
-      {/* Conditionally display loading indicator or traffic light */}
+      {/* Conditionally display loading indicator */}
       {loading ? (
         <Progress eventName={loadEvent} />
-      ) : (
-        <div className="traffic-light">
-          <div className="light red"></div>
-          <div className="light yellow"></div>
-          <div className="light green"></div>
-        </div>
-      )}
+      ) : null} {/* Remove traffic light */}
 
       {/* Navigation Links */}
       <Link href="#home"
@@ -39,6 +33,7 @@ const BottomBar: React.FC = () => {
       >
         Home
       </Link>
+
       <Link href="#search"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
@@ -46,13 +41,19 @@ const BottomBar: React.FC = () => {
         Search
       </Link>
 
-      {/* Conditionally disable the Results option */}
       <Link
         href={resultsEnabled ? "#results" : "#"}
         className={`bottom-bar-option ${resultsEnabled ? '' : 'disabled'}`}
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
       >
         Result
+      </Link>
+
+      <Link href="#about"
+        className="bottom-bar-option"
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'about')}
+      >
+        About
       </Link>
     </div>
   );
