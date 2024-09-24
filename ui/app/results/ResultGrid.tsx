@@ -16,8 +16,7 @@ const truncateText = (text: string, length: number) => {
 
 // Define grid columns
 const genColDefs = (data: any[]): GridColDef[] => {
-  if (!data || data.length === 0)
-    return []; // Return an empty array if there's no data
+  if (!data || data.length === 0) return []; // Return an empty array if there's no data
 
   const resultKeys = Object.keys(data[0]);
 
@@ -28,7 +27,7 @@ const genColDefs = (data: any[]): GridColDef[] => {
         field: key,
         headerName: key.charAt(0).toUpperCase() + key.slice(1),
         flex: 1,  // Increase the width if needed
-        sortable: true
+        sortable: true,
       };
 
       return baseColumn;
@@ -67,11 +66,10 @@ export default function ResultGrid() {
     <div style={{ display: 'flex', height: '62vh', width: '100%' }}>
       <Paper
         style={{
-          width: darkMode ? '75%' : '100%',
+          flex: darkMode ? '0 0 75%' : '1', // Use flex to control the size dynamically
           height: '100%',
-          transition: 'width 0.3s',
+          transition: 'flex 0.3s',
           padding: '20px',
-          paddingTop: '20px',
           position: 'relative',
           boxSizing: 'border-box',
           margin: '15px 0 30px',
@@ -126,8 +124,8 @@ export default function ResultGrid() {
         </Box>
       </Paper>
       {darkMode && (
-        <div style={{ width: '25%', padding: '15px' }}>
-          <InstructionBox/>
+        <div style={{ width: '300px', padding: '15px' }}> {/* Set a fixed width for the InstructionBox */}
+          <InstructionBox />
         </div>
       )}
     </div>

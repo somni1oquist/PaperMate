@@ -3,7 +3,6 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 4rem;
 }
 
 /* Homepage Styling */
@@ -41,12 +40,14 @@
 
 /* Search Page Styling */
 .search-container {
-  display: flex;
+  display: flex; /* Use flexbox for centering */
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
   min-height: 75vh; /* Ensure it takes full viewport height */
-  padding: 2rem;
+  padding: 8rem; /* Inner padding */
+  z-index: 1; /* Bring content above the background */
 }
+
 
 /* Result Page Styling */
 .result-container {

@@ -354,7 +354,6 @@ const SearchForm: React.FC = () => {
             <Grid
               xs={12}
               sx={{
-                backgroundColor: "#f6f6f6",
                 padding: 2,
                 display: "flex",
                 justifyContent: "center",
