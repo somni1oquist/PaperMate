@@ -29,9 +29,12 @@ export default function Page() {
         <HomePage />
       </div>
 
-      {/* Display Search page */}
-      <div className={style['search-container']} id={"search"}>
-        <Search /> {/* Pass a function that handles the click */}
+      {/* Search Page Container */}
+      <div className={style['searchpage-container']} ref={resultsRef} id={"search"}>
+        {/* Pass padding via CSS variable or props */}
+        <div className={style['search-container']} style={{ '--padding': '3rem' }}>
+          <Search /> {/* Render the Search component here */}
+        </div>
       </div>
 
       {/* Display the Results page according to the showResults status */}

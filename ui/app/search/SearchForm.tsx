@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import {
   Switch,
@@ -8,23 +7,22 @@ import {
   FormControlLabel,
   Paper,
   TextField,
-  Button
+  Button,
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
 import { useError } from "../context/ErrorContext";
 import { useLoading } from "../context/LoadingContext";
+import styles from "./page.module.css";
 
-// Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
   const today = new Date();
-  today.setMonth(today.getMonth() - 6); // Subtract 6 months
-  return today.toISOString().slice(0, 7); // Return as "yyyy-mm"
+  today.setMonth(today.getMonth() - 6);
+  return today.toISOString().slice(0, 7);
 };
 
-// Helper function to get the current month and year
 const getCurrentMonth = (): string => {
-  return new Date().toISOString().slice(0, 7); // Return as "yyyy-mm"
+  return new Date().toISOString().slice(0, 7);
 };
 
 interface SearchFormData {
@@ -40,119 +38,48 @@ interface SearchFormData {
 }
 
 const SearchForm: React.FC = () => {
-  const router = useRouter();
-
-  /* States declaration */
-  const [geminiPro, setGeminiPro] = useState<boolean>(false);
   const [formData, setFormData] = useState<SearchFormData>({
     query: "",
-    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
-    toDate: getCurrentMonth(),    // Default to current month
+    fromDate: getSixMonthsAgo(),
+    toDate: getCurrentMonth(),
     title: "",
     author: "",
     publicationFile: null,
-    advanced: true,
+    advanced: false, // Initially false for advanced search
     chat: false,
-    geminiPro: geminiPro,
+    geminiPro: false,
   });
   const [resultCount, setResultCount] = useState<number | null>(null);
   const { loading, setLoading } = useLoading();
   const { setError } = useError(null);
   const { data, setData } = useData();
 
-  // Clear session when first mounted
-  useEffect(() => {
-    sessionStorage.clear();
-  }, []);
-
-  useEffect(() => {
-    setGeminiPro(formData.geminiPro);
-    sessionStorage.setItem("switchModel", formData.geminiPro);
-  }, [formData.geminiPro]);
-
-  const isValidMonthYear = (dateString: string): boolean => {
-    const regex = /^\d{4}-\d{2}$/;
-    if (!regex.test(dateString)) return false;
-
-    const [year, month] = dateString.split("-").map(Number);
-    return year >= 1900 && month >= 1 && month <= 12;
-  };
-  
-
   const isValidData = (): boolean => {
-
-    const specialCharRegex = /^[a-zA-Z0-9\s\-_'"*]*$/;  // Allow letters, numbers, spaces, dashes, underscores, single and double quotes
-
     if (!formData.query.trim()) {
       setError("Query field is required.");
       return false;
     }
-    // Validate query field for special characters
-    if (!specialCharRegex.test(formData.query)) {
-      setError("Query field contains invalid special characters.");
-      return false;
-    }
-    
-    if (formData.advanced) {
-      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
-        setError("Please enter valid months and years in the format yyyy-mm.");
-        return false;
-      }
-      const fromDate = new Date(`${formData.fromDate}-01`).getTime();
-      const toDate = new Date(`${formData.toDate}-01`).getTime();
-      if (fromDate > toDate) {
-        setError("From Date should not be later than To Date.");
-        return false;
-      }
-      if (formData.title.length > 100) {
-        setError("Title should not exceed 100 characters.");
-        return false;
-      }
-      // Validate title field for special characters
-      if (!specialCharRegex.test(formData.title)) {
-        setError("Title contains invalid special characters.");
-        return false;
-      }
-      if (!/^[a-zA-Z\s]*$/.test(formData.author)) {
-        setError("Author name should contain only letters and spaces.");
-        return false;
-      }
-    }
     return true;
   };
 
-  // Build the search query
   const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
-    params.append("model", geminiPro);
-    sessionStorage.setItem("switchModel", geminiPro);
-    if (formData.advanced) {
-      params.append("fromDate", formData.fromDate);
-      params.append("toDate", formData.toDate);
-      params.append("title", formData.title);
-      params.append("author", formData.author);
-    }
+    params.append("model", String(formData.geminiPro));
     return params.toString();
-  }
+  };
 
   const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-  
     if (!isValidData()) return;
-    setError("");
-  
-    // Put loading mask on
+
     setLoading(true);
-  
-    // Construct query
     const query = buildQuery();
-    // Get search total count
     getTotalCount(query)
       .then((response) => {
         setResultCount(response.data.total_count);
       })
-      .catch((error) => {
+      .catch(() => {
         setError("An error occurred while searching.");
         setResultCount(0);
       })
@@ -164,19 +91,12 @@ const SearchForm: React.FC = () => {
   const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
-    setError(null);
-    
-    setLoading(true, "search-progress"); // Show loading indicator
 
+    setLoading(true);
     const query = buildQuery();
-    // Reset data and chatId when proceeding
-    setData(null);
-    sessionStorage.removeItem("chatId");
-    // Get search results
     searchPapers(query)
       .then((response) => {
-        const papers = response.data;
-        setData(papers);
+        setData(response.data);
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -194,32 +114,19 @@ const SearchForm: React.FC = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-
       const file = event.target.files[0];
-      const allowedTypes = ["text/csv"];
-      if (allowedTypes.includes(file.type)) {
-        setFormData({ ...formData, publicationFile: file });
-      } else {
-        setError("Please upload a valid CSV file.");
-        setFormData({ ...formData, publicationFile: null });
-      }
-
+      setFormData({ ...formData, publicationFile: file });
     }
   };
-  
+
   return (
     <>
-      <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
+      {/* Search Form */}
+      <Paper elevation={3} className={styles.paper}>
+        <h1 className={styles.header}>Literature Paper Search</h1>
         <Grid container spacing={2}>
-          <Grid
-            xs={12}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {/* Use Skeleton for FormControlLabel */}
+          {/* Flex container for centering switches */}
+          <Grid xs={12} className={styles["switch-container"]}>
             {loading ? (
               <Skeleton width={200} height={40} />
             ) : (
@@ -236,142 +143,131 @@ const SearchForm: React.FC = () => {
                   />
                 }
                 label="Advanced Search"
-                sx={{ marginRight: 2 }}
               />
             )}
 
-            {loading ? (
-              <Skeleton width={200} height={40} />
-            ) : (
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.geminiPro}
-                    onChange={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        geminiPro: !prev.geminiPro,
-                      }))
-                    }
-                  />
-                }
-                label="Gemini 1.5 Pro"
-              />
+            {formData.advanced && (
+              loading ? (
+                <Skeleton width={200} height={40} />
+              ) : (
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.geminiPro}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          geminiPro: !prev.geminiPro,
+                        }))
+                      }
+                    />
+                  }
+                  label="Gemini 1.5 Pro"
+                />
+              )
             )}
           </Grid>
 
-          <Grid xs={6}>
+          {/* Query Input Field - Centered when advanced search is off */}
+          <Grid
+            xs={12}
+            md={formData.advanced ? 6 : 12} /* Full width if not advanced */
+            className={formData.advanced ? "" : styles.centeredField} /* Center the query field if advanced search is off */
+          >
             {loading ? (
               <Skeleton width="100%" height={56} />
             ) : (
               <TextField
                 label="Query"
                 fullWidth
+                className={styles.textField}
                 value={formData.query}
                 onChange={handleInputChange("query")}
               />
             )}
           </Grid>
 
-          {/* File upload field */}
-          <Grid xs={6}>
-            {loading ? (
-              <Skeleton width="100%" height={56} />
-            ) : (
-              <TextField
-                type="file"
-                inputProps={{ accept: ".csv" }}
-                fullWidth
-                onChange={handleFileChange}
-                helperText={
-                  formData.publicationFile
-                    ? `Selected file: ${formData.publicationFile.name}`
-                    : "Choose your file to filter publications"
-                }
-              />
-            )}
-          </Grid>
-
+          {/* Date Fields, Title, Author and File Upload - Only when advanced search is on */}
           {formData.advanced && (
             <>
-              <Grid xs={6}>
+              <Grid xs={12} md={6} className={styles["date-container"]}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
-                  <TextField
-                    label="From Date (yyyy-mm)"
-                    type="month"
-                    fullWidth
-                    value={formData.fromDate}
-                    onChange={handleInputChange("fromDate")}
-                  />
+                  <>
+                    <TextField
+                      label="From Date"
+                      type="month"
+                      className={styles.dateField}
+                      value={formData.fromDate}
+                      onChange={handleInputChange("fromDate")}
+                    />
+                    <TextField
+                      label="To Date"
+                      type="month"
+                      className={styles.dateField}
+                      value={formData.toDate}
+                      onChange={handleInputChange("toDate")}
+                    />
+                  </>
                 )}
               </Grid>
 
-              <Grid xs={6}>
-                {loading ? (
-                  <Skeleton width="100%" height={56} />
-                ) : (
-                  <TextField
-                    label="To Date (yyyy-mm)"
-                    type="month"
-                    fullWidth
-                    value={formData.toDate}
-                    onChange={handleInputChange("toDate")}
-                  />
-                )}
-              </Grid>
-
-              <Grid xs={6}>
+              <Grid xs={12} md={6}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
                   <TextField
                     label="Title"
                     fullWidth
+                    className={styles.textField}
                     value={formData.title}
                     onChange={handleInputChange("title")}
                   />
                 )}
               </Grid>
 
-              <Grid xs={6}>
+              <Grid xs={12} md={6}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
                   <TextField
                     label="Author"
                     fullWidth
+                    className={styles.textField}
                     value={formData.author}
                     onChange={handleInputChange("author")}
                   />
                 )}
               </Grid>
+
+              {/* File Upload Button (shown only when advanced search is active) */}
+              <Grid xs={12}>
+  {loading ? (
+    <Skeleton width={200} height={40} />
+  ) : (
+    <div className={styles["fileInput-container"]}>
+      <input
+        id="upload-file"
+        type="file"
+        accept=".csv"
+        className={styles.fileInput}
+        onChange={handleFileChange}
+        title="" /* Removes the "Choose file" label */
+      />
+    </div>
+  )}
+              </Grid>
             </>
           )}
 
+          {/* Result Count Display */}
           {resultCount !== null && (
-            <Grid
-              xs={12}
-              sx={{
-                padding: 2,
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 2,
-              }}
-            >
+            <Grid xs={12} className={styles.resultCount}>
               {loading ? (
                 <Skeleton width={300} height={50} />
               ) : (
-                <Paper
-                  elevation={1}
-                  sx={{
-                    backgroundColor: "#f6f6f6",
-                    padding: 2,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
+                <Paper elevation={1} className={styles.resultCountPaper}>
                   <span style={{ marginRight: 5 }}>🔍</span>
                   <span>Total Results: {resultCount}</span>
                 </Paper>
@@ -379,32 +275,36 @@ const SearchForm: React.FC = () => {
             </Grid>
           )}
 
-          <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-            {loading ? (
-              <Skeleton width={150} height={50} />
-            ) : (
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                onClick={handleSearch}
-              >
-                Search
-              </Button>
-            )}
+          {/* Button Group */}
+          <Grid xs={12} className={styles["button-container"]}>
+            <div className={styles["button-group"]}>
+              {loading ? (
+                <Skeleton width={150} height={50} />
+              ) : (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  className={styles.button}
+                  onClick={handleSearch}
+                >
+                  Search
+                </Button>
+              )}
 
-            {loading ? (
-              <Skeleton width={150} height={50} sx={{ marginLeft: 2 }} />
-            ) : (
-              <Button
-                variant="contained"
-                color="secondary"
-                sx={{ marginLeft: 2 }}
-                onClick={handleProceedSubmit}
-              >
-                Proceed
-              </Button>
-            )}
+              <div className={styles.divider}></div>
+
+              {loading ? (
+                <Skeleton width={150} height={50} />
+              ) : (
+                <Button
+                  variant="contained"
+                  className={styles.button}
+                  onClick={handleProceedSubmit}
+                >
+                  Proceed
+                </Button>
+              )}
+            </div>
           </Grid>
         </Grid>
       </Paper>
