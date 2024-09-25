@@ -1,5 +1,4 @@
-// bottom-bar.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../bottom-bar.css'; // Import the CSS file
 import { useData } from '../context/DataContext';
@@ -9,7 +8,16 @@ import Progress from './Progress';
 const BottomBar: React.FC = () => {
   const { data } = useData();
   const { loading, loadEvent } = useLoading();
-  const resultsEnabled = data !== null;
+  const [resultsAvailable, setResultsAvailable] = useState(false);
+
+  useEffect(() => {
+    // If data exists (indicating results are available), set resultsAvailable to true
+    if (data && data.length > 0) {
+      setResultsAvailable(true);
+    } else {
+      setResultsAvailable(false);
+    }
+  }, [data]); // Re-run the effect when data changes
 
   const handleScroll = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     event.preventDefault();
@@ -24,7 +32,7 @@ const BottomBar: React.FC = () => {
       {/* Conditionally display loading indicator */}
       {loading ? (
         <Progress eventName={loadEvent} />
-      ) : null} {/* Remove traffic light */}
+      ) : null}
 
       {/* Navigation Links */}
       <Link href="#home"
@@ -41,13 +49,16 @@ const BottomBar: React.FC = () => {
         Search
       </Link>
 
-      <Link
-        href={resultsEnabled ? "#results" : "#"}
-        className={`bottom-bar-option ${resultsEnabled ? '' : 'disabled'}`}
-        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
-      >
-        Result
-      </Link>
+      {/* Conditionally render Result link only if results are available */}
+      {resultsAvailable && (
+        <Link
+          href="#results"
+          className="bottom-bar-option"
+          onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
+        >
+          Result
+        </Link>
+      )}
 
       <Link href="#about"
         className="bottom-bar-option"

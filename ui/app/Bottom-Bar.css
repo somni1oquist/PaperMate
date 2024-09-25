@@ -1,60 +1,78 @@
-/* Fixed bottom bar, centered with 25% width */
+/* Fixed bottom bar, centered with a fixed width */
 .bottom-bar {
   position: fixed;
   bottom: 20px;
-  width: 25%;
+  width: 500px; /* Smaller fixed width for the entire bar */
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(147, 195, 243, 0.5); /* Semi-transparent background */
+  background: rgba(255, 255, 255, 0.2); /* Light transparent background */
   backdrop-filter: blur(10px); /* Blur effect */
-  color: #fff; /* White text color for contrast */
+  color: #000; /* Black text color */
   text-align: center;
   padding: 5px;
   z-index: 500;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between; /* Distribute buttons evenly */
   align-items: center;
   border-radius: 12px;
-  height: 75px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+  height: 60px; /* Reduced height */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Lighter shadow for depth */
 }
 
 /* Style for each option in the bottom bar */
 .bottom-bar-option {
-  color: #fff; /* White text color */
+  color: #000; /* Black text color */
   text-decoration: none;
-  padding: 10px 20px; /* Increased padding for larger clickable area */
+  padding: 8px 10px; /* Smaller padding for more compact buttons */
   margin: 0; /* Remove default margin */
-  font-size: 1.2em; /* Larger font size */
+  font-size: 0.9em; /* Slightly smaller font size */
   background: transparent; /* Transparent background */
-  transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
-  border-radius: 8px; /* Optional rounded corners */
+  transition: background-color 0.2s, transform 0.2s; /* Quicker transitions */
+  border-radius: 8px; /* Rounded corners */
   position: relative; /* Needed for pseudo-element positioning */
-  display: flex; /* Use flexbox to center text */
-  justify-content: center; /* Center text horizontally */
+  flex: none; /* Prevent buttons from stretching */
+  width: 100px; /* Smaller width for squeezed buttons */
+  text-align: center; /* Center text within each button */
+}
+
+/* Rounded corners for the first and last button to create an integrated look */
+.bottom-bar-option:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.bottom-bar-option:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Subtle border between buttons */
+.bottom-bar-option:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.3); /* White line between buttons */
 }
 
 /* Add a pseudo-element for the white line between buttons */
 .bottom-bar-option:not(:last-child)::after {
-  content: ""; /* Create an empty element */
+  content: "";
   position: absolute;
-  right: -4.5px; /* Position it slightly to the right of the button */
-  top: 50%; /* Center it vertically */
-  transform: translateY(-50%); /* Adjust for vertical centering */
-  width: 1px; /* Set the width of the line */
-  height: 40%; /* Height of the line */
-  background-color: white; /* Color of the line */
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 50%;
+  background-color: rgba(255, 255, 255, 0.3); /* Subtle white line */
 }
 
 /* Highlight the current page button */
 .bottom-bar-option.active {
-  background: rgba(24, 116, 205, 0.7); /* Darker blue for active button */
+  background: rgba(255, 255, 255, 0.3); /* Softer color for active button */
 }
 
 /* Hover effect for buttons */
 .bottom-bar-option:hover {
-  background: rgba(24, 116, 205, 0.5); /* Slightly darker background on hover */
-  transform: scale(1.05); /* Slightly enlarge the button */
+  background: rgba(255, 255, 255, 0.15); /* Lighter background on hover */
+  transform: scale(1.02); /* Less intense hover effect */
+  z-index: 1; /* Elevate button slightly */
 }
 
 /* Disabled style for the Results button */
@@ -68,5 +86,10 @@
 .loading-container {
   display: flex;
   align-items: center;
-  color: white;
+  color: black; /* Black font color for loading text */
+}
+
+/* Hide the "Results" button initially */
+#results-button {
+  display: none; /* Hidden by default */
 }

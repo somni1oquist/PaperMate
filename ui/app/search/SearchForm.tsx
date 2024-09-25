@@ -13,7 +13,7 @@ import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
 import { useError } from "../context/ErrorContext";
 import { useLoading } from "../context/LoadingContext";
-import styles from "./page.module.css";
+import styles from "./page.module.css"; // Importing the CSS for styling
 
 const getSixMonthsAgo = (): string => {
   const today = new Date();
@@ -45,14 +45,14 @@ const SearchForm: React.FC = () => {
     title: "",
     author: "",
     publicationFile: null,
-    advanced: false, // Initially false for advanced search
+    advanced: false,
     chat: false,
     geminiPro: false,
   });
   const [resultCount, setResultCount] = useState<number | null>(null);
   const { loading, setLoading } = useLoading();
   const { setError } = useError(null);
-  const { data, setData } = useData();
+  const { setData } = useData();
 
   const isValidData = (): boolean => {
     if (!formData.query.trim()) {
@@ -66,6 +66,12 @@ const SearchForm: React.FC = () => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
     params.append("model", String(formData.geminiPro));
+    if (formData.advanced) {
+      params.append("fromDate", formData.fromDate);
+      params.append("toDate", formData.toDate);
+      params.append("title", formData.title);
+      params.append("author", formData.author);
+    }
     return params.toString();
   };
 
@@ -73,44 +79,44 @@ const SearchForm: React.FC = () => {
     event.preventDefault();
     if (!isValidData()) return;
 
+    setError(""); // Clear previous errors
     setLoading(true);
-    const query = buildQuery();
-    getTotalCount(query)
-      .then((response) => {
-        setResultCount(response.data.total_count);
-      })
-      .catch(() => {
-        setError("An error occurred while searching.");
-        setResultCount(0);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    try {
+      const query = buildQuery();
+      const response = await getTotalCount(query);
+      setResultCount(response.data.total_count);
+    } catch (error) {
+      setError("An error occurred while searching.");
+      setResultCount(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleProceedSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
 
+    setError(null);
     setLoading(true);
-    const query = buildQuery();
-    searchPapers(query)
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((error) => {
-        setError(error.response.data.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    try {
+      const query = buildQuery();
+      const response = await searchPapers(query);
+      setData(response.data);
+    } catch (error) {
+      setError("An error occurred while retrieving the search results.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleInputChange =
-    (key: keyof SearchFormData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [key]: event.target.value });
-    };
+  const handleInputChange = (key: keyof SearchFormData) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData({ ...formData, [key]: event.target.value });
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -121,11 +127,10 @@ const SearchForm: React.FC = () => {
 
   return (
     <>
-      {/* Search Form */}
       <Paper elevation={3} className={styles.paper}>
         <h1 className={styles.header}>Literature Paper Search</h1>
         <Grid container spacing={2}>
-          {/* Flex container for centering switches */}
+          {/* Toggle switches */}
           <Grid xs={12} className={styles["switch-container"]}>
             {loading ? (
               <Skeleton width={200} height={40} />
@@ -146,34 +151,26 @@ const SearchForm: React.FC = () => {
               />
             )}
 
-            {formData.advanced && (
-              loading ? (
-                <Skeleton width={200} height={40} />
-              ) : (
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={formData.geminiPro}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          geminiPro: !prev.geminiPro,
-                        }))
-                      }
-                    />
-                  }
-                  label="Gemini 1.5 Pro"
-                />
-              )
+            {formData.advanced && !loading && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.geminiPro}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        geminiPro: !prev.geminiPro,
+                      }))
+                    }
+                  />
+                }
+                label="Gemini 1.5 Pro"
+              />
             )}
           </Grid>
 
-          {/* Query Input Field - Centered when advanced search is off */}
-          <Grid
-            xs={12}
-            md={formData.advanced ? 6 : 12} /* Full width if not advanced */
-            className={formData.advanced ? "" : styles.centeredField} /* Center the query field if advanced search is off */
-          >
+          {/* Query input */}
+          <Grid xs={12} md={formData.advanced ? 6 : 12}>
             {loading ? (
               <Skeleton width="100%" height={56} />
             ) : (
@@ -187,7 +184,7 @@ const SearchForm: React.FC = () => {
             )}
           </Grid>
 
-          {/* Date Fields, Title, Author and File Upload - Only when advanced search is on */}
+          {/* Advanced fields */}
           {formData.advanced && (
             <>
               <Grid xs={12} md={6} className={styles["date-container"]}>
@@ -198,14 +195,16 @@ const SearchForm: React.FC = () => {
                     <TextField
                       label="From Date"
                       type="month"
-                      className={styles.dateField}
+                      fullWidth
+                      className={styles.dateField} // Applying dateField class
                       value={formData.fromDate}
                       onChange={handleInputChange("fromDate")}
                     />
                     <TextField
                       label="To Date"
                       type="month"
-                      className={styles.dateField}
+                      fullWidth
+                      className={styles.dateField} // Applying dateField class
                       value={formData.toDate}
                       onChange={handleInputChange("toDate")}
                     />
@@ -241,69 +240,51 @@ const SearchForm: React.FC = () => {
                 )}
               </Grid>
 
-              {/* File Upload Button (shown only when advanced search is active) */}
-              <Grid xs={12}>
-  {loading ? (
-    <Skeleton width={200} height={40} />
-  ) : (
-    <div className={styles["fileInput-container"]}>
-      <input
-        id="upload-file"
-        type="file"
-        accept=".csv"
-        className={styles.fileInput}
-        onChange={handleFileChange}
-        title="" /* Removes the "Choose file" label */
-      />
-    </div>
-  )}
+              {/* File upload */}
+              <Grid xs={12} className={styles["fileInput-container"]}>
+                {loading ? (
+                  <Skeleton width="100%" height={56} />
+                ) : (
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className={styles.fileInput}
+                    onChange={handleFileChange}
+                  />
+                )}
               </Grid>
             </>
           )}
 
-          {/* Result Count Display */}
+          {/* Result count display */}
           {resultCount !== null && (
             <Grid xs={12} className={styles.resultCount}>
-              {loading ? (
-                <Skeleton width={300} height={50} />
-              ) : (
-                <Paper elevation={1} className={styles.resultCountPaper}>
-                  <span style={{ marginRight: 5 }}>🔍</span>
-                  <span>Total Results: {resultCount}</span>
-                </Paper>
-              )}
+              <Paper elevation={0} className={styles.resultCountPaper}>
+                <span className={styles.resultCountText}>Total Results: {resultCount}</span>
+              </Paper>
             </Grid>
           )}
 
-          {/* Button Group */}
+
+          {/* Action buttons with custom CSS */}
           <Grid xs={12} className={styles["button-container"]}>
             <div className={styles["button-group"]}>
-              {loading ? (
-                <Skeleton width={150} height={50} />
-              ) : (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  className={styles.button}
-                  onClick={handleSearch}
-                >
-                  Search
-                </Button>
-              )}
+              <Button
+                type="submit"
+                className={styles.button}
+                onClick={handleSearch}
+                disabled={loading}
+              >
+                Search
+              </Button>
 
-              <div className={styles.divider}></div>
-
-              {loading ? (
-                <Skeleton width={150} height={50} />
-              ) : (
-                <Button
-                  variant="contained"
-                  className={styles.button}
-                  onClick={handleProceedSubmit}
-                >
-                  Proceed
-                </Button>
-              )}
+              <Button
+                className={styles.button}
+                onClick={handleProceedSubmit}
+                disabled={loading}
+              >
+                Proceed
+              </Button>
             </div>
           </Grid>
         </Grid>

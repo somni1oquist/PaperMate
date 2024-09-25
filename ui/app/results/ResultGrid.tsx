@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
-import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
+import { Paper, Switch, FormControlLabel, Box, Button } from '@mui/material';
 import InstructionBox from './InstructionBox';
 import { useData } from '../context/DataContext';
 import { useError } from '../context/ErrorContext';
@@ -47,6 +47,8 @@ export default function ResultGrid() {
   useEffect(() => {
     if (Array.isArray(data)) {
       setRows(data);
+      // If there is data, show the Results button by updating its display style
+      document.getElementById("results-button")!.style.display = "block";
     } else {
       setRows([]);
     }
@@ -128,6 +130,15 @@ export default function ResultGrid() {
           <InstructionBox />
         </div>
       )}
+      <div id="results-button" style={{ display: 'none' }}> {/* Hidden by default */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => router.push('/results')}
+        >
+          View Results
+        </Button>
+      </div>
     </div>
   );
 }
