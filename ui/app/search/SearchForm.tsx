@@ -14,6 +14,7 @@ import { useData } from "../context/DataContext";
 import { useError } from "../context/ErrorContext";
 import { useLoading } from "../context/LoadingContext";
 import styles from "./page.module.css"; // Importing the CSS for styling
+import PublicationInput from "./PublicationInput";
 
 const getSixMonthsAgo = (): string => {
   const today = new Date();
@@ -176,6 +177,7 @@ const SearchForm: React.FC = () => {
             ) : (
               <TextField
                 label="Query"
+                variant="filled"
                 fullWidth
                 className={styles.textField}
                 value={formData.query}
@@ -194,6 +196,7 @@ const SearchForm: React.FC = () => {
                   <>
                     <TextField
                       label="From Date"
+                      variant="filled"
                       type="month"
                       fullWidth
                       className={styles.dateField} // Applying dateField class
@@ -202,6 +205,7 @@ const SearchForm: React.FC = () => {
                     />
                     <TextField
                       label="To Date"
+                      variant="filled"
                       type="month"
                       fullWidth
                       className={styles.dateField} // Applying dateField class
@@ -218,6 +222,7 @@ const SearchForm: React.FC = () => {
                 ) : (
                   <TextField
                     label="Title"
+                    variant="filled"
                     fullWidth
                     className={styles.textField}
                     value={formData.title}
@@ -232,6 +237,7 @@ const SearchForm: React.FC = () => {
                 ) : (
                   <TextField
                     label="Author"
+                    variant="filled"
                     fullWidth
                     className={styles.textField}
                     value={formData.author}
@@ -245,12 +251,7 @@ const SearchForm: React.FC = () => {
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className={styles.fileInput}
-                    onChange={handleFileChange}
-                  />
+                  <PublicationInput onChange={handleFileChange} className={styles.fileInput}/>
                 )}
               </Grid>
             </>
