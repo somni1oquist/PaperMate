@@ -30,37 +30,39 @@ const BottomBar: React.FC = () => {
   return (
     <div className="bottom-bar">
       {/* Conditionally display loading indicator */}
-      {loading ? (
-        <Progress eventName={loadEvent} />
-      ) : null}
+      {loading ? <Progress eventName={loadEvent} /> : null}
 
       {/* Navigation Links */}
-      <Link href="#home"
+      <Link
+        href="#home"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'home')}
       >
         Home
       </Link>
 
-      <Link href="#search"
+      <Link
+        href="#search"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
       >
         Search
       </Link>
 
-      {/* Conditionally render Result link only if results are available */}
-      {resultsAvailable && (
-        <Link
-          href="#results"
-          className="bottom-bar-option"
-          onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
-        >
-          Result
-        </Link>
-      )}
+      {/* Conditionally render Result link with disabled style and behavior if results are not available */}
+      <Link
+        href="#results"
+        className={`bottom-bar-option ${resultsAvailable ? '' : 'disabled'}`}
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+          if (!resultsAvailable) e.preventDefault(); // Block click if results are not available
+          else handleScroll(e, 'results');
+        }}
+      >
+        Result
+      </Link>
 
-      <Link href="#about"
+      <Link
+        href="#about"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'about')}
       >

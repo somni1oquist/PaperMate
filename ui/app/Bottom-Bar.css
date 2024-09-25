@@ -1,8 +1,9 @@
-/* Fixed bottom bar, centered with a fixed width */
+/* Fixed bottom bar, centered with a smaller max width */
 .bottom-bar {
   position: fixed;
   bottom: 20px;
-  width: 500px; /* Smaller fixed width for the entire bar */
+  width: 100%; /* Full width for the entire bar */
+  max-width: 500px; /* Adjusted max-width to 500px */
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.2); /* Light transparent background */
@@ -12,10 +13,10 @@
   padding: 5px;
   z-index: 500;
   display: flex;
-  justify-content: space-between; /* Distribute buttons evenly */
+  justify-content: space-evenly; /* Evenly distribute buttons */
   align-items: center;
   border-radius: 12px;
-  height: 60px; /* Reduced height */
+  height: 60px; /* Slightly larger height */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Lighter shadow for depth */
 }
 
@@ -23,16 +24,21 @@
 .bottom-bar-option {
   color: #000; /* Black text color */
   text-decoration: none;
-  padding: 8px 10px; /* Smaller padding for more compact buttons */
+  padding: 10px; /* Adjust padding */
   margin: 0; /* Remove default margin */
-  font-size: 0.9em; /* Slightly smaller font size */
+  font-size: 1em; /* Standard font size */
   background: transparent; /* Transparent background */
-  transition: background-color 0.2s, transform 0.2s; /* Quicker transitions */
+  transition: background-color 0.2s, transform 0.2s; /* Adjusted transitions */
   border-radius: 8px; /* Rounded corners */
   position: relative; /* Needed for pseudo-element positioning */
   flex: none; /* Prevent buttons from stretching */
-  width: 100px; /* Smaller width for squeezed buttons */
   text-align: center; /* Center text within each button */
+  height: 50px; /* Set button height */
+  line-height: 50px; /* Vertically center the text */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90px; /* Equal width for buttons */
 }
 
 /* Rounded corners for the first and last button to create an integrated look */
@@ -59,7 +65,7 @@
   top: 50%;
   transform: translateY(-50%);
   width: 1px;
-  height: 50%;
+  height: 80%; /* Height for the line */
   background-color: rgba(255, 255, 255, 0.3); /* Subtle white line */
 }
 
@@ -71,25 +77,15 @@
 /* Hover effect for buttons */
 .bottom-bar-option:hover {
   background: rgba(255, 255, 255, 0.15); /* Lighter background on hover */
-  transform: scale(1.02); /* Less intense hover effect */
+  transform: scale(1.02); /* Smaller hover effect */
   z-index: 1; /* Elevate button slightly */
+  height: 50px; /* Keep the hover height same as button height */
+  line-height: 50px; /* Ensure text remains vertically centered */
 }
 
-/* Disabled style for the Results button */
+/* Disabled style for the Results button (grey text without hover effect) */
 .bottom-bar-option.disabled {
-  color: #B0C4DE; /* Light Steel Blue text color */
+  color: grey; /* Grey text color */
   pointer-events: none;
-  background: rgba(173, 216, 230, 0.5); /* Semi-transparent light blue for disabled button */
-}
-
-/* Loading container styling */
-.loading-container {
-  display: flex;
-  align-items: center;
-  color: black; /* Black font color for loading text */
-}
-
-/* Hide the "Results" button initially */
-#results-button {
-  display: none; /* Hidden by default */
+  background: none; /* Remove hover background effect */
 }
