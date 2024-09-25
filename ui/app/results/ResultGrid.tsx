@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
-import { Paper, Switch, FormControlLabel, Box, Button } from '@mui/material';
+import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
 import InstructionBox from './InstructionBox';
 import { useData } from '../context/DataContext';
 import { useError } from '../context/ErrorContext';
 import { useLoading } from '../context/LoadingContext';
-import { useRouter } from 'next/navigation';
-import { searchPapers } from '../actions';
 import PaperDetail from './PaperDetail';
+import './ResultPage.css';  // Import the CSS file
 
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
@@ -35,7 +34,6 @@ const genColDefs = (data: any[]): GridColDef[] => {
 };
 
 export default function ResultGrid() {
-  const router = useRouter();
   const { setError } = useError(null);
   const { data, setData } = useData();
   const { loading } = useLoading();
@@ -47,8 +45,6 @@ export default function ResultGrid() {
   useEffect(() => {
     if (Array.isArray(data)) {
       setRows(data);
-      // If there is data, show the Results button by updating its display style
-      document.getElementById("results-button")!.style.display = "block";
     } else {
       setRows([]);
     }
@@ -59,23 +55,14 @@ export default function ResultGrid() {
   };
 
   const handleRowClick = (params: any) => {
-    // Open dialog when a row is clicked and set the selected row
     setOpen(true);
     setSelectedRow(params.row);
   };
 
   return (
-    <div style={{ display: 'flex', height: '62vh', width: '100%' }}>
+    <div className="result-grid-container">
       <Paper
-        style={{
-          flex: darkMode ? '0 0 75%' : '1', // Use flex to control the size dynamically
-          height: '100%',
-          transition: 'flex 0.3s',
-          padding: '20px',
-          position: 'relative',
-          boxSizing: 'border-box',
-          margin: '15px 0 30px',
-        }}
+        className={`result-grid-paper ${darkMode ? 'result-grid-dark' : 'result-grid-light'}`}
       >
         {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
         <DataGrid
@@ -97,22 +84,10 @@ export default function ResultGrid() {
           slots={{
             toolbar: GridToolbar
           }}
-          style={{
-            maxHeight: 'calc(100vh - 50px)',
-            width: '100%',
-            lineHeight: '1.5',
-          }}
-          onRowClick={handleRowClick} // Handle row click to expand
+          className="data-grid-style"
+          onRowClick={handleRowClick}
         />
-        <Box
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <Box className="result-grid-box">
           <FormControlLabel
             control={
               <Switch
@@ -126,19 +101,10 @@ export default function ResultGrid() {
         </Box>
       </Paper>
       {darkMode && (
-        <div style={{ width: '300px', padding: '15px' }}> {/* Set a fixed width for the InstructionBox */}
+        <div className="result-grid-instruction">
           <InstructionBox />
         </div>
       )}
-      <div id="results-button" style={{ display: 'none' }}> {/* Hidden by default */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => router.push('/results')}
-        >
-          View Results
-        </Button>
-      </div>
     </div>
   );
 }

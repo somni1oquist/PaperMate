@@ -66,6 +66,9 @@
 /* Result Page Styling */
 .result-container {
   display: flex;
+  width: 100vw;
+  background-image: url('./assets/green.jpg'); /* Replace with your image path */
+  background-size: cover; /* Ensure the background image covers the entire container */
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
   min-height: 75vh; /* Ensure it takes full viewport height */
