@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid, GridColDef, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
-import { Paper, Switch, FormControlLabel, Box } from '@mui/material';
-import InstructionBox from './InstructionBox';
+import { Paper, Box } from '@mui/material';
 import { useData } from '../context/DataContext';
 import { useError } from '../context/ErrorContext';
 import { useLoading } from '../context/LoadingContext';
+import InstructionBox from './InstructionBox';
 import PaperDetail from './PaperDetail';
-import './ResultPage.css';  // Import the CSS file
+import './ResultPage.css';
 
 // Function to truncate text
 const truncateText = (text: string, length: number) => {
@@ -15,7 +15,7 @@ const truncateText = (text: string, length: number) => {
 
 // Define grid columns
 const genColDefs = (data: any[]): GridColDef[] => {
-  if (!data || data.length === 0) return []; // Return an empty array if there's no data
+  if (!data || data.length === 0) return [];
 
   const resultKeys = Object.keys(data[0]);
 
@@ -25,7 +25,7 @@ const genColDefs = (data: any[]): GridColDef[] => {
       const baseColumn: GridColDef = {
         field: key,
         headerName: key.charAt(0).toUpperCase() + key.slice(1),
-        flex: 1,  // Increase the width if needed
+        flex: 1,
         sortable: true,
       };
 
@@ -33,14 +33,17 @@ const genColDefs = (data: any[]): GridColDef[] => {
     });
 };
 
-export default function ResultGrid() {
+interface ResultGridProps {
+  showInstruction: boolean;
+}
+
+const ResultGrid: React.FC<ResultGridProps> = ({ showInstruction }) => {
   const { setError } = useError(null);
   const { data, setData } = useData();
   const { loading } = useLoading();
   const [rows, setRows] = useState<GridRowsProp>([]);
-  const [darkMode, setDarkMode] = useState(false);  // State for switch
-  const [selectedRow, setSelectedRow] = useState<any | null>(null); // State for selected row
-  const [open, setOpen] = useState<boolean | null>(false); // State for dialog
+  const [selectedRow, setSelectedRow] = useState<any | null>(null);
+  const [open, setOpen] = useState<boolean | null>(false);
 
   useEffect(() => {
     if (Array.isArray(data)) {
@@ -50,10 +53,6 @@ export default function ResultGrid() {
     }
   }, [data]);
 
-  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDarkMode(event.target.checked);
-  };
-
   const handleRowClick = (params: any) => {
     setOpen(true);
     setSelectedRow(params.row);
@@ -61,9 +60,7 @@ export default function ResultGrid() {
 
   return (
     <div className="result-grid-container">
-      <Paper
-        className={`result-grid-paper ${darkMode ? 'result-grid-dark' : 'result-grid-light'}`}
-      >
+      <Paper className="result-grid-paper">
         {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
         <DataGrid
           rows={rows}
@@ -81,30 +78,21 @@ export default function ResultGrid() {
           getRowId={(row) => row.doi}
           disableRowSelectionOnClick
           disableColumnMenu={true}
+          disableColumnReorder={true}  // Disable column resizing and reordering
           slots={{
             toolbar: GridToolbar
           }}
           className="data-grid-style"
           onRowClick={handleRowClick}
         />
-        <Box className="result-grid-box">
-          <FormControlLabel
-            control={
-              <Switch
-                checked={darkMode}
-                onChange={handleSwitchChange}
-                color="primary"
-              />
-            }
-            label="Instruction Box"
-          />
-        </Box>
       </Paper>
-      {darkMode && (
+      {showInstruction && (
         <div className="result-grid-instruction">
           <InstructionBox />
         </div>
       )}
     </div>
   );
-}
+};
+
+export default ResultGrid;

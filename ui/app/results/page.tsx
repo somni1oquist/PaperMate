@@ -1,11 +1,11 @@
 // ResultPage.tsx
 import React from 'react';
 import ResultContainer from './ResultContainer';
-import './ResultPage.css';  // Import the new integrated CSS file
+import './ResultPage.css'; 
 
 const ResultPage: React.FC = () => {
   return (
-    <div className="result-page-container">
+    <div>
       <ResultContainer />
     </div>
   );

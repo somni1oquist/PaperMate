@@ -1,72 +1,55 @@
+/* ResultPage.css */
+
+.result-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the grid horizontally */
+  justify-content: flex-start;
+  width: 80vw;
+  min-height: 70vh;
+  padding: 40px 20px;
+
+  /* Glassmorphism styles */
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  border-radius: 16px; /* Smooth, rounded corners */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+  padding: 40px 20px;
+}
+
+.header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.instruction-box-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.instruction-box {
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
 /* ResultGrid.css */
 
 .result-grid-container {
-    display: flex;
-    height: 62vh;
-    width: 100%;
-  }
-  
-  .result-grid-paper {
-    height: 100%;
-    transition: flex 0.3s;
-    padding: 20px;
-    position: relative;
-    box-sizing: border-box;
-    margin: 15px 0 30px;
-  }
-  
-  .result-grid-dark {
-    flex: 0 0 75%;
-  }
-  
-  .result-grid-light {
-    flex: 1;
-  }
-  
-  .result-grid-box {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .result-grid-instruction {
-    width: 300px;
-    padding: 15px;
-  }
-
-  .data-grid-style {
-    max-height: calc(100vh - 50px);
-    width: 100%;
-    line-height: 1.5;
-  }
-  
-  /* ResultPage.css */
-
-/* Background Styling */
-.result-page-container {
   display: flex;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 75vh; /* Ensure it takes at least 75% of the viewport height */
-  width: 100vw;
-  padding: 2rem;
-
-  /* Background image properties */
-  background-image: url('../assets/green.jpg'); /* Replace with your image path */
-  background-size: cover; /* Cover ensures the image covers the entire container */
-  background-repeat: no-repeat; /* Prevent repeating */
-  background-position: center; /* Centers the image */
-}
-
-/* Content Container Styling */
-.result-container {
-  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
-  justify-content: center; /* Center content horizontally */
-  padding: 2rem;
-  background-color: rgba(255, 255, 255, 0.8); /* Add a background color for the container */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Add some shadow for better visualization */
-  border-radius: 8px; /* Optional: Rounded corners */
+  max-width: 900px;
+  height: 100%;
 }
+
+
