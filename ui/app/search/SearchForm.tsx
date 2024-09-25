@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
-import { useError } from "../context/ErrorContext";
+import { useMessage } from "../context/MessageContext";
 import { useLoading } from "../context/LoadingContext";
 
 // Helper function to calculate the date 6 months ago
@@ -57,7 +57,7 @@ const SearchForm: React.FC = () => {
   });
   const [resultCount, setResultCount] = useState<number | null>(null);
   const { loading, setLoading } = useLoading();
-  const { setError } = useError(null);
+  const { setMessage } = useMessage();
   const { data, setData } = useData();
 
   // Clear session when first mounted
@@ -84,37 +84,40 @@ const SearchForm: React.FC = () => {
     const specialCharRegex = /^[a-zA-Z0-9\s\-_'"*]*$/;  // Allow letters, numbers, spaces, dashes, underscores, single and double quotes
 
     if (!formData.query.trim()) {
-      setError("Query field is required.");
+      setMessage("Query field is required.", "error");
       return false;
     }
     // Validate query field for special characters
     if (!specialCharRegex.test(formData.query)) {
-      setError("Query field contains invalid special characters.");
+      setMessage("Query field contains invalid special characters.", "error");
       return false;
     }
     
     if (formData.advanced) {
-      if (!isValidMonthYear(formData.fromDate) || !isValidMonthYear(formData.toDate)) {
-        setError("Please enter valid months and years in the format yyyy-mm.");
+      if (
+        !isValidMonthYear(formData.fromDate) ||
+        !isValidMonthYear(formData.toDate)
+      ) {
+        setMessage("Please enter valid months and years in the format yyyy-mm.", "error");
         return false;
       }
       const fromDate = new Date(`${formData.fromDate}-01`).getTime();
       const toDate = new Date(`${formData.toDate}-01`).getTime();
       if (fromDate > toDate) {
-        setError("From Date should not be later than To Date.");
+        setMessage("From Date should not be later than To Date.", "error");
         return false;
       }
       if (formData.title.length > 100) {
-        setError("Title should not exceed 100 characters.");
+        setMessage("Title should not exceed 100 characters.", "error");
         return false;
       }
       // Validate title field for special characters
       if (!specialCharRegex.test(formData.title)) {
-        setError("Title contains invalid special characters.");
+        setMessage("Title contains invalid special characters.", "error");
         return false;
       }
       if (!/^[a-zA-Z\s]*$/.test(formData.author)) {
-        setError("Author name should contain only letters and spaces.");
+        setMessage("Author name should contain only letters and spaces.", "error");
         return false;
       }
     }
@@ -140,21 +143,21 @@ const SearchForm: React.FC = () => {
     event.preventDefault();
   
     if (!isValidData()) return;
-    setError("");
-  
-    // Put loading mask on
+    setMessage(null); // Clear any previous error messages
+
+    // Set loading state
     setLoading(true);
   
     // Construct query
     const query = buildQuery();
-    // Get search total count
     getTotalCount(query)
       .then((response) => {
         setResultCount(response.data.total_count);
       })
       .catch((error) => {
-        setError("An error occurred while searching.");
+        console.error("Error:", error);
         setResultCount(0);
+        setMessage(`${error.response.data.message}`, "error");
       })
       .finally(() => {
         setLoading(false);
@@ -164,8 +167,7 @@ const SearchForm: React.FC = () => {
   const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
-    setError(null);
-    
+    setMessage(null); // Clear any previous error messages
     setLoading(true, "search-progress"); // Show loading indicator
 
     const query = buildQuery();
@@ -177,9 +179,10 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
+        setMessage(`Found ${papers.length} papers.`, "success");
       })
       .catch((error) => {
-        setError(error.response.data.message);
+        setMessage(`${error.response.data.message}`, "error");
       })
       .finally(() => {
         setLoading(false);
@@ -200,7 +203,7 @@ const SearchForm: React.FC = () => {
       if (allowedTypes.includes(file.type)) {
         setFormData({ ...formData, publicationFile: file });
       } else {
-        setError("Please upload a valid CSV file.");
+        setMessage("Please upload a valid CSV file.", "error");
         setFormData({ ...formData, publicationFile: null });
       }
 
@@ -354,7 +357,6 @@ const SearchForm: React.FC = () => {
             <Grid
               xs={12}
               sx={{
-                backgroundColor: "#f6f6f6",
                 padding: 2,
                 display: "flex",
                 justifyContent: "center",

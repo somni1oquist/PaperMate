@@ -1,5 +1,6 @@
 import json
-from flask import request, session, current_app as app, abort
+from flask import request, current_app as app
+from werkzeug.exceptions import BadRequest
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
@@ -48,7 +49,7 @@ class MutateFromChat(Resource):
         else:
             model_name = app.config.get('LLM_MODEL_NAMES').split(',')[0]
         if not query:
-            abort(400, 'Instruction is required.')
+            raise BadRequest('Instruction is required.')
         app.logger.info(f'Chat ID: {chat_id}, Query: {query}, Model: {model_name}')
 
         batch_size = app.config.get('BATCH_SIZE', 5)
@@ -73,14 +74,13 @@ class MutateFromChat(Resource):
             'chat': chat_id
         }
         return response, 200
-    
+
 @api.route('/search')
 class PaperSearch(Resource):
     @api.marshal_list_with(paper_model)
     def get(self):
         '''Search papers based on query parameters'''
         # Extract query parameters
-        # @TODO: Conform to UI specification
         query = request.args.get('query', None)
         title = request.args.get('title', None)
         author = request.args.get('author', None)
@@ -107,8 +107,8 @@ class PaperSearch(Resource):
 
         total_count = ElsevierService.get_total_count(query_params)
         if total_count == 0:
-            abort(404, 'No papers found.')
-
+            raise BadRequest('No papers found with the given query.')
+        
         app.logger.info(f'Seaching papers with query: {query_params}')
 
         # Batch process papers
