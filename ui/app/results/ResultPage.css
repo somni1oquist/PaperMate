@@ -1,9 +1,8 @@
-/* ResultPage.css */
-
+/* Container for the entire result page */
 .result-page-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the grid horizontally */
+  align-items: center; /* Center horizontally */
   justify-content: flex-start;
   width: 80vw;
   min-height: 70vh;
@@ -12,44 +11,71 @@
   /* Glassmorphism styles */
   background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
   backdrop-filter: blur(10px); /* Frosted glass effect */
-  -webkit-backdrop-filter: blur(10px); /* For Safari support */
-  border-radius: 16px; /* Smooth, rounded corners */
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
-  padding: 40px 20px;
 }
 
+/* Header styling */
 .header {
   width: 100%;
   text-align: center;
   margin-bottom: 20px;
 }
 
+/* Toggle switch container */
 .instruction-box-toggle {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 }
 
-.instruction-box {
-  width: 100%;
-  max-width: 900px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-}
-
-/* ResultGrid.css */
-
+/* Container for the data grid and instruction box */
 .result-grid-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   width: 100%;
   max-width: 900px;
-  height: 100%;
+  height: 100%; /* Ensure both components take the full height */
+  justify-content: space-between; /* Create space between the grid and instruction box */
+  align-items: stretch; /* Make sure both DataGrid and InstructionBox have the same height */
 }
 
+/* Wrapper for the data grid to ensure proper layout */
+.result-grid-wrapper {
+  flex: 2; /* DataGrid takes more space than the instruction box */
+  margin-right: 20px; /* Space between the grid and instruction box */
+  height: 100%; /* Ensure it stretches to full height */
+}
 
+/* Paper wrapping the data grid */
+.result-grid-paper {
+  height: 100%; /* Make DataGrid take the full height */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the instruction box */
+.result-grid-instruction {
+  flex: 1; /* Instruction box takes less space */
+  max-width: 400px; /* Limit the width of the instruction box */
+  height: 100%; /* Align height with the DataGrid */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  background-color: #fff;
+  border-radius: 8px; /* Rounded corners for instruction box */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 10px;
+}
+
+/* Styling for scrollbars inside the instruction box */
+.result-grid-instruction::-webkit-scrollbar {
+  width: 8px;
+}
+
+.result-grid-instruction::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* Darker scrollbar thumb */
+  border-radius: 4px;
+}
+
+.result-grid-instruction::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05); /* Light scrollbar track */
+}

@@ -8,12 +8,6 @@ import InstructionBox from './InstructionBox';
 import PaperDetail from './PaperDetail';
 import './ResultPage.css';
 
-// Function to truncate text
-const truncateText = (text: string, length: number) => {
-  return text.length > length ? text.substring(0, length) + '...' : text;
-};
-
-// Define grid columns
 const genColDefs = (data: any[]): GridColDef[] => {
   if (!data || data.length === 0) return [];
 
@@ -60,32 +54,37 @@ const ResultGrid: React.FC<ResultGridProps> = ({ showInstruction }) => {
 
   return (
     <div className="result-grid-container">
-      <Paper className="result-grid-paper">
-        {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
-        <DataGrid
-          rows={rows}
-          columns={genColDefs(data as any[])}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 5 } },
-          }}
-          loading={loading}
-          slotProps={{
-            loadingOverlay: {
-              variant: 'skeleton',
-              noRowsVariant: 'skeleton',
-            },
-          }}
-          getRowId={(row) => row.doi}
-          disableRowSelectionOnClick
-          disableColumnMenu={true}
-          disableColumnReorder={true}  // Disable column resizing and reordering
-          slots={{
-            toolbar: GridToolbar
-          }}
-          className="data-grid-style"
-          onRowClick={handleRowClick}
-        />
-      </Paper>
+      {/* DataGrid Container */}
+      <div className="result-grid-wrapper">
+        <Paper className="result-grid-paper">
+          {open && <PaperDetail open={open} onClick={() => { setOpen(false); }} row={selectedRow} />}
+          <DataGrid
+            rows={rows}
+            columns={genColDefs(data as any[])}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 5 } },
+            }}
+            loading={loading}
+            slotProps={{
+              loadingOverlay: {
+                variant: 'skeleton',
+                noRowsVariant: 'skeleton',
+              },
+            }}
+            getRowId={(row) => row.doi}
+            disableRowSelectionOnClick
+            disableColumnMenu={true}
+            disableColumnReorder={true}
+            slots={{
+              toolbar: GridToolbar
+            }}
+            className="data-grid-style"
+            onRowClick={handleRowClick}
+          />
+        </Paper>
+      </div>
+
+      {/* Instruction Box Container */}
       {showInstruction && (
         <div className="result-grid-instruction">
           <InstructionBox />
