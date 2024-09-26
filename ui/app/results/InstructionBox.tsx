@@ -17,6 +17,7 @@ import {
 import { getChatHistory, giveInstruction } from '../actions';
 import { useData } from '../context/DataContext';
 import { useLoading } from '../context/LoadingContext';
+import { useError } from '../context/ErrorContext';
 
 const columns: GridColDef[] = [
   {
@@ -70,7 +71,7 @@ export default function InstructionBox() {
   const [selectedInstruction, setSelectedInstruction] = React.useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { data, setData } = useData();
-  const { setMessage } = useMessage();
+  const { setError } = useError();
   const { loading, setLoading } = useLoading();
 
   React.useEffect(() => {
@@ -89,10 +90,10 @@ export default function InstructionBox() {
         })
         .catch(error => {
           console.log('Error fetching chat history:', error);
-          setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+          setError(`${error.response.data.error}: ${error.response.data.message}`);
         });
     }
-  }, [setMessage]);
+  }, [setError]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
@@ -109,11 +110,10 @@ export default function InstructionBox() {
       giveInstruction(inputValue)
         .then((response) => {
           setData(response.data.papers);
-          setMessage("Instruction processed successfully", "success");
           setLoading(false);
         })
         .catch((error) => {
-          setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
+          setError(`${error.response.data.error}: ${error.response.data.message}`);
           setLoading(false);
         });
     }
