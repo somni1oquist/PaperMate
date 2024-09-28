@@ -33,6 +33,7 @@ interface SearchFormData {
   title: string;
   author: string;
   publicationFile: File | null;
+  publicationFileData: string; // Storing csv file data in string format.
   advanced: boolean;
   chat: boolean;
   geminiPro: boolean;
@@ -47,6 +48,7 @@ const SearchForm: React.FC = () => {
     title: "",
     author: "",
     publicationFile: null,
+    publicationFileData: "",
     advanced: false,
     chat: false,
     geminiPro: geminiPro,
@@ -123,8 +125,16 @@ const SearchForm: React.FC = () => {
   const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
+
     params.append("model", String(geminiPro));
     sessionStorage.setItem("switchModel", String(geminiPro));
+
+
+    if(formData.publicationFile)
+    {
+      params.append("publication", formData.publicationFileData)
+    }
+  
     if (formData.advanced) {
       params.append("fromDate", formData.fromDate);
       params.append("toDate", formData.toDate);
@@ -142,6 +152,7 @@ const SearchForm: React.FC = () => {
   
     // Construct query
     const query = buildQuery();
+
     getTotalCount(query)
       .then((response) => {
         setResultCount(response.data.total_count);
@@ -163,9 +174,11 @@ const SearchForm: React.FC = () => {
     setLoading(true, "search-progress"); // Show loading indicator
 
     const query = buildQuery();
+
     // Reset data and chatId when proceeding
     setData(null);
     sessionStorage.removeItem("chatId");
+
     // Get search results
     searchPapers(query)
       .then((response) => {
@@ -191,8 +204,37 @@ const SearchForm: React.FC = () => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const allowedTypes = ["text/csv"];
-      if (allowedTypes.includes(file.type)) {
-        setFormData({ ...formData, publicationFile: file });
+
+      if (allowedTypes.includes(file.type)) 
+      {
+        if (file) 
+        {
+          const reader = new FileReader();
+      
+          reader.onload = (event) => 
+          {
+            const csv = event.target?.result;
+      
+            // Ensure result is a string before proceeding
+            if (typeof csv === 'string') 
+            {
+              // Parse CSV manually by splitting rows and columns
+              const rows = csv.split('\n'); // Split the CSV content into rows
+              const dataArray = rows.map(row => row.split(',')); // Split each row into columns
+      
+              // Concatenate CSV data into a single string
+              const concatenatedString = dataArray.flat().join(' '); // Flatten nested arrays and join data with a space
+      
+              // Update formData with the file and concatenated CSV data
+              setFormData({ ...formData, publicationFile: file, publicationFileData: concatenatedString });
+            } else 
+            {
+              setMessage("Error reading the file. Please upload a valid CSV file.");
+            }
+          };
+      
+          reader.readAsText(file); // Read the file content as text
+        }
       } else {
         setMessage("Please upload a valid CSV file.", "error");
         setFormData({ ...formData, publicationFile: null });
