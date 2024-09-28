@@ -32,18 +32,12 @@ const columns: GridColDef[] = [
   }
 ];
 
-// New InputContainer component with a white background
+// New InputContainer component
 function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, onSubmit: () => void }) {
   return (
-    <Box
-      component="div"
-      sx={{
-        padding: 2,
-        display: 'flex',
-        gap: 2,
-      }}
-    >
-      <TextField placeholder="Add Instruction"
+    <Box component="div">
+      <TextField
+        placeholder="Add Instruction"
         variant="standard"
         multiline
         minRows={1}
@@ -66,10 +60,6 @@ function InputContainer({ inputValue, onChange, onSubmit }: { inputValue: string
           }
         }}
         fullWidth
-        sx={{
-          overflow: 'auto',
-          resize: 'none',
-        }}
       />
     </Box>
   );
@@ -99,7 +89,6 @@ export default function InstructionBox() {
           setRows(chatHistory);
         })
         .catch(error => {
-          console.log('Error fetching chat history:', error);
           setMessage(`${error.response.data.error}: ${error.response.data.message}`, "error");
         });
     }
@@ -140,17 +129,7 @@ export default function InstructionBox() {
   };
 
   return (
-    <Paper
-      style={{
-        width: '100%',
-        height: '100%',
-        padding: '5px',
-        paddingTop: '5px',
-        position: 'relative',
-        boxSizing: 'border-box',
-        margin: '15px 0 30px',
-      }}
-    >
+    <Paper className="result-grid-instruction">
       <DataGrid
         rows={rows}
         columns={columns}
@@ -165,16 +144,13 @@ export default function InstructionBox() {
         onSubmit={handleSend}
       />
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle sx={{ bgcolor: '#f5f5f5' }}>
-          Instruction Details:
-          </DialogTitle>
-          <Divider />
+        <DialogTitle>Instruction Details:</DialogTitle>
+        <Divider />
         <DialogContent>
           <Box>{selectedInstruction}</Box>
         </DialogContent>
         <DialogActions>
-          <Button  sx={{ bgcolor: '#f5f5f5' }}
-          onClick={handleCloseDialog}>Close</Button>
+          <Button onClick={handleCloseDialog}>Close</Button>
         </DialogActions>
       </Dialog>
     </Paper>

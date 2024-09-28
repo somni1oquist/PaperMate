@@ -1,80 +1,91 @@
-/* Bottom-Bar.css */
-
-/* Fixed bottom bar, centered with 50% width */
+/* Fixed bottom bar, centered with a smaller max width */
 .bottom-bar {
   position: fixed;
-  bottom: 10px;
-  width: 50%;
+  bottom: 20px;
+  width: 100%; /* Full width for the entire bar */
+  max-width: 500px; /* Adjusted max-width to 500px */
   left: 50%;
   transform: translateX(-50%);
-  background-color: #93c3f3; /* Dodger Blue background */
-  color: #fff; /* White text color for contrast */
+  background: rgba(255, 255, 255, 0.2); /* Light transparent background */
+  backdrop-filter: blur(10px); /* Blur effect */
+  color: #000; /* Black text color */
   text-align: center;
   padding: 5px;
-  z-index: 1000;
+  z-index: 500;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly; /* Evenly distribute buttons */
   align-items: center;
-  border-radius: 8px;
-  height: 40px;
-}
-
-/* Traffic light CSS */
-.traffic-light {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 15px;
-  background-color: #93c3f3; /* Steel Blue background */
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.light {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin: 2px 0;
-  opacity: 1; /* All lights are on by default */
-}
-
-.red {
-  background-color: red;
-}
-
-.yellow {
-  background-color: yellow;
-}
-
-.green {
-  background-color: green;
+  border-radius: 12px;
+  height: 60px; /* Slightly larger height */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Lighter shadow for depth */
 }
 
 /* Style for each option in the bottom bar */
 .bottom-bar-option {
-  color: #fff; /* White text color */
+  color: #000; /* Black text color */
   text-decoration: none;
-  padding: 10px;
-  margin: 0 5px;
-  background-color: #1C86EE; /* Medium Blue background */
-  transition: background-color 0.3s;
-}
-
-.bottom-bar-option:hover {
-  background-color: #1874CD; /* Slightly darker blue on hover */
-}
-
-/* Disabled style for the Results button */
-.bottom-bar-option.disabled {
-  color: #B0C4DE; /* Light Steel Blue text color */
-  pointer-events: none;
-  background-color: #ADD8E6; /* Light Blue background for disabled button */
-}
-
-/* Loading container styling */
-.loading-container {
+  padding: 10px; /* Adjust padding */
+  margin: 0; /* Remove default margin */
+  font-size: 1em; /* Standard font size */
+  background: transparent; /* Transparent background */
+  transition: background-color 0.2s, transform 0.2s; /* Adjusted transitions */
+  border-radius: 8px; /* Rounded corners */
+  position: relative; /* Needed for pseudo-element positioning */
+  flex: none; /* Prevent buttons from stretching */
+  text-align: center; /* Center text within each button */
+  height: 50px; /* Set button height */
+  line-height: 50px; /* Vertically center the text */
   display: flex;
+  justify-content: center;
   align-items: center;
-  color: white;
+  width: 90px; /* Equal width for buttons */
+}
+
+/* Rounded corners for the first and last button to create an integrated look */
+.bottom-bar-option:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.bottom-bar-option:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Subtle border between buttons */
+.bottom-bar-option:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.3); /* White line between buttons */
+}
+
+/* Add a pseudo-element for the white line between buttons */
+.bottom-bar-option:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 80%; /* Height for the line */
+  background-color: rgba(255, 255, 255, 0.3); /* Subtle white line */
+}
+
+/* Highlight the current page button */
+.bottom-bar-option.active {
+  background: rgba(255, 255, 255, 0.3); /* Softer color for active button */
+}
+
+/* Hover effect for buttons */
+.bottom-bar-option:hover {
+  background: rgba(255, 255, 255, 0.15); /* Lighter background on hover */
+  transform: scale(1.02); /* Smaller hover effect */
+  z-index: 1; /* Elevate button slightly */
+  height: 50px; /* Keep the hover height same as button height */
+  line-height: 50px; /* Ensure text remains vertically centered */
+}
+
+/* Disabled style for the Results button (grey text without hover effect) */
+.bottom-bar-option.disabled {
+  color: grey; /* Grey text color */
+  pointer-events: none;
+  background: none; /* Remove hover background effect */
 }

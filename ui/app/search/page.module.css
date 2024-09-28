@@ -1,0 +1,172 @@
+.paper {
+  padding: 20px 50px 50px 50px;
+  margin-top: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header {
+  text-align: center;
+  font-size: 30px;
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.switch-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.fileInput-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.fileInput {
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  color: white;
+}
+
+.textField {
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.292);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  border: none;
+  outline: none;
+  height: 56px;
+  transition: box-shadow 0.3s ease;
+}
+
+.textField:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.textField:focus {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.date-container {
+  display: flex;
+  gap: 10px;
+}
+
+.dateField {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.292);
+  border-radius: 16px;
+  border: none;
+  outline: none;
+  height: 56px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.dateField:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dateField:focus {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+/* Smaller result count container */
+.resultCount {
+  background-color: transparent;
+  margin-top: 5px;
+  border-radius: 16px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  font-size: 1.25em;
+  font-weight: 600;
+  transition: transform 0.3s ease;
+}
+
+.resultCount:hover {
+  transform: scale(1.05);
+}
+
+.resultCountPaper {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  max-width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.resultCountText {
+  font-size: 1em;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.button {
+  padding: 12px 40px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px 0 0 16px;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+  font-size: 16px;
+}
+
+.button:last-child {
+  border-radius: 0 16px 16px 0;
+}
+
+.button:not(:last-child) {
+  border-right: none;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.button:focus {
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  outline: none;
+}
+
+.divider {
+  display: none;
+}

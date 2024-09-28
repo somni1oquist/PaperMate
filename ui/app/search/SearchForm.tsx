@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Grid from "@mui/material/Unstable_Grid2";
 import {
   Switch,
@@ -8,23 +7,23 @@ import {
   FormControlLabel,
   Paper,
   TextField,
-  Button
+  Button,
 } from "@mui/material";
 import { searchPapers, getTotalCount } from "../actions";
 import { useData } from "../context/DataContext";
 import { useMessage } from "../context/MessageContext";
 import { useLoading } from "../context/LoadingContext";
+import styles from "./page.module.css"; // Importing the CSS for styling
+import PublicationInput from "./PublicationInput";
 
-// Helper function to calculate the date 6 months ago
 const getSixMonthsAgo = (): string => {
   const today = new Date();
-  today.setMonth(today.getMonth() - 6); // Subtract 6 months
-  return today.toISOString().slice(0, 7); // Return as "yyyy-mm"
+  today.setMonth(today.getMonth() - 6);
+  return today.toISOString().slice(0, 7);
 };
 
-// Helper function to get the current month and year
 const getCurrentMonth = (): string => {
-  return new Date().toISOString().slice(0, 7); // Return as "yyyy-mm"
+  return new Date().toISOString().slice(0, 7);
 };
 
 interface SearchFormData {
@@ -40,18 +39,15 @@ interface SearchFormData {
 }
 
 const SearchForm: React.FC = () => {
-  const router = useRouter();
-
-  /* States declaration */
   const [geminiPro, setGeminiPro] = useState<boolean>(false);
   const [formData, setFormData] = useState<SearchFormData>({
     query: "",
-    fromDate: getSixMonthsAgo(),  // Default from 6 months ago
-    toDate: getCurrentMonth(),    // Default to current month
+    fromDate: getSixMonthsAgo(),
+    toDate: getCurrentMonth(),
     title: "",
     author: "",
     publicationFile: null,
-    advanced: true,
+    advanced: false,
     chat: false,
     geminiPro: geminiPro,
   });
@@ -124,7 +120,6 @@ const SearchForm: React.FC = () => {
     return true;
   };
 
-  // Build the search query
   const buildQuery = (): string => {
     const params = new URLSearchParams();
     params.append("query", formData.query);
@@ -137,15 +132,12 @@ const SearchForm: React.FC = () => {
       params.append("author", formData.author);
     }
     return params.toString();
-  }
+  };
 
   const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-  
     if (!isValidData()) return;
     setMessage(null); // Clear any previous error messages
-
-    // Set loading state
     setLoading(true);
   
     // Construct query
@@ -164,7 +156,7 @@ const SearchForm: React.FC = () => {
       });
   };
 
-  const handleProceedSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleProceedSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (!isValidData()) return;
     setMessage(null); // Clear any previous error messages
@@ -179,7 +171,7 @@ const SearchForm: React.FC = () => {
       .then((response) => {
         const papers = response.data;
         setData(papers);
-        setMessage(`Found ${papers.length} papers.`, "success");
+        setMessage(`${papers.length} papers loaded.`, "success");
       })
       .catch((error) => {
         setMessage(`${error.response.data.message}`, "error");
@@ -189,15 +181,14 @@ const SearchForm: React.FC = () => {
       });
   };
 
-  const handleInputChange =
-    (key: keyof SearchFormData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [key]: event.target.value });
-    };
+  const handleInputChange = (key: keyof SearchFormData) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData({ ...formData, [key]: event.target.value });
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-
       const file = event.target.files[0];
       const allowedTypes = ["text/csv"];
       if (allowedTypes.includes(file.type)) {
@@ -209,20 +200,14 @@ const SearchForm: React.FC = () => {
 
     }
   };
-  
+
   return (
     <>
-      <Paper elevation={3} sx={{ padding: 3, marginTop: 3 }}>
+      <Paper elevation={3} className={styles.paper}>
+        <h1 className={styles.header}>Literature Paper Search</h1>
         <Grid container spacing={2}>
-          <Grid
-            xs={12}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {/* Use Skeleton for FormControlLabel */}
+          {/* Toggle switches */}
+          <Grid xs={12} className={styles["switch-container"]}>
             {loading ? (
               <Skeleton width={200} height={40} />
             ) : (
@@ -239,13 +224,10 @@ const SearchForm: React.FC = () => {
                   />
                 }
                 label="Advanced Search"
-                sx={{ marginRight: 2 }}
               />
             )}
 
-            {loading ? (
-              <Skeleton width={200} height={40} />
-            ) : (
+            {formData.advanced && !loading && (
               <FormControlLabel
                 control={
                   <Switch
@@ -263,151 +245,123 @@ const SearchForm: React.FC = () => {
             )}
           </Grid>
 
-          <Grid xs={6}>
+          {/* Query input */}
+          <Grid xs={12} md={formData.advanced ? 6 : 12}>
             {loading ? (
               <Skeleton width="100%" height={56} />
             ) : (
               <TextField
                 label="Query"
+                variant="filled"
                 fullWidth
+                className={styles.textField}
                 value={formData.query}
                 onChange={handleInputChange("query")}
               />
             )}
           </Grid>
 
-          {/* File upload field */}
-          <Grid xs={6}>
-            {loading ? (
-              <Skeleton width="100%" height={56} />
-            ) : (
-              <TextField
-                type="file"
-                inputProps={{ accept: ".csv" }}
-                fullWidth
-                onChange={handleFileChange}
-                helperText={
-                  formData.publicationFile
-                    ? `Selected file: ${formData.publicationFile.name}`
-                    : "Choose your file to filter publications"
-                }
-              />
-            )}
-          </Grid>
-
+          {/* Advanced fields */}
           {formData.advanced && (
             <>
-              <Grid xs={6}>
+              <Grid xs={12} md={6} className={styles["date-container"]}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
-                  <TextField
-                    label="From Date (yyyy-mm)"
-                    type="month"
-                    fullWidth
-                    value={formData.fromDate}
-                    onChange={handleInputChange("fromDate")}
-                  />
+                  <>
+                    <TextField
+                      label="From Date"
+                      variant="filled"
+                      type="month"
+                      fullWidth
+                      className={styles.dateField} // Applying dateField class
+                      value={formData.fromDate}
+                      onChange={handleInputChange("fromDate")}
+                    />
+                    <TextField
+                      label="To Date"
+                      variant="filled"
+                      type="month"
+                      fullWidth
+                      className={styles.dateField} // Applying dateField class
+                      value={formData.toDate}
+                      onChange={handleInputChange("toDate")}
+                    />
+                  </>
                 )}
               </Grid>
 
-              <Grid xs={6}>
-                {loading ? (
-                  <Skeleton width="100%" height={56} />
-                ) : (
-                  <TextField
-                    label="To Date (yyyy-mm)"
-                    type="month"
-                    fullWidth
-                    value={formData.toDate}
-                    onChange={handleInputChange("toDate")}
-                  />
-                )}
-              </Grid>
-
-              <Grid xs={6}>
+              <Grid xs={12} md={6}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
                   <TextField
                     label="Title"
+                    variant="filled"
                     fullWidth
+                    className={styles.textField}
                     value={formData.title}
                     onChange={handleInputChange("title")}
                   />
                 )}
               </Grid>
 
-              <Grid xs={6}>
+              <Grid xs={12} md={6}>
                 {loading ? (
                   <Skeleton width="100%" height={56} />
                 ) : (
                   <TextField
                     label="Author"
+                    variant="filled"
                     fullWidth
+                    className={styles.textField}
                     value={formData.author}
                     onChange={handleInputChange("author")}
                   />
                 )}
               </Grid>
+
+              {/* File upload */}
+              <Grid xs={12} className={styles["fileInput-container"]}>
+                {loading ? (
+                  <Skeleton width="100%" height={56} />
+                ) : (
+                  <PublicationInput onChange={handleFileChange} className={styles.fileInput}/>
+                )}
+              </Grid>
             </>
           )}
 
+          {/* Result count display */}
           {resultCount !== null && (
-            <Grid
-              xs={12}
-              sx={{
-                padding: 2,
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 2,
-              }}
-            >
-              {loading ? (
-                <Skeleton width={300} height={50} />
-              ) : (
-                <Paper
-                  elevation={1}
-                  sx={{
-                    backgroundColor: "#f6f6f6",
-                    padding: 2,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{ marginRight: 5 }}>🔍</span>
-                  <span>Total Results: {resultCount}</span>
-                </Paper>
-              )}
+            <Grid xs={12} className={styles.resultCount}>
+              <Paper elevation={0} className={styles.resultCountPaper}>
+                <span className={styles.resultCountText}>Total Results: {resultCount}</span>
+              </Paper>
             </Grid>
           )}
 
-          <Grid xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-            {loading ? (
-              <Skeleton width={150} height={50} />
-            ) : (
+
+          {/* Action buttons with custom CSS */}
+          <Grid xs={12} className={styles["button-container"]}>
+            <div className={styles["button-group"]}>
               <Button
                 type="submit"
-                variant="contained"
-                color="primary"
+                className={styles.button}
                 onClick={handleSearch}
+                disabled={loading}
               >
                 Search
               </Button>
-            )}
 
-            {loading ? (
-              <Skeleton width={150} height={50} sx={{ marginLeft: 2 }} />
-            ) : (
               <Button
-                variant="contained"
-                color="secondary"
-                sx={{ marginLeft: 2 }}
+                className={styles.button}
                 onClick={handleProceedSubmit}
+                disabled={loading}
               >
                 Proceed
               </Button>
-            )}
+            </div>
           </Grid>
         </Grid>
       </Paper>

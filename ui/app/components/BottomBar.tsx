@@ -1,5 +1,4 @@
-// bottom-bar.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import '../bottom-bar.css'; // Import the CSS file
 import { useData } from '../context/DataContext';
@@ -9,7 +8,16 @@ import Progress from './Progress';
 const BottomBar: React.FC = () => {
   const { data } = useData();
   const { loading, loadEvent } = useLoading();
-  const resultsEnabled = data !== null;
+  const [resultsAvailable, setResultsAvailable] = useState(false);
+
+  useEffect(() => {
+    // If data exists (indicating results are available), set resultsAvailable to true
+    if (data && data.length > 0) {
+      setResultsAvailable(true);
+    } else {
+      setResultsAvailable(false);
+    }
+  }, [data]); // Re-run the effect when data changes
 
   const handleScroll = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     event.preventDefault();
@@ -21,38 +29,44 @@ const BottomBar: React.FC = () => {
 
   return (
     <div className="bottom-bar">
-      {/* Conditionally display loading indicator or traffic light */}
-      {loading ? (
-        <Progress eventName={loadEvent} />
-      ) : (
-        <div className="traffic-light">
-          <div className="light red"></div>
-          <div className="light yellow"></div>
-          <div className="light green"></div>
-        </div>
-      )}
+      {/* Conditionally display loading indicator */}
+      {loading ? <Progress eventName={loadEvent} /> : null}
 
       {/* Navigation Links */}
-      <Link href="#home"
+      <Link
+        href="#home"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'home')}
       >
         Home
       </Link>
-      <Link href="#search"
+
+      <Link
+        href="#search"
         className="bottom-bar-option"
         onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
       >
         Search
       </Link>
 
-      {/* Conditionally disable the Results option */}
+      {/* Conditionally render Result link with disabled style and behavior if results are not available */}
       <Link
-        href={resultsEnabled ? "#results" : "#"}
-        className={`bottom-bar-option ${resultsEnabled ? '' : 'disabled'}`}
-        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'results')}
+        href="#results"
+        className={`bottom-bar-option ${resultsAvailable ? '' : 'disabled'}`}
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+          if (!resultsAvailable) e.preventDefault(); // Block click if results are not available
+          else handleScroll(e, 'results');
+        }}
       >
-        Results
+        Result
+      </Link>
+
+      <Link
+        href="#about"
+        className="bottom-bar-option"
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'about')}
+      >
+        About
       </Link>
     </div>
   );

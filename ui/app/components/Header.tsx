@@ -1,17 +1,22 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 
 export default function Header() {
+  const [isPlaying, setIsPlaying] = useState(false); // State to control animation playback
+
+  const handlePlayAnimation = () => {
+    setIsPlaying(true); // Set the animation to play
+  };
 
   return (
-    <header style={{
-      textAlign: 'center',
-      fontFamily: 'Georgia, serif',
-    }}>
-      <h1>PaperMate</h1>
-      <h4>
-        Your Gateway to Streamlined Research – Search, Analyse, and Excel in One Click.
-      </h4>
+    <header 
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        padding: '1rem 0' 
+      }}>
+        <h1>Discover Your Next Inspiration</h1>
     </header>
   );
 }

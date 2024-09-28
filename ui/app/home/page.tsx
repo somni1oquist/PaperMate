@@ -1,50 +1,46 @@
 "use client";
 import React from "react";
-import Image from "next/image";
-import style from "../page.module.css"; // Assuming your CSS module file
-import FeatureSlider from "../components/description";
 import Grid from "@mui/material/Unstable_Grid2";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import style from "../page.module.css"; // Assuming your CSS module file
+import Lottie from 'lottie-react';
+import animationData from '../assets/book-animation.json'; // Import the Lottie animation
 
 export default function HomePage() {
   return (
     <Grid
       container
-      spacing={1} // Reduced spacing between grid items
+      spacing={1}
       justifyContent="center" // Center horizontally
       alignItems="center" // Center vertically
-      sx={{ height: "100vh" }} // Make sure container takes full viewport height
-      className={style['home-container']}
+      sx={{ height: "100vh", padding: "2rem" }} // Full height + padding
+      className={style['home-container']} // Ensure the container has background
     >
-      {/* Logo Section */}
-      <Grid xs={12} md={4}>
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Image
-            src="/car.jpg"
-            alt="Logo"
-            width={300} // Adjusted size if needed
-            height={200}
-            className={style.logo}
-          />
-        </Box>
-      </Grid>
-
       {/* Title Section */}
-      <Grid xs={12} md={8}>
-        <Box textAlign="left" pl={2} /* Added padding to bring text closer to image */>
-          <h1>PaperMate</h1>
-          <p>
-            Your Gateway to Streamlined Research – Search, Analyse, and Excel in
-            One Click.
-          </p>
+      <Grid xs={12} md={6} textAlign="center">
+        <Box display="flex" alignItems="center" justifyContent="center"> {/* Flex container for title and animation */}
+          <Typography
+            variant="h1"
+            sx={{
+              fontSize: "3rem", // Large font size for the title
+              fontWeight: "bold",
+              color: "#333", // Dark color for contrast
+            }}
+          >
+            PaperMate
+          </Typography>
+          <Lottie animationData={animationData} style={{ width: "14%", height: "auto" }} />
         </Box>
-      </Grid>
-
-      {/* Feature Slider Section */}
-      <Grid xs={12}>
-        <Box textAlign="center">
-          <FeatureSlider />
-        </Box>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontSize: "1.25rem", // Medium-sized subtitle text
+            color: "#555", // Lighter color for description
+            marginTop: "1rem", // Space between title and description
+          }}
+        >
+          Your Gateway to Streamlined Research – Search, Analyse, and Excel in One Click.
+        </Typography>
       </Grid>
     </Grid>
   );

@@ -3,7 +3,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 4rem;
+  width: 100%;
 }
 
 /* Homepage Styling */
@@ -12,8 +12,16 @@
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
   min-height: 75vh; /* Ensure it takes full viewport height */
+  width: 100vw;
   padding: 2rem;
+  
+  /* Background image properties */
+  background-image: url('./assets/purple.jpg'); /* Replace with your image path */
+  background-size: cover; /* Cover ensures the image covers the entire container */
+  background-repeat: no-repeat; /* Prevent repeating */
+  background-position: center; /* Centers the image */
 }
+
 
 .logo-section {
   flex: 1; /* Allow logo section to take up available space */
@@ -31,8 +39,44 @@
   padding: 0 2rem; /* Add horizontal padding */
 }
 
-/* Search Page Styling */
+/* Search Page Container (outer container) */
+.searchpage-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem; /* Adjust the outer padding as needed */
+  background-color: #f8f9fa; /* Light background color */
+  min-height: 80vh; /* Ensure it's large enough */
+  width: 100%;
+}
+
+/* Search Container (inner container) */
 .search-container {
+  width: 1600px; /* Set a fixed width */
+  height: 650px; /* Set a fixed height */
+  padding: var(--padding, 2rem); /* Padding from its edge, default 2rem */
+  background-image: url('./assets/blue.jpg'); /* Replace with your image path */
+  background-size: cover; /* Ensure the background image covers the entire container */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent background from repeating */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 8px; /* Optional: Rounded corners */
+}
+
+/* Result Page Styling */
+.result-container {
+  display: flex;
+  width: 100vw;
+  background-image: url('./assets/green.jpg'); /* Replace with your image path */
+  background-size: cover; /* Ensure the background image covers the entire container */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-height: 75vh; /* Ensure it takes full viewport height */
+  padding: 2rem;
+}
+
+/* General Styles for About Page */
+.about-container {
   display: flex;
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
@@ -40,11 +84,4 @@
   padding: 2rem;
 }
 
-/* Result Page Styling */
-.result-container {
-  display: flex;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 75vh; /* Ensure it takes full viewport height */
-  padding: 2rem;
-}
+
