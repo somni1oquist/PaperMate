@@ -100,6 +100,10 @@ docker compose up --build # With reloading enabled
 or
 
 docker compose -f docker-compose.debug.yml up --build # For using debugger
+
+or
+
+docker-compose -f docker-compose.test.yml up --build # For run the test environment for both the ui (React) and the api (Flask)
 ```
 
 ### 3. Access Papermate
