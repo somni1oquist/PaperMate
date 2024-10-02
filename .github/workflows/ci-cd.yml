@@ -70,7 +70,7 @@ jobs:
 
       - name: Run backend tests
         run: pytest
-        working-directory: api
+        working-directory: api/tests
 
       - name: Lint Python code
         run: flake8 api
