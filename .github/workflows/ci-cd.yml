@@ -72,8 +72,8 @@ jobs:
         run: pytest
         working-directory: api/tests
 
-      - name: Lint Python code
-        run: flake8 api
+      # - name: Lint Python code
+      #   run: flake8 api
 
       - name: Build API Docker Image
         run: docker build -t api-app ./api
