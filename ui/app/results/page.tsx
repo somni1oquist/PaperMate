@@ -1,11 +1,10 @@
-// ResultPage.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import ResultContainer from './ResultContainer';
 import './ResultPage.css'; 
 
 const ResultPage: React.FC = () => {
   return (
-    <div>
+    <div className="result-page-wrapper">
       <ResultContainer />
     </div>
   );

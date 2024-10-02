@@ -17,7 +17,7 @@ const ResultContainer: React.FC = () => {
     <div className="result-page-container">
       {/* Header */}
       <div className="header">
-        <h1>Search Results</h1>
+        <h1>Literature Paper Results</h1>
       </div>
 
       {/* Instruction Box Toggle */}
@@ -30,7 +30,7 @@ const ResultContainer: React.FC = () => {
               color="primary"
             />
           }
-          label="Show Instruction Box"
+          label="Instruction Box"
         />
       </div>
 
