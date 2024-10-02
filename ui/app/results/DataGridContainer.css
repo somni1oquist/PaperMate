@@ -1,0 +1,43 @@
+.data-grid-subcontainer {
+  display: flex;
+  align-items: stretch; /* Ensure both items stretch to fill the container */
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%; /* Takes up full height of parent */
+  max-height: 60vh; /* Ensure the container does not exceed 80% of viewport height */
+  background-color: black;
+}
+
+.fixed-size-result-grid {
+  flex: 3;
+  max-width: 70%;
+}
+
+.instruction-box {
+  flex: 1;
+  max-width: 30%;
+  border-radius: 5px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  max-height: 80vh; /* Ensure the instruction box does not extend beyond 80% of the viewport height */
+  overflow: auto; /* Enable scrolling if the content exceeds max-height */
+}
+
+/* When hidden, maintain layout but hide visually */
+.instruction-box-hidden {
+  visibility: hidden;
+  opacity: 0;
+  height: 50vw; /* Keeps the layout intact even when hidden */
+  max-width: 30%;
+}
+
+/* Centering the grid when no instruction box is shown */
+.center-grid {
+  justify-content: center;
+}
+
+.center-grid .fixed-size-result-grid {
+  max-width: 100%;
+}
