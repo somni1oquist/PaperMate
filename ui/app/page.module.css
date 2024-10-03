@@ -1,42 +1,45 @@
+/* General Main Container */
 .main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  box-sizing: border-box; /* Ensures padding and borders are included in width/height */
 }
 
 /* Homepage Styling */
 .home-container {
   display: flex;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 75vh; /* Ensure it takes full viewport height */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Full viewport height */
   width: 100vw;
-  padding: 2rem;
   
   /* Background image properties */
-  background-image: url('./assets/purple.jpg'); /* Replace with your image path */
-  background-size: cover; /* Cover ensures the image covers the entire container */
+  background-image: url('./assets/orange.jpg'); /* Replace with your image path */
+  background-size: cover; /* Cover entire container */
   background-repeat: no-repeat; /* Prevent repeating */
-  background-position: center; /* Centers the image */
+  background-position: center; /* Center image */
 }
 
-
+/* Logo Section */
 .logo-section {
-  flex: 1; /* Allow logo section to take up available space */
+  flex: 1;
   display: flex;
-  justify-content: center; /* Center logo horizontally */
-  align-items: center; /* Center logo vertically */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
+/* Text Section */
 .text-section {
-  flex: 1; /* Allow text section to take up available space */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Stack text vertically */
-  justify-content: center; /* Center text vertically */
-  align-items: flex-start; /* Align text to the left */
-  padding: 0 2rem; /* Add horizontal padding */
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 2rem;
 }
 
 /* Search Page Container (outer container) */
@@ -44,44 +47,44 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4rem; /* Adjust the outer padding as needed */
-  background-color: #f8f9fa; /* Light background color */
-  min-height: 80vh; /* Ensure it's large enough */
+  padding: 4rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
   width: 100%;
 }
 
 /* Search Container (inner container) */
 .search-container {
-  width: 1600px; /* Set a fixed width */
-  height: 650px; /* Set a fixed height */
-  padding: var(--padding, 2rem); /* Padding from its edge, default 2rem */
-  background-image: url('./assets/blue.jpg'); /* Replace with your image path */
-  background-size: cover; /* Ensure the background image covers the entire container */
-  background-position: center; /* Center the background image */
-  background-repeat: no-repeat; /* Prevent background from repeating */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  border-radius: 8px; /* Optional: Rounded corners */
+  min-height: 90vh; /* Full viewport height */
+  width: 90vw;
+  height: auto; /* Adjust height based on content */
+  background-image: url('./assets/blue-green.jpg'); /* Replace with your image path */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Improved shadow for better contrast */
+  border-radius: 8px;
+  padding: 2rem; /* Add padding for internal content */
 }
 
 /* Result Page Styling */
 .result-container {
   display: flex;
   width: 100vw;
-  background-image: url('./assets/green.jpg'); /* Replace with your image path */
-  background-size: cover; /* Ensure the background image covers the entire container */
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 75vh; /* Ensure it takes full viewport height */
-  padding: 2rem;
+  background-image: url('./assets/green-yellow.jpg'); /* Replace with your image path */
+  background-size: cover;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Full viewport height */
+  padding: 0; /* Removed padding */
 }
+
 
 /* General Styles for About Page */
 .about-container {
   display: flex;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
-  min-height: 75vh; /* Ensure it takes full viewport height */
-  padding: 2rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
-
 

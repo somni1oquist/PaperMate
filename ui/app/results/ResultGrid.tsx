@@ -4,7 +4,6 @@ import { Paper, Box } from '@mui/material';
 import { useData } from '../context/DataContext';
 import { useMessage } from '../context/MessageContext';
 import { useLoading } from '../context/LoadingContext';
-import InstructionBox from './InstructionBox';
 import PaperDetail from './PaperDetail';
 import './ResultPage.css';
 
@@ -82,13 +81,6 @@ const ResultGrid: React.FC<ResultGridProps> = ({ showInstruction }) => {
           />
         </Paper>
       </div>
-
-      {/* Instruction Box Container */}
-      {showInstruction && (
-        <div className="result-grid-instruction">
-          <InstructionBox />
-        </div>
-      )}
     </div>
   );
 };

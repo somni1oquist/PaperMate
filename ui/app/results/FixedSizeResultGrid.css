@@ -1,0 +1,19 @@
+/* Fixed size for ResultGrid */
+.fixed-size-result-grid {
+    width: 800px;  /* Set the fixed width */
+    height: 100%; /* Set the fixed height */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Ensures content inside can scroll if necessary */
+  }
+  
+  /* Additional styles for ResultGrid content */
+  .result-grid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

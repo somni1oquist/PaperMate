@@ -1,0 +1,54 @@
+.data-grid-subcontainer {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%; /* Takes up full height of parent */
+  background: rgba(255, 255, 255, 0.1); /* Transparent white */
+  backdrop-filter: blur(10px); /* Blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  border-radius: 10px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Light border to enhance glass effect */
+}
+
+.fixed-size-result-grid {
+  flex: 3;
+  max-width: 70%;
+  background: rgba(255, 255, 255, 0.15); /* Transparent layer */
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px); 
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+}
+
+.instruction-box {
+  flex: 1;
+  max-width: 30%;
+  border-radius: 10px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 45vh;
+  max-height: 65vh; /* Ensure the instruction box does not extend beyond 80% of the viewport height */
+  background-color: #ffffff; /* Solid white background */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(200, 200, 200, 0.6); /* Slightly less transparent border */
+}
+
+.instruction-box-hidden {
+  visibility: hidden;
+  opacity: 0;
+  height: 50vh; /* Keeps the layout intact even when hidden */
+  max-width: 30%;
+}
+
+.center-grid {
+  justify-content: center;
+}
+
+.center-grid .fixed-size-result-grid {
+  max-width: 100%;
+}
