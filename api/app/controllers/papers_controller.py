@@ -1,4 +1,3 @@
-import json
 from flask import request, current_app as app
 from werkzeug.exceptions import BadRequest
 from flask_restx import Namespace, Resource, fields
@@ -6,8 +5,6 @@ from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
 from app.services.gemini import GeminiService
 from app import socketio
-import pandas as pd
-from flask import make_response
 from app.models.chat import Chat
 
 
@@ -27,6 +24,7 @@ paper_model = api.model('Paper', {
     'mutation': fields.String(description='Mutated json data of the paper')
 })
 
+
 @api.route('/')
 class PaperList(Resource):
     @api.marshal_list_with(paper_model)
@@ -34,6 +32,7 @@ class PaperList(Resource):
         '''List all papers based on default query'''
         papers = ElsevierService.fetch_papers({'query': app.config['DEFAULT_QUERY']})
         return papers, 200
+
 
 @api.route('/mutate_from_chat')
 class MutateFromChat(Resource):
@@ -55,7 +54,7 @@ class MutateFromChat(Resource):
         batch_size = app.config.get('BATCH_SIZE', 5)
         total_count = Paper.query.count()
         mutated_papers = []
-        
+
         # Batch process papers
         for i in range(0, total_count, batch_size):
             batch_papers = Paper.query.limit(batch_size).offset(i).all()
@@ -67,13 +66,14 @@ class MutateFromChat(Resource):
             # Emit progress to the client
             progress = int((i + batch_size) / total_count * 100)
             socketio.emit('chat-progress', {'progress': progress if progress < 100 else 100})
-        
+
         # Organise result papers from database
         response = {
             'papers': [paper.mutation_dict() for paper in mutated_papers],
             'chat': chat_id
         }
         return response, 200
+
 
 @api.route('/search')
 class PaperSearch(Resource):
@@ -108,7 +108,7 @@ class PaperSearch(Resource):
         total_count = ElsevierService.get_total_count(query_params)
         if total_count == 0:
             raise BadRequest('No papers found with the given query.')
-        
+
         app.logger.info(f'Seaching papers with query: {query_params}')
 
         # Batch process papers
@@ -125,13 +125,15 @@ class PaperSearch(Resource):
             socketio.emit('search-progress', {'progress': progress if progress < 100 else 100})
 
         return papers_rated, 200
-    
+
+
 @api.route('/getTotalCount')
 class get_total_count(Resource):
     def get(self):
         params = request.args.to_dict()
         total_count = ElsevierService.get_total_count(params)
         return {'total_count': total_count}, 200
+
 
 @api.route('/chat_history')
 class ChatHistory(Resource):

@@ -13,9 +13,11 @@ db = SQLAlchemy()
 api = Api()
 cors = CORS()
 socketio = SocketIO()
+
+
 def create_app(config=None):
     app = Flask(__name__)
-    
+
     if config is None:
         app.config.from_object(Config)
     else:
@@ -32,7 +34,7 @@ def create_app(config=None):
     logger = init_logging()
     # Log application start
     logger.info(f'{api.title} started')
-    
+
     from app.controllers.papers_controller import api as papers_ns
     api.add_namespace(papers_ns, path='/papers')
 
@@ -52,9 +54,6 @@ def create_app(config=None):
         app.config['ELS_API_KEY'] = os.environ.get('ELS_API_KEY')
         app.config['ELS_TOKEN'] = os.environ.get('ELS_TOKEN')
         pass
-
-    from app.models.paper import Paper
-    from app.models.chat import Chat
 
     # Return error messages if any Errors occur
     @app.errorhandler(Exception)
@@ -80,12 +79,13 @@ def create_app(config=None):
 
     return app
 
+
 def init_logging():
     # Logging setup
     logs_dir = 'logs'
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)
-        
+
     # File handler for application logs for current date
     today = datetime.now().strftime('%Y-%m-%d')
     file_handler = logging.FileHandler(f'{logs_dir}/{today}.log')

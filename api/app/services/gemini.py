@@ -1,10 +1,10 @@
 import json
-from sqlite3 import DataError, OperationalError
-from flask import current_app as app, session
+from flask import current_app as app
 from app import db
 from app.models.paper import Paper
 from app.models.chat import Chat
 import google.generativeai as genai
+
 
 class GeminiService:
     model = None
@@ -12,7 +12,7 @@ class GeminiService:
     api_key = None
 
     @classmethod
-    def load_model(cls, name:str=None):
+    def load_model(cls, name: str = None):
         """Load the LLM model if not already loaded."""
         if not cls.api_key:
             # Load the API key once from the config
@@ -45,12 +45,12 @@ class GeminiService:
                 generation_config={'response_mime_type': 'application/json'}
             )
             cls.model_name = model_name
-    
+
     def create_prompt(self, papers, query):
         """Create a structured prompt from the papers and query."""
         if not papers:
             raise ValueError('No papers to rate.', 404)
-        
+
         papers_dict = {paper.doi: {'title': paper.title, 'abstract': paper.abstract} for paper in papers}
         prompt = json.dumps(papers_dict)
         prompt += f'''
@@ -59,7 +59,7 @@ class GeminiService:
         Exclude title and abstract from the result.
         '''
         return prompt
-    
+
     def analyse_papers(self, papers: list, query, model_name=None):
         """
         Generate relevance and synopsis for papers based on a query.
@@ -74,7 +74,7 @@ class GeminiService:
         Raises:
             ValueError: If no query or invalid response from Gemini.
         """
-        
+
         GeminiService.load_model(model_name)
 
         if not query:
@@ -99,7 +99,7 @@ class GeminiService:
             return papers
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
-    
+
     def mutate_papers(self, papers, query, chat_id=None, model_name=None):
         """
         Mutate papers based on a query.
@@ -118,7 +118,7 @@ class GeminiService:
 
         if not query:
             raise ValueError('Missing query to interact with Gemini', 400)
-        
+
         # Prepare chat history
         parent_chat = Chat.query.get(chat_id) if chat_id else None
 
@@ -136,7 +136,7 @@ class GeminiService:
                 for content in chat.history:
                     history.append(content)
         db.session.add(current_chat)
-        
+
         prompt = self.create_prompt(papers, query)
         session = GeminiService.model.start_chat(history=history)
         response = session.send_message(prompt)
@@ -145,16 +145,15 @@ class GeminiService:
             papers_json = json.loads(response.text)
         except json.JSONDecodeError:
             raise ValueError('Invalid response from Gemini', 500)
-        
 
         # Save chat history
-        user_content = { 'role': 'user', 'parts': [ { 'text': query } ] }
-        model_content = { 'role': 'model', 'parts': [ { 'text': response.text } ] }
+        user_content = {'role': 'user', 'parts': [{'text': query}]}
+        model_content = {'role': 'model', 'parts': [{'text': response.text}]}
         # Content(parts=[Part(text=query)], role='user'),
         # Content(parts=[Part(text=response.text)], role='model')
         current_chat.history.append(user_content)
         current_chat.history.append(model_content)
         db.session.commit()
 
-        id = parent_chat.id if parent_chat else current_chat.id # For tracking the chat
+        id = parent_chat.id if parent_chat else current_chat.id  # For tracking the chat
         return papers_json, id
