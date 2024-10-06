@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Link, Card, Avatar, Grid, Button } from '@mui/material';
+import { Box, Typography, Link, Card, Avatar, Grid, Button, Chip } from '@mui/material';
 import styled from '@mui/material/styles/styled';
 import bgImage from '../assets/moon.jpg'; 
 
@@ -117,14 +117,13 @@ const About = () => {
     };
   }, []);
 
-  // Role definitions, matching both server and client
   const groupMembers = [
-    { name: "Shijun Shao", username: "Halffancyy", role: "Backend Team", github: "https://github.com/Halffancyy", avatar: "https://avatars.githubusercontent.com/u/129271532?s=60&v=4" },
-    { name: "Hui-Ling Huang", username: "somni1oquist", role: "Backend Team", github: "https://github.com/somni1oquist", avatar: "https://avatars.githubusercontent.com/u/145635256?s=60&v=4" },
-    { name: "Ziqi Chen", username: "ziqichen55555", role: "Backend Team", github: "https://github.com/ziqichen55555", avatar: "https://avatars.githubusercontent.com/u/130896453?s=60&v=4" },
-    { name: "Krish Goti", username: "krishgoti2002", role: "Frontend Team", github: "https://github.com/krishgoti2002", avatar: "https://avatars.githubusercontent.com/u/77385930?s=60&v=4" },
-    { name: "Chung Hei Tse", username: "maxtse25", role: "Frontend Team", github: "https://github.com/maxtse25", avatar: "https://avatars.githubusercontent.com/u/98444048?s=60&v=4" },
-    { name: "Nitish Raguraman", username: "nitishragu12", role: "Frontend Team", github: "https://github.com/nitishragu12", avatar: "https://avatars.githubusercontent.com/u/69626001?s=60&v=4" },
+    { name: "Shijun Shao", username: "Halffancyy", github: "https://github.com/Halffancyy", avatar: "https://avatars.githubusercontent.com/u/129271532?s=60&v=4", team: "Backend Team" },
+    { name: "Hui-Ling Huang", username: "somni1oquist", github: "https://github.com/somni1oquist", avatar: "https://avatars.githubusercontent.com/u/145635256?s=60&v=4", team: "Backend Team" },
+    { name: "Ziqi Chen", username: "ziqichen55555", github: "https://github.com/ziqichen55555", avatar: "https://avatars.githubusercontent.com/u/130896453?s=60&v=4", team: "Backend Team" },
+    { name: "Krish Goti", username: "krishgoti2002", github: "https://github.com/krishgoti2002", avatar: "https://avatars.githubusercontent.com/u/77385930?s=60&v=4", team: "Frontend Team" },
+    { name: "Chung Hei Tse", username: "maxtse25", github: "https://github.com/maxtse25", avatar: "https://avatars.githubusercontent.com/u/98444048?s=60&v=4", team: "Frontend Team" },
+    { name: "Nitish Raguraman", username: "nitishragu12", github: "https://github.com/nitishragu12", avatar: "https://avatars.githubusercontent.com/u/69626001?s=60&v=4", team: "Frontend Team" },
   ];
 
   return (
@@ -154,7 +153,13 @@ const About = () => {
               <TeamMemberCard>
                 <TeamAvatar src={member.avatar} alt={member.name} />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
-                <Typography variant="body2" sx={{ color: '#fff', marginTop: '0.5rem' }}>{member.role}</Typography> {/* Team Role */}
+                <Box sx={{ marginTop: '0.5rem' }}>
+                  <Chip
+                    label={member.team}
+                    onDelete={() => {}} // You can customize this for the desired functionality
+                    variant="outlined"
+                  />
+                </Box>
                 <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
                   {member.username} on GitHub
                 </Link>
@@ -170,7 +175,13 @@ const About = () => {
               <TeamMemberCard>
                 <TeamAvatar src={member.avatar} alt={member.name} />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
-                <Typography variant="body2" sx={{ color: '#fff', marginTop: '0.5rem' }}>{member.role}</Typography> {/* Team Role */}
+                <Box sx={{ marginTop: '0.5rem' }}>
+                  <Chip
+                    label={member.team}
+                    onDelete={() => {}} // You can customize this for the desired functionality
+                    variant="outlined"
+                  />
+                </Box>
                 <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
                   {member.username} on GitHub
                 </Link>
