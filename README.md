@@ -1,6 +1,4 @@
-# About
-
-## Introduction
+# Introduction
 
 The Western Australian Centre for Road Safety Research (WACRSR) is initiating a project to automate the manual process of scanning and analyzing road safety literature. Currently, this process is labor-intensive, taking up valuable time that could be better spent on critical research tasks. To address this, the project aims to develop a system that leverages advanced large language models (LLMs) to streamline literature scanning and evaluation.
 
@@ -26,9 +24,8 @@ The Western Australian Centre for Road Safety Research (WACRSR) is initiating a 
 │   │   ├── utils/
 │   │   └── __init__.py
 │   ├── logs/
-│   ├── migrations/
 │   ├── config.py
-│   ├── <env>.Dockerfile
+│   ├── Dockerfile.<env>
 │   ├── README.md
 │   └── requirements.txt
 ├── secrets/
@@ -37,10 +34,20 @@ The Western Australian Centre for Road Safety Research (WACRSR) is initiating a 
 │   └── llm_api_key.txt
 ├── ui/
 │   ├── app/
+│   │   ├── about/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── home/
+│   │   ├── results/
+│   │   ├── search/
+│   │   ├── page.tsx
+│   │   ├── layout.tsx
+│   │   └── ...
 │   ├── public/
 │   ├── .eslintrc.json
 │   ├── .gitignore
-│   ├── <env>.Dockerfile
+│   ├── Dockerfile.<env>
 │   ├── next-env.d.ts
 │   ├── next.config.mjs
 │   ├── package-lock.json
@@ -66,7 +73,7 @@ After getting the files, create a folder named `secrets/` under root folder:
 │   ├── els_token.txt
 │   └── llm_api_key.txt
 ```
-### 1.5. Create `launch.json`
+### 1.5. (Optional) Create `launch.json`
 If you would like to use vscode debugger function, add the following content to cofiguration file `launch.json`:
 ```
 {
@@ -93,86 +100,78 @@ If you would like to use vscode debugger function, add the following content to 
 ```
 
 ### 2. Run `docker-compose`
-Open the terminal that is under root foler, choose an environment e.g. `docker-compose.debug.yml` (which enables vscode debugger for api, without reloading):
-```
-docker compose up --build # With reloading enabled
 
-or
-
-docker compose -f docker-compose.debug.yml up --build # For using debugger
-
-or
-
-docker-compose -f docker-compose.test.yml up --build # For run the test environment for both the ui (React) and the api (Flask)
-```
+Open the terminal that is under root foler, choose an environment:
+- For normal usage, enter `docker compose up --build`
+- For debugger with `launch.json`, enter `docker compose -f docker-compose.debug.yml`
+- For running test environment, enter `docker compose -f docker-compose.test.yml up --build`
 
 ### 3. Access Papermate
 Go to the url of Papermate `http://localhost:3000/`, the app should be up and running now.
 
 ## User Manual
 ### 0. User Interface: 
-Before you dive into the platform, familiarize yourself with its layout and functionalities. The webpage is divided into four main sections: Home, Search, Result, and About. 
+Before you dive into the platform, familiarize yourself with its layout and functionalities. The webpage is divided into four main sections: **Home**, **Search**, **Result**, and **About**. 
 
-[1] Home 
-
+#### [1] Home 
 The Home page provides a brief introduction to the platform and its key functionalities. 
 
-[2] Search (Literature Paper Search) picture will be provided after ui done 
+#### [2] Search (Literature Paper Search) picture will be provided after ui done 
 
 The Search page is where you can query the database for relevant academic papers. 
 
-[3] Result picture will be provided after ui done 
+#### [3] Result picture will be provided after ui done 
 
 The Result page displays the search results only after you click Proceed on the 		Search page. 
 
-[4] About  
+#### [4] About  
 
 The About page provides details about our development team and links to the GitHub repository for project updates and contributions. 
 
 ### 1. Operation Steps: 
 In the search page: 
 
-Enter a Query (compulsory): Input keywords or phrases into the query field to search for specific topics or papers. 
+- Enter a Query (compulsory): Input keywords or phrases into the query field to search for specific topics or papers. 
 
-Enter Date Range (optional): Specify the time frame for the search by selecting "From Date" and "To Date." 
+- Enter Date Range (optional): Specify the time frame for the search by selecting "From Date" and "To Date." 
 
-Enter Title and Author (optional): Provide specific titles or authors to narrow down the search results. 
+- Enter Title and Author (optional): Provide specific titles or authors to narrow down the search results. 
 
-Click Upload Publication CSV (optional): Upload a CSV file containing additional search parameters. 
+- Click Upload Publication CSV (optional): Upload a CSV file containing additional search parameters. 
 
-Click Gemini 1.5 Pro Option (optional): Users can enable or disable the Gemini Pro model for enhanced search capabilities. 
+- Click Gemini 1.5 Pro Option (optional): Users can enable or disable the Gemini Pro model for enhanced search capabilities. 
 
-Click Search Button: Click the "Search" button to initiate the query. 
+- Click Search Button: Click the "Search" button to initiate the query. 
 
-Click Proceed Button: After reviewing the results count, click the "Proceed" button to view detailed results on the Result page. 
-
- 
+- Click Proceed Button: After reviewing the results count, click the "Proceed" button to view detailed results on the Result page. 
 
 In the Result page  
 
-After you click Proceed on the Search page (weather you have clicked search button or not): 
+- After you click Proceed on the Search page (weather you have clicked search button or not): 
 
-View Results: Check the list of academic papers returned by the search, which includes details like DOI, title, abstract, author, publication, publish date, URL, relevance, and synopsis. 
+- View Results: Check the list of academic papers returned by the search, which includes details like DOI, title, abstract, author, publication, publish date, URL, relevance, and synopsis. 
 
-Click Columns: You can customize which columns to display, including additional categories like "Study Type" using the Show Instruction Box. 
+- Click Columns: You can customize which columns to display, including additional categories like "Study Type" using the Show Instruction Box. 
 
-Click Filter, Density or Export: Utilize options to filter items, change page density, and export results as CSV files for further analysis. 
+- Click Filter, Density or Export: Utilize options to filter items, change page density, and export results as CSV files for further analysis. 
 
-Click Pagination: Navigate through the results using pagination controls, allowing users to view additional items if the results exceed the displayed limit. 
+- Click Pagination: Navigate through the results using pagination controls, allowing users to view additional items if the results exceed the displayed limit. 
 
-Adjust Column Widths: Users can customize the appearance of the results table by adjusting column widths. 
+- Adjust Column Widths: Users can customize the appearance of the results table by adjusting column widths. 
 
-Click Show Instruction Box: 
+- Click Show Instruction Box: 
 
-Add categories to your search results (e.g., type "add Study Type" to create a new column). 
+- Add categories to your search results (e.g., type "add Study Type" to create a new column). 
 
-Hover to see the time and click to see the detailed instructions that you typed. 
+- Hover to see the time and click to see the detailed instructions that you typed. 
 
- ### 2. FAQ: 
- [1] Docker Installation Issue: If you encounter issues during installation, you can clear the Docker cache by using the following command: 
-
+### 2. FAQ: 
+#### [1] Image Conflict: 
+If you encounter issue during building images, you can clear the Docker cache by using the following command: 
+```
 docker system prune –a 
-
-[2] Search and Proceed Functions: Please be patient, as the search or proceed functions may take some time to complete. 
+```
+#### [2] Search and Proceed Functions:
+Please be patient, as the search or proceed functions may take some time to complete. 
 
  

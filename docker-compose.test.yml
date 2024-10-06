@@ -4,7 +4,7 @@ services:
   api:
     build:
       context: ./api
-      dockerfile: test.Dockerfile
+      dockerfile: Dockerfile.test
     ports:
       - "5001:5000"
     environment:
@@ -20,7 +20,7 @@ services:
   ui:
     build:
       context: ./ui
-      dockerfile: test.Dockerfile
+      dockerfile: Dockerfile.test
     ports:
       - "3000:3000"
     environment:
