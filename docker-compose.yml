@@ -37,3 +37,5 @@ secrets:
     file: ./secrets/els_api_key.txt
   els_token:
     file: ./secrets/els_token.txt
+  test_secret:
+    file: ./secrets/test_secret.txt
