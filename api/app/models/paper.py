@@ -1,6 +1,7 @@
 import json
 from app import db
 
+
 class Paper(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     publication = db.Column(db.String(255), nullable=False)
@@ -12,11 +13,11 @@ class Paper(db.Model):
     synopsis = db.Column(db.Text, nullable=True)
     relevance = db.Column(db.Integer, nullable=True)
     url = db.Column(db.String(255), nullable=True)
-    mutation = db.Column(db.Text, nullable=True) # Mutated json data of the paper
+    mutation = db.Column(db.Text, nullable=True)  # Mutated json data of the paper
 
     def __repr__(self):
         return f'<Paper {self.title}>'
-    
+
     def to_dict(self):
         # Return a dictionary of the object and keys sorted by model
         return {
@@ -31,7 +32,7 @@ class Paper(db.Model):
             'synopsis': self.synopsis,
             'mutation': self.mutation
         }
-            
+
     def mutation_dict(self):
         '''
         Return a JSON object with mutated data

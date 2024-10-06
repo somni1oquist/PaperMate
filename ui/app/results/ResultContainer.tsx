@@ -4,6 +4,7 @@ import ResultGrid from './ResultGrid';
 import InstructionBox from './InstructionBox';
 import { FormControlLabel, Switch } from '@mui/material';
 import './ResultPage.css';  // Make sure to import the CSS
+import DataGridContainer from './DataGridContainer';
 
 const ResultContainer: React.FC = () => {
   const [showInstruction, setShowInstruction] = useState(false);
@@ -16,7 +17,7 @@ const ResultContainer: React.FC = () => {
     <div className="result-page-container">
       {/* Header */}
       <div className="header">
-        <h1>Search Results</h1>
+        <h1>Literature Paper Results</h1>
       </div>
 
       {/* Instruction Box Toggle */}
@@ -29,12 +30,14 @@ const ResultContainer: React.FC = () => {
               color="primary"
             />
           }
-          label="Show Instruction Box"
+          label="Instruction Box"
         />
       </div>
-      {/* Data Grid */}
-      <div className="data-grid-wrapper">
-        <ResultGrid showInstruction={showInstruction} />
+
+      {/* Container for DataGrid and InstructionBox */}
+      <div className="grid-instruction-container">
+        {/* Data Grid */}
+        <DataGridContainer showInstruction={showInstruction} />
       </div>
     </div>
   );
