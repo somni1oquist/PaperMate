@@ -1,4 +1,4 @@
-"use client"; // Add this line to make the component a client component
+"use client"; // Add this line at the top
 
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Link, Card, Avatar, Grid, Button, Chip } from '@mui/material';
@@ -195,15 +195,15 @@ const About = () => {
 
       {/* Conditionally render the floating button */}
       {showButton && (
-        <FloatingButton
-        component="a"
-        href="https://github.com/nitishragu12/Capstone-Project"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Visit Our GitHub Page
-      </FloatingButton>
-      
+        <a
+          href="https://github.com/nitishragu12/Capstone-Project"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FloatingButton>
+            Visit Our GitHub Page
+          </FloatingButton>
+        </a>
       )}
     </BackgroundContainer>
   );
