@@ -3,7 +3,7 @@ import json
 import unittest
 from datetime import datetime
 from app import create_app
-from app.models.paper import db,Paper
+from app.models.paper import db, Paper
 
 class TestPaperListService(unittest.TestCase):
 
@@ -54,4 +54,5 @@ class TestPaperListService(unittest.TestCase):
             self.assertIsNotNone(paper)  
 
 if __name__ == '__main__':
+
     unittest.main()

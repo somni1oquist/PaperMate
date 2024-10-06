@@ -2,10 +2,13 @@ import json
 import os
 import unittest
 from datetime import datetime
-from app.models.paper import db, Paper 
+
+from app.models.paper import db, Paper
+
 from app import create_app
 
 class TestGeminiService(unittest.TestCase):
+
 
     def setUp(self):
         # Create an application and push the context

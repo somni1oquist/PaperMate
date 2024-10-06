@@ -25,9 +25,10 @@ class TestPaperTotalCount(unittest.TestCase):
 
         # Access JSON response data using response.get_json()
         json_data = response.get_json()
-        
+
         # Check the returned total_count value
         self.assertEqual(json_data['total_count'], 5)
 
 if __name__ == '__main__':
+
     unittest.main()
