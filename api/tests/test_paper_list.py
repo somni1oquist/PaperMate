@@ -3,6 +3,7 @@ import json
 import unittest
 from datetime import datetime
 
+from config import TestingConfig
 from app import create_app
 from app.models.paper import db, Paper
 
@@ -12,7 +13,7 @@ class TestPaperListService(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create an application and push the context
-        cls.app = create_app()
+        cls.app = create_app(TestingConfig)
         cls.app_context = cls.app.app_context()
         cls.app_context.push()
 

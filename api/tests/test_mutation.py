@@ -52,7 +52,9 @@ class TestGeminiService(unittest.TestCase):
         # Verify that data has been inserted into the database
         paper = Paper.query.first()
         self.assertIsNotNone(paper)
-        self.assertEqual(paper.doi, "10.37934/araset.48.1.137151")  # Make sure the inserted data is as expected
+        self.assertEqual(
+            paper.doi, "10.37934/araset.48.1.137151"
+        )  # Make sure the inserted data is as expected
 
 
 if __name__ == '__main__':

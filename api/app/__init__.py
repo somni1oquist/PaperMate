@@ -21,8 +21,6 @@ def create_app(config=None):
 
     if config is None:
         app.config.from_object(Config)
-    elif config == 'testing':
-        app.config.from_object(TestingConfig)
     else:
         app.config.from_object(config)
     # Enable CORS for 3000 port

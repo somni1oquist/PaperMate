@@ -1,5 +1,7 @@
 import unittest
 from unittest.mock import patch
+
+from config import TestingConfig
 from app import create_app
 
 
@@ -7,7 +9,7 @@ class TestPaperTotalCount(unittest.TestCase):
 
     def setUp(self):
         # Initialize the Flask application using the test configuration
-        self.app = create_app('testing')
+        self.app = create_app(TestingConfig)
         self.client = self.app.test_client()  # Creating a test client
         self.app_context = self.app.app_context()
         self.app_context.push()
