@@ -2,7 +2,9 @@ import unittest
 from unittest.mock import patch
 from app import create_app
 
+
 class TestPaperTotalCount(unittest.TestCase):
+
     def setUp(self):
         # Initialize the Flask application using the test configuration
         self.app = create_app('testing')
@@ -29,6 +31,7 @@ class TestPaperTotalCount(unittest.TestCase):
 
         # Check the returned total_count value
         self.assertEqual(json_data['total_count'], 5)
+
 
 if __name__ == '__main__':
     unittest.main()

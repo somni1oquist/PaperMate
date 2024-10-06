@@ -57,5 +57,6 @@ class TestPaperListService(unittest.TestCase):
             ).first()
             self.assertIsNotNone(paper)
 
+
 if __name__ == '__main__':
     unittest.main()
