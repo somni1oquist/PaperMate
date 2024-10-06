@@ -31,7 +31,8 @@ class ElsevierService:
             date_obj = datetime.strptime(date_str, '%Y-%m')
             return date_obj.strftime('%B %Y')  # Convert to "Month Year" format
         except ValueError:
-            return None 
+            return None
+
     @staticmethod
     def update_papers(papers: dict):
         """Update papers in the database with mutated data."""
@@ -91,15 +92,12 @@ class ElsevierService:
                 month_str = '"' + current_date.strftime('%B %Y') + '"'
                 months.append(month_str)
                 current_date = current_date + relativedelta(months=1)
-        
+
             # Join months with OR operator
             month_query = ' OR '.join(months)
             query_parts.append(f"PUBDATETXT({month_query})")
-    
+
         return ' AND '.join(query_parts)
-
-
-
 
     @staticmethod
     def transform_entries(response, params):
@@ -122,7 +120,6 @@ class ElsevierService:
                 continue
             papers.append(paper)
         return papers
-
 
     @staticmethod
     def get_abstract(doi: str):
