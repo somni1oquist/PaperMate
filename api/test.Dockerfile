@@ -9,8 +9,10 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt\
-    && pip install --no-cache-dir debugpy pytest  # Add pytest for testing
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install pytest and flake8 globally in the container
+RUN pip install pytest flake8
 
 # Copy the current directory contents into the container at /app
 COPY . /app/
@@ -19,5 +21,5 @@ COPY . /app/
 EXPOSE 5000
 EXPOSE 5678
 
-# Run tests
-CMD ["pytest", "--disable-warnings", "-v"]  # Run pytest by default in the test environment
+# Run flake8 for linting and pytest for tests
+CMD ["sh", "-c", "flake8 --extend-ignore=E501 /app && pytest --disable-warnings -v"]

@@ -2,11 +2,12 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config:
     BATCH_SIZE = 5
 
-    SECRET_KEY = os.environ.get('SECRET_KEY') # for session management
-    
+    SECRET_KEY = os.environ.get('SECRET_KEY')  # for session management
+
     LLM_MODEL_NAMES = 'gemini-1.5-flash,gemini-1.5-pro'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')

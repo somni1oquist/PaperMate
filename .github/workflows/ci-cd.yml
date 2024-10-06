@@ -1,0 +1,83 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - CICD/pipeline-setup
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ui/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ui
+
+      - name: Install Jest
+        run: npm install jest --save-dev
+        working-directory: ui
+
+      - name: Run frontend tests
+        run: npm test
+        working-directory: ui
+
+      - name: Build frontend application
+        run: npm run build
+        working-directory: ui
+
+  build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache Python packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('api/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r api/requirements.txt
+
+      - name: Install pytest and flake8
+        run: pip install pytest flake8
+
+      - name: Run backend tests
+        run: pytest
+        working-directory: api
+
+      - name: Run flake8 linting (with E501 ignored)
+        run: flake8 --extend-ignore=E501 api
+
+      - name: Build API Docker Image
+        run: docker build -t api-app ./api
