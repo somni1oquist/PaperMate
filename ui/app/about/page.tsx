@@ -1,14 +1,18 @@
-import React from 'react';
-import { Box, Typography, Link, Card, Avatar, Grid } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Link, Card, Avatar, Grid, Button } from '@mui/material';
 import styled from '@mui/material/styles/styled';
-import bgImage from '../assets/moon.jpg'; // Adjust the path to your asset
+import bgImage from '../assets/moon.jpg'; 
 
 // Create a wrapper for the content that includes a semi-transparent overlay
 const OverlayContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
-  zIndex: 1, // Content will appear on top of the overlay
+  zIndex: 1,
   padding: '3rem',
-  minHeight: '100vh',
+  height: '100vh', // Make the container the full height of the viewport
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center', // Center content vertically
+  alignItems: 'center', // Center content horizontally
   textAlign: 'center',
 }));
 
@@ -16,12 +20,14 @@ const OverlayContainer = styled(Box)(({ theme }) => ({
 const BackgroundContainer = styled(Box)(({ theme }) => ({
   backgroundImage: `url(${bgImage.src})`,
   backgroundColor: '#f4f4f4',
-  minHeight: '100vh',
-  backgroundSize: 'cover', 
+  minHeight: '100vh', // Ensures it covers the full height
+  width: '100vw', // Ensures full width coverage
+  backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center',
   backgroundAttachment: 'fixed',
   position: 'relative',
+  overflow: 'hidden', // Prevents any content from spilling over
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -29,8 +35,26 @@ const BackgroundContainer = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay (50% opacity)
-    zIndex: 0, // Overlay goes beneath content
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay
+    zIndex: 0, // Ensure it’s behind the content
+  },
+}));
+
+const FloatingButton = styled(Button)(({ theme }) => ({
+  position: 'fixed',
+  bottom: '20px', // Position at the bottom of the screen
+  right: '20px',  // Position at the right of the screen
+  backgroundColor: 'rgb(220,20,60)',
+  color: '#fff',
+  padding: '10px 20px',
+  borderRadius: '50px', // Rounded button
+  fontSize: '1rem',
+  textDecoration: 'none',
+  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+  zIndex: 10, // Make sure the button is always on top
+  transition: 'background 0.3s ease',
+  '&:hover': {
+    backgroundColor: 'rgb(128,0,0)', // Darken on hover
   },
 }));
 
@@ -56,14 +80,13 @@ const TeamMemberCard = styled(Card)(({ theme }) => ({
   margin: '1rem',
   borderRadius: '10px',
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-  textAlign: 'left',
+  textAlign: 'center', // Center text inside the card
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   '&:hover': {
     boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
     transform: 'translateY(-10px)', // Slightly raise the card on hover
   },
 }));
-
 
 const TeamAvatar = styled(Avatar)(({ theme }) => ({
   width: 80,
@@ -79,13 +102,29 @@ const TeamSectionTitle = styled(Typography)(({ theme }) => ({
 }));
 
 const About = () => {
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const bottomReached = window.innerHeight + window.scrollY >= document.body.offsetHeight - 10;
+      setShowButton(bottomReached);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Role definitions, matching both server and client
   const groupMembers = [
-    { name: "Shijun Shao", username: "Halffancyy", github: "https://github.com/Halffancyy", avatar: "https://avatars.githubusercontent.com/u/129271532?s=60&v=4" },
-    { name: "Hui-Ling Huang", username: "somni1oquist", github: "https://github.com/somni1oquist", avatar: "https://avatars.githubusercontent.com/u/145635256?s=60&v=4" },
-    { name: "Ziqi Chen", username: "ziqichen55555", github: "https://github.com/ziqichen55555", avatar: "https://avatars.githubusercontent.com/u/130896453?s=60&v=4" },
-    { name: "Krish Goti", username: "krishgoti2002", github: "https://github.com/krishgoti2002", avatar: "https://avatars.githubusercontent.com/u/77385930?s=60&v=4" },
-    { name: "Chung Hei Tse", username: "maxtse25", github: "https://github.com/maxtse25", avatar: "https://avatars.githubusercontent.com/u/98444048?s=60&v=4" },
-    { name: "Nitish Raguraman", username: "nitishragu12", github: "https://github.com/nitishragu12", avatar: "https://avatars.githubusercontent.com/u/69626001?s=60&v=4" },
+    { name: "Shijun Shao", username: "Halffancyy", role: "Backend Team", github: "https://github.com/Halffancyy", avatar: "https://avatars.githubusercontent.com/u/129271532?s=60&v=4" },
+    { name: "Hui-Ling Huang", username: "somni1oquist", role: "Backend Team", github: "https://github.com/somni1oquist", avatar: "https://avatars.githubusercontent.com/u/145635256?s=60&v=4" },
+    { name: "Ziqi Chen", username: "ziqichen55555", role: "Backend Team", github: "https://github.com/ziqichen55555", avatar: "https://avatars.githubusercontent.com/u/130896453?s=60&v=4" },
+    { name: "Krish Goti", username: "krishgoti2002", role: "Frontend Team", github: "https://github.com/krishgoti2002", avatar: "https://avatars.githubusercontent.com/u/77385930?s=60&v=4" },
+    { name: "Chung Hei Tse", username: "maxtse25", role: "Frontend Team", github: "https://github.com/maxtse25", avatar: "https://avatars.githubusercontent.com/u/98444048?s=60&v=4" },
+    { name: "Nitish Raguraman", username: "nitishragu12", role: "Frontend Team", github: "https://github.com/nitishragu12", avatar: "https://avatars.githubusercontent.com/u/69626001?s=60&v=4" },
   ];
 
   return (
@@ -108,12 +147,14 @@ const About = () => {
         {/* Team Section */}
         <TeamSectionTitle>Meet the Team</TeamSectionTitle>
 
-        <Grid container spacing={4} justifyContent="center">
-          {groupMembers.map((member, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+        <Grid container spacing={2} justifyContent="center">
+          {/* First row of three members */}
+          {groupMembers.slice(0, 3).map((member, index) => (
+            <Grid item xs={12} sm={4} md={4} key={index}>
               <TeamMemberCard>
                 <TeamAvatar src={member.avatar} alt={member.name} />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
+                <Typography variant="body2" sx={{ color: '#fff', marginTop: '0.5rem' }}>{member.role}</Typography> {/* Team Role */}
                 <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
                   {member.username} on GitHub
                 </Link>
@@ -122,30 +163,33 @@ const About = () => {
           ))}
         </Grid>
 
-        {/* Call to Action */}
-        <Box sx={{ marginTop: '3rem' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#fff', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>
-            Want to Learn More?
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#ddd', marginBottom: '1rem', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)' }}>
-            Follow us on GitHub for more information!
-          </Typography>
-          <Link href="https://github.com/nitishragu12/Capstone-Project" target="_blank" rel="noopener noreferrer" sx={{
-            backgroundColor: 'rgb(220,20,60)',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            textDecoration: 'none',
-            fontSize: '1.1rem',
-            transition: 'background 0.3s ease',
-            '&:hover': {
-              backgroundColor: 'rgb(128,0,0)', // Darken on hover
-            },
-          }}>
-            Visit Our GitHub Page
-          </Link>
-        </Box>
+        <Grid container spacing={2} justifyContent="center">
+          {/* Second row of three members */}
+          {groupMembers.slice(3).map((member, index) => (
+            <Grid item xs={12} sm={4} md={4} key={index}>
+              <TeamMemberCard>
+                <TeamAvatar src={member.avatar} alt={member.name} />
+                <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
+                <Typography variant="body2" sx={{ color: '#fff', marginTop: '0.5rem' }}>{member.role}</Typography> {/* Team Role */}
+                <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                  {member.username} on GitHub
+                </Link>
+              </TeamMemberCard>
+            </Grid>
+          ))}
+        </Grid>
       </OverlayContainer>
+
+      {/* Conditionally render the floating button */}
+      {showButton && (
+        <FloatingButton
+          href="https://github.com/nitishragu12/Capstone-Project"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Visit Our GitHub Page
+        </FloatingButton>
+      )}
     </BackgroundContainer>
   );
 };
