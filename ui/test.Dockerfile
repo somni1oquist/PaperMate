@@ -3,14 +3,14 @@ FROM node:20-slim
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json (or yarn.lock) to the working directory
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies and dev dependencies
-RUN npm install && npm cache clean --force
+# Install production dependencies
+RUN npm install --only=production && npm cache clean --force
 
-# Install jest
-RUN npm install jest --global
+# Install Jest globally (to ensure it's available as a command)
+RUN npm install -g jest
 
 # Copy the rest of your application code to the working directory
 COPY . .

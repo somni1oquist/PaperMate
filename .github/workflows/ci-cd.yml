@@ -34,16 +34,17 @@ jobs:
         run: npm install
         working-directory: ui
 
-      - name: Run tests
-        run: npm test -- --passWithNoTests
+      - name: Install Jest
+        run: npm install jest --save-dev
         working-directory: ui
 
-      - name: Build application
+      - name: Run frontend tests
+        run: npm test
+        working-directory: ui
+
+      - name: Build frontend application
         run: npm run build
         working-directory: ui
-
-      - name: Build UI Docker Image
-        run: docker build -t ui-app ./ui
 
   build-backend:
     runs-on: ubuntu-latest
@@ -68,12 +69,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r api/requirements.txt
 
+      - name: Install pytest and flake8
+        run: pip install pytest flake8
+
       - name: Run backend tests
         run: pytest
-        working-directory: api/tests
+        working-directory: api
 
-      - name: Lint Python code
-        run: flake8 api
+      - name: Run flake8 linting (with E501 ignored)
+        run: flake8 --extend-ignore=E501 api
 
       - name: Build API Docker Image
         run: docker build -t api-app ./api
