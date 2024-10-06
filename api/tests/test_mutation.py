@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 from datetime import datetime
-from app.models.paper import db, Paper  # 确保这里的导入路径正确
+from app.models.paper import db, Paper 
 from app import create_app
 
 class TestGeminiService(unittest.TestCase):

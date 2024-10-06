@@ -2,6 +2,7 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config:
     BATCH_SIZE = 5
 
@@ -19,8 +20,12 @@ class Config:
 
     SESSION_COOKIE_SAMESITE = "Lax"
 
+
 class TestingConfig(Config):
     TESTING = True
+
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # Use in-memory database for testing
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
     DEBUG = True

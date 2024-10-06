@@ -20,7 +20,7 @@ class TestPaperTotalCount(unittest.TestCase):
         # Simulate a GET request to the '/getTotalCount' route
         response = self.client.get('/papers/getTotalCount?query=test')
 
-       # Check status code
+        # Check status code
         self.assertEqual(response.status_code, 200)
 
         # Access JSON response data using response.get_json()

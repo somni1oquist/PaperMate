@@ -5,7 +5,6 @@ from flask import Flask, jsonify
 from flask_restx import Api
 from werkzeug.exceptions import BadRequest
 from flask_socketio import SocketIO
-from config import Config
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from config import Config, TestingConfig

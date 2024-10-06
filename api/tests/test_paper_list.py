@@ -3,7 +3,7 @@ import json
 import unittest
 from datetime import datetime
 from app import create_app
-from app.models.paper import db, Paper  
+from app.models.paper import db,Paper
 
 class TestPaperListService(unittest.TestCase):
 
@@ -50,9 +50,8 @@ class TestPaperListService(unittest.TestCase):
 
     def test_sample_paper_inserted(self):
         with self.app.app_context():
-            # 使用样本数据的标题进行查找
             paper = Paper.query.filter_by(title="Enhanced Generalization Performance in Deep Learning for Monitoring Driver Distraction: A Systematic Review").first()
-            self.assertIsNotNone(paper)  # 确保插入的样本数据存在
+            self.assertIsNotNone(paper)  
 
 if __name__ == '__main__':
     unittest.main()
