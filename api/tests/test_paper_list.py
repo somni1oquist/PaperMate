@@ -2,8 +2,10 @@ import os
 import json
 import unittest
 from datetime import datetime
+
 from app import create_app
 from app.models.paper import db, Paper
+
 
 class TestPaperListService(unittest.TestCase):
 
@@ -50,9 +52,10 @@ class TestPaperListService(unittest.TestCase):
 
     def test_sample_paper_inserted(self):
         with self.app.app_context():
-            paper = Paper.query.filter_by(title="Enhanced Generalization Performance in Deep Learning for Monitoring Driver Distraction: A Systematic Review").first()
-            self.assertIsNotNone(paper)  
+            paper = Paper.query.filter_by(
+                title="Enhanced Generalization Performance in Deep Learning for Monitoring Driver Distraction: A Systematic Review"
+            ).first()
+            self.assertIsNotNone(paper)
 
 if __name__ == '__main__':
-
     unittest.main()

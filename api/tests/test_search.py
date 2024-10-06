@@ -4,13 +4,14 @@ from app import create_app
 
 class TestPaperTotalCount(unittest.TestCase):
     def setUp(self):
-        self.app = create_app('testing')  # Initialize the Flask application using the test configuration
+        # Initialize the Flask application using the test configuration
+        self.app = create_app('testing')
         self.client = self.app.test_client()  # Creating a test client
         self.app_context = self.app.app_context()
         self.app_context.push()
 
     def tearDown(self):
-        self.app_context.pop()
+        self.app_context.pop()  # Clean up the app context
 
     @patch('app.services.elsevier.ElsevierService.get_total_count')  # Mock ElsevierService
     def test_get_total_count(self, mock_get_total_count):
@@ -30,5 +31,4 @@ class TestPaperTotalCount(unittest.TestCase):
         self.assertEqual(json_data['total_count'], 5)
 
 if __name__ == '__main__':
-
     unittest.main()

@@ -4,11 +4,9 @@ import unittest
 from datetime import datetime
 
 from app.models.paper import db, Paper
-
 from app import create_app
 
 class TestGeminiService(unittest.TestCase):
-
 
     def setUp(self):
         # Create an application and push the context
@@ -54,3 +52,6 @@ class TestGeminiService(unittest.TestCase):
         paper = Paper.query.first()
         self.assertIsNotNone(paper)
         self.assertEqual(paper.doi, "10.37934/araset.48.1.137151")  # Make sure the inserted data is as expected
+
+if __name__ == '__main__':
+    unittest.main()
