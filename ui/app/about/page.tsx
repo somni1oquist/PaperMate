@@ -196,12 +196,14 @@ const About = () => {
       {/* Conditionally render the floating button */}
       {showButton && (
         <FloatingButton
-          href="https://github.com/nitishragu12/Capstone-Project"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Visit Our GitHub Page
-        </FloatingButton>
+        component="a"
+        href="https://github.com/nitishragu12/Capstone-Project"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Visit Our GitHub Page
+      </FloatingButton>
+      
       )}
     </BackgroundContainer>
   );
