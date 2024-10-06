@@ -1,3 +1,5 @@
+"use client"; // Add this line to make the component a client component
+
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Link, Card, Avatar, Grid, Button, Chip } from '@mui/material';
 import styled from '@mui/material/styles/styled';
