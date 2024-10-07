@@ -1,107 +1,12 @@
-"use client"; // Add this line at the top
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Link, Card, Avatar, Grid, Button, Chip } from '@mui/material';
-import styled from '@mui/material/styles/styled';
-import bgImage from '../assets/moon.jpg'; 
-
-// Create a wrapper for the content that includes a semi-transparent overlay
-const OverlayContainer = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center', // Center content vertically
-  alignItems: 'center', // Center content horizontally
-  textAlign: 'center',
-}));
-
-// The background image will be applied here with an overlay effect
-const BackgroundContainer = styled(Box)(({ theme }) => ({
-  backgroundImage: `url(${bgImage.src})`,
-  backgroundColor: '#f4f4f4',
-  minHeight: '100vh', // Ensures it covers the full height
-  width: '100vw', // Ensures full width coverage
-  backgroundSize: 'cover',
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundAttachment: 'fixed',
-  position: 'relative',
-  overflow: 'hidden', // Prevents any content from spilling over
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay
-    zIndex: 0, // Ensure it’s behind the content
-  },
-}));
-
-const FloatingButton = styled(Button)(({ theme }) => ({
-  position: 'fixed',
-  bottom: '20px', // Position at the bottom of the screen
-  right: '20px',  // Position at the right of the screen
-  backgroundColor: 'rgb(220,20,60)',
-  color: '#fff',
-  padding: '10px 20px',
-  borderRadius: '50px', // Rounded button
-  fontSize: '1rem',
-  textDecoration: 'none',
-  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-  zIndex: 10, // Make sure the button is always on top
-  transition: 'background 0.3s ease',
-  '&:hover': {
-    backgroundColor: 'rgb(128,0,0)', // Darken on hover
-  },
-}));
-
-const ProjectTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '3rem',
-  fontWeight: 'bold',
-  color: '#fff', // Changed color to white for better contrast with background
-  marginBottom: '1rem',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Adds shadow for readability
-}));
-
-const IntroText = styled(Typography)(({ theme }) => ({
-  fontSize: '1rem',
-  color: '#ddd', // Light color for better readability
-  maxWidth: '800px',
-  margin: '0 auto 2rem auto',
-  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)', // Adds shadow for readability
-}));
-
-const TeamMemberCard = styled(Card)(({ theme }) => ({
-  backgroundColor: 'rgba(255, 182, 193, 0.4)',
-  padding: '0.75rem',
-  margin: '1rem',
-  borderRadius: '10px',
-  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-  textAlign: 'center', // Center text inside the card
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
-    transform: 'translateY(-10px)', // Slightly raise the card on hover
-  },
-}));
-
-const TeamAvatar = styled(Avatar)(({ theme }) => ({
-  width: 80,
-  height: 80,
-  margin: '0 auto 0.75rem auto',
-}));
-
-const TeamSectionTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '2rem',
-  color: '#fff', // Adjusted to white for better contrast
-  margin: '2rem 0 1rem 0',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', // Adds shadow for readability
-}));
+import bgImage from '../assets/sea.jpg';
+import './about.css'; 
 
 const About = () => {
+  const [activeTab, setActiveTab] = useState('project'); // Default tab is 'project'
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -127,83 +32,74 @@ const About = () => {
   ];
 
   return (
-    <BackgroundContainer>
-      {/* The content with overlay */}
-      <OverlayContainer>
-        <ProjectTitle>About Our Project</ProjectTitle>
-        <IntroText>
-          Our project aims to revolutionize the process of literature scanning for road safety research. 
-          By automating this time-consuming task, we enable researchers to focus on high-impact work, 
-          while saving time and improving accuracy with Large Language Models (LLMs).
-        </IntroText>
-
-        {/* Mission Statement */}
-        <Typography variant="body1" sx={{ maxWidth: '800px', margin: '2rem auto', color: '#ddd', fontSize: '1rem', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)' }}>
-          We believe in using technology to enhance safety and quality of life. Our project is guided by principles of
-          efficiency, accuracy, and accessibility, ensuring that cutting-edge research can drive impactful change in the world.
+    <Box className="background-container" sx={{ backgroundImage: `url(${bgImage.src})` }}>
+      <Box className="overlay-container" sx={{ paddingLeft: '5rem', paddingRight: '5rem' }}>
+        <Typography className="project-title">
+          About Our Project
         </Typography>
 
-        {/* Team Section */}
-        <TeamSectionTitle>Meet the Team</TeamSectionTitle>
+        {/* Custom Switch for Tabs */}
+        <Box className="tab-switch">
+          <Button
+            className={`tab-button ${activeTab === 'project' ? 'active' : ''}`}
+            onClick={() => setActiveTab('project')}
+          >
+            PROJECT
+          </Button>
+          <Button
+            className={`tab-button ${activeTab === 'team' ? 'active' : ''}`}
+            onClick={() => setActiveTab('team')}
+          >
+            TEAM
+          </Button>
+        </Box>
 
-        <Grid container spacing={2} justifyContent="center">
-          {/* First row of three members */}
-          {groupMembers.slice(0, 3).map((member, index) => (
-            <Grid item xs={12} sm={4} md={4} key={index}>
-              <TeamMemberCard>
-                <TeamAvatar src={member.avatar} alt={member.name} />
-                <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
+        {/* Conditionally rendering project description or team section */}
+        {activeTab === 'project' ? (
+          <Box className="paper-background">
+            <Typography 
+              className="intro-text" 
+              sx={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#fff', textAlign: 'left', textShadow: '1px 2px 6px rgba(0, 0, 0, 0.5)' }}
+            >
+              CITS5206 Capstone Project - University of Western Australia (Master of Information Technology)
+            </Typography>
+
+            <Typography className="intro-text">
+              As students of the Master of Information Technology at the University of Western Australia, we aim to leverage the knowledge and skills gained from our past units to develop a transformative solution for road safety research. Our capstone project seeks to automate the manual and time-intensive process of literature scanning, enabling researchers to focus on higher-impact work by utilizing the power of Large Language Models (LLMs).
+            </Typography>
+
+            <Typography className="intro-text">
+              By streamlining the analysis of road safety literature, we aim to enhance both accuracy and efficiency, reducing the burden on researchers while improving the quality of data insights. Through this innovative use of technology, we aspire to contribute to safer roads and ultimately a better quality of life. Our project is driven by core principles of efficiency, accuracy, and accessibility, ensuring that cutting-edge research can continue to influence and drive meaningful change in the world.
+            </Typography>
+
+            <Typography className="intro-text">
+              We would also like to express our gratitude to Matt Albrecht, our client, whose advice and guidance have been invaluable in shaping the direction of this application.
+            </Typography>
+          </Box>
+        ) : (
+          <Box className="team-wrapper" sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '20px' }}>
+            {groupMembers.map((member, index) => (
+              <Card className="team-member-card" key={index}>
+                <Avatar src={member.avatar} alt={member.name} className="team-avatar" />
+                <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#fff' }}>{member.name}</Typography>
                 <Box sx={{ marginTop: '0.5rem' }}>
-                  <Chip
-                    label={member.team}
-                    onDelete={() => {}} // You can customize this for the desired functionality
-                    variant="outlined"
-                  />
+                  <Chip label={member.team} variant="outlined" sx={{ color: 'white', borderColor: 'white' }} />
                 </Box>
-                <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#90caf9', fontSize: '0.875rem', marginTop: '0.5rem' }}>
                   {member.username} on GitHub
                 </Link>
-              </TeamMemberCard>
-            </Grid>
-          ))}
-        </Grid>
+              </Card>
+            ))}
+          </Box>
+        )}
+      </Box>
 
-        <Grid container spacing={2} justifyContent="center">
-          {/* Second row of three members */}
-          {groupMembers.slice(3).map((member, index) => (
-            <Grid item xs={12} sm={4} md={4} key={index}>
-              <TeamMemberCard>
-                <TeamAvatar src={member.avatar} alt={member.name} />
-                <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>{member.name}</Typography>
-                <Box sx={{ marginTop: '0.5rem' }}>
-                  <Chip
-                    label={member.team}
-                    onDelete={() => {}} // You can customize this for the desired functionality
-                    variant="outlined"
-                  />
-                </Box>
-                <Link href={member.github} target="_blank" rel="noopener noreferrer" sx={{ color: '#1e88e5', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                  {member.username} on GitHub
-                </Link>
-              </TeamMemberCard>
-            </Grid>
-          ))}
-        </Grid>
-      </OverlayContainer>
-
-      {/* Conditionally render the floating button */}
       {showButton && (
-        <a
-          href="https://github.com/nitishragu12/Capstone-Project"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <FloatingButton>
-            Visit Our GitHub Page
-          </FloatingButton>
+        <a href="https://github.com/nitishragu12/Capstone-Project" target="_blank" rel="noopener noreferrer">
+          <Button className="floating-button">Visit Our GitHub Page</Button>
         </a>
       )}
-    </BackgroundContainer>
+    </Box>
   );
 };
 
