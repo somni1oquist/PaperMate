@@ -26,7 +26,7 @@ export default function InputFileUpload({ onChange, className }: {
       tabIndex={-1}
       className={className}
     >
-      Upload Publication CSV
+      Import CSV
       <VisuallyHiddenInput type="file" accept=".csv" onChange={onChange} />
     </Button>
   );

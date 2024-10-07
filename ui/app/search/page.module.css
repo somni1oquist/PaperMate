@@ -1,17 +1,17 @@
 .paper {
   padding: 20px 50px 50px 50px;
-  margin-top: 100px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 25px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  width: 100%;
-  max-width: 800px;
+  border: 1px solid rgba(199, 199, 199, 0.3);
+  width: 1000px; /* Increased width from 800px to 1000px */
   margin-left: auto;
   margin-right: auto;
+  overflow: hidden; /* Prevents content overflow */
 }
+
 
 .header {
   text-align: center;
@@ -32,23 +32,50 @@
 .fileInput-container {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  align-items: center; /* Align vertically with text input field */
+  margin-top: 10px;
+  margin-bottom: 10px;
+  gap: 10px; /* Add some spacing between the author field and file input */
 }
 
 .fileInput {
-  padding: 8px;
+  flex: 1;
+  padding: 0 10px;
+  height: 28px; /* Match the height with text fields */
+  width: 50%; /* Or any percentage you prefer */
+  min-width: 100px; /* Ensures it doesn't shrink too much */
+  max-width: 200px; /* Optional: limits the maximum size */
   background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  border-radius: 8px; /* Same border-radius for consistency */
   border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  color: white;
+  color: rgb(83, 83, 83);
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s, box-shadow 0.3s; /* Smooth transition for background and shadow */
 }
+
+/* Hover effect to match the Search and Proceed buttons */
+.fileInput:hover {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fileInput:focus {
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  outline: none;
+}
+
+
 
 .textField {
   margin-bottom: 10px;
   background-color: rgba(255, 255, 255, 0.292);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
+  border-radius: 8px;
   border: none;
   outline: none;
   height: 56px;
@@ -72,7 +99,7 @@
 .dateField {
   flex: 1;
   background-color: rgba(255, 255, 255, 0.292);
-  border-radius: 16px;
+  border-radius: 8px;
   border: none;
   outline: none;
   height: 56px;
@@ -140,16 +167,16 @@
 .button {
   padding: 12px 40px;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: rgb(83, 83, 83);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px 0 0 16px;
+  border-radius: 8px 0 0 8px;
   cursor: pointer;
   transition: background 0.3s, box-shadow 0.3s;
   font-size: 16px;
 }
 
 .button:last-child {
-  border-radius: 0 16px 16px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .button:not(:last-child) {
