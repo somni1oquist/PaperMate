@@ -16,7 +16,7 @@ export default function Page() {
     if (data && resultsRef.current) {
       const elementPosition = resultsRef.current.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({
-        top: elementPosition + resultsRef.current.offsetHeight - 800,
+        top: elementPosition + resultsRef.current.offsetHeight-925,
         behavior: 'smooth',
       });
     }

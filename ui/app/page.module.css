@@ -34,29 +34,18 @@
   padding: 0 2rem;
 }
 
-/* Search Page Container (outer container) */
-.searchpage-container {
+
+/* Search Container */
+.search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4rem;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  width: 100%;
-}
-
-/* Search Container (inner container) */
-.search-container {
-  min-height: 90vh; /* Full viewport height */
-  width: 90vw;
-  height: auto; /* Adjust height based on content */
-  background-image: url('./assets/blue-green.jpg'); /* Replace with your image path */
+  height: 100vh;
+  width: 100vw;
+  background-image: url('./assets/desert.jpg');
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Improved shadow for better contrast */
-  border-radius: 8px;
-  padding: 2rem; /* Add padding for internal content */
+  background-position: center; /* Centers the background image */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
 }
 
 
