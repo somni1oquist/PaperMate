@@ -18,4 +18,4 @@ COPY . /app/
 EXPOSE 5000
 
 # Run the application with debug mode
-CMD ["flask", "run", "--debug"]
+CMD ["flask", "run", "--debug", "--host=0.0.0.0", "--port=5000"]
