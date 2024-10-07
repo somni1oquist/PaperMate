@@ -1,11 +1,24 @@
 "use client";
 import React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, ButtonBase } from "@mui/material"; // Use ButtonBase to give Link a button-like appearance
 import Image from 'next/image'; // Import Next.js Image component
+import Link from 'next/link'; // Use Next.js Link component
 import bookImage from '../assets/book.jpg'; // Import the image from assets
 
 export default function HomePage() {
+  // Handle smooth scroll to the section
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
+    e.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      window.scrollTo({
+        top: targetElement.offsetTop,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   return (
     <Grid
       container
@@ -19,6 +32,22 @@ export default function HomePage() {
     >
       {/* Left Section - Text and Animation */}
       <Grid xs={12} md={5} display="flex" flexDirection="column" justifyContent="center" textAlign="left" sx={{ marginLeft: "4rem" }}>
+
+        {/* App Name - PaperMate */}
+        <Typography
+          variant="h1"
+          sx={{
+            fontFamily: "'Fauna One', serif", // Use stylish font for PaperMate
+            fontSize: "4rem", // Large font size for visibility
+            fontWeight: "bold", // Bold font weight
+            color: "#333", // Darker color for contrast
+            marginBottom: "2rem", // Space below the app name
+          }}
+        >
+          PaperMate
+        </Typography>
+
+        {/* Other content */}
         <Typography
           variant="overline"
           sx={{
@@ -52,29 +81,51 @@ export default function HomePage() {
         >
           Unlock the Future of Research – Simplify Your Search, Supercharge Your Analysis with AI, and Achieve Results with Just One Click.
         </Typography>
-        <Button
-          variant="contained"
+
+        {/* ButtonBase wraps the Link to maintain button styling */}
+        <ButtonBase
           sx={{
-            backgroundColor: "#000", // Black background for the button
+            backgroundColor: "#000", // Black background
             color: "#fff", // White text
-            padding: "0.75rem 1.5rem", // Padding for button size
             fontSize: "1rem", // Font size for the button text
             fontWeight: "bold",
             textTransform: "none", // Disable uppercase for button text
             borderRadius: "5px", // Rounded corners
+            cursor: "pointer", // Pointer cursor for interactivity
+            display: "inline-block", // To make the button inline-block like
+            textDecoration: "none", // No underline for the link
+            '&:hover': {
+              backgroundColor: "#444", // Slight darkening on hover
+            }
           }}
         >
-          Start your search
-        </Button>
+          <Link
+            href="#search"
+            className="bottom-bar-option"
+            onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
+            passHref
+            style={{
+              color: 'inherit', // Ensure the text color is inherited from ButtonBase
+              textDecoration: 'none', // Remove underline from the link
+              width: '100%',
+              height: '100%',
+              display: 'flex', // Ensure link behaves like a button by taking full size of ButtonBase
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            Start your search
+          </Link>
+        </ButtonBase>
       </Grid>
 
       {/* Right Section - Image */}
       <Grid xs={12} md={6} display="flex" justifyContent="flex-end" alignItems="center" sx={{ marginRight: "4rem" }}>
         <Box
           sx={{
-            borderRadius: "135px 0px 0px 135px", // Larger curve on the left, rounder corners on the right
+            borderRadius: "150px 0px 0px 150px", // Larger curve on the left, rounder corners on the right
             overflow: "hidden", // Ensure the image stays within the border-radius
-            width: "90%", // Make the image occupy a larger portion of its container
+            width: "100%", // Make the image occupy a larger portion of its container
             maxWidth: "750px", // Match the image size from the example
           }}
         >
