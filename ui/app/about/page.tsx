@@ -9,8 +9,6 @@ import bgImage from '../assets/moon.jpg';
 const OverlayContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   zIndex: 1,
-  padding: '3rem',
-  height: '100vh', // Make the container the full height of the viewport
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center', // Center content vertically
