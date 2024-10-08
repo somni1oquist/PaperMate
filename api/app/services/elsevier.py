@@ -70,9 +70,13 @@ class ElsevierService:
         query_parts = [f"{field}({value})" for field, value in {
             'TITLE-ABS-KEY': params.get('query'),
             'TITLE': params.get('title'),
-            'AUTHOR-NAME': params.get('author'),
-            'SRCTITLE': params.get('publication')
+            'AUTHOR-NAME': params.get('author')
         }.items() if value]
+
+        # Handle Publication Name
+        if params.get('publication'):
+            publication_query = ' OR '.join([f'"{pub.strip()}"' for pub in params.get('publication')])
+            query_parts.append(f"SRCTITLE({publication_query})")
 
         # Handle date range
         from_date_str = params.get('fromDate')

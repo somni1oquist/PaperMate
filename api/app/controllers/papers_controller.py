@@ -84,6 +84,7 @@ class PaperSearch(Resource):
         query = request.args.get('query', None)
         title = request.args.get('title', None)
         author = request.args.get('author', None)
+        publication = request.args.get('publication', None)
         keyword = request.args.get('keyword', None)
         from_date = request.args.get('fromDate', None)
         to_date = request.args.get('toDate', None)
@@ -97,6 +98,7 @@ class PaperSearch(Resource):
             'query': query,
             'title': title,
             'author': author,
+            'publication': publication.split(',') if publication else None,
             'keyword': keyword,
             'fromDate': from_date,
             'toDate': to_date
@@ -131,6 +133,9 @@ class PaperSearch(Resource):
 class get_total_count(Resource):
     def get(self):
         params = request.args.to_dict()
+        if 'publication' in params:
+            params['publication'] = params['publication'].split(',')
+
         total_count = ElsevierService.get_total_count(params)
         return {'total_count': total_count}, 200
 

@@ -223,7 +223,7 @@ const SearchForm: React.FC = () => {
               const dataArray = rows.map(row => row.split(',')); // Split each row into columns
       
               // Concatenate CSV data into a single string
-              const concatenatedString = dataArray.flat().join(' '); // Flatten nested arrays and join data with a space
+              const concatenatedString = dataArray.flat().join(','); // Flatten nested arrays and join data with a space
       
               // Update formData with the file and concatenated CSV data
               setFormData({ ...formData, publicationFile: file, publicationFileData: concatenatedString });
