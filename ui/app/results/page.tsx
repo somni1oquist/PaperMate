@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import ResultContainer from './ResultContainer';
 import './ResultPage.css';
