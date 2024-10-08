@@ -30,11 +30,8 @@ export default function Page() {
       </div>
 
       {/* Search Page Container */}
-      <div className={style['searchpage-container']} ref={resultsRef} id={"search"}>
-        {/* Pass padding via CSS variable or props */}
-        <div className={style['search-container']} style={{ '--padding': '3rem' } as React.CSSProperties}>
-          <Search /> {/* Render the Search component here */}
-        </div>
+      <div className={style['search-container']} ref={resultsRef} id={"search"}>
+        <Search />
       </div>
 
       {/* Display the Results page according to the showResults status */}
