@@ -38,96 +38,104 @@ export default function HomePage() {
       justifyContent="space-between" // Space between text and image sections
     >
       {/* Left Section - Text and Animation */}
-      <Grid sm={12} md={5} display="flex" flexDirection="column" justifyContent="center" textAlign="left" sx={{ marginLeft: "4rem" }}>
-
-        {/* App Name - PaperMate */}
-        <Typography
-          variant="h1"
-          sx={{
-            fontFamily: "'Fauna One', serif", // Use stylish font for PaperMate
-            fontSize: "4rem", // Large font size for visibility
-            fontWeight: "bold", // Bold font weight
-            color: "#333", // Darker color for contrast
-            marginBottom: "2rem", // Space below the app name
-          }}
-        >
-          PaperMate
-        </Typography>
-
-        {/* Other content */}
-        <Typography
-          variant="overline"
-          sx={{
-            fontSize: "0.9rem", // Small uppercase text for the label
-            fontWeight: "bold",
-            color: "#888", // Grey color for the overline text
-            marginBottom: "1rem",
-          }}
-        >
-          STREAMLINED RESEARCH TOOL
-        </Typography>
-        <Typography
-          variant="h2"
-          sx={{
-            fontSize: "3.2rem", // Large font size for the title
-            fontWeight: "bold",
-            color: "#222", // Dark color for contrast
-            lineHeight: 1.2,
-            marginBottom: "1rem", // Slightly reduce space between title and subtitle
-          }}
-        >
-          Effortlessly Discover, Analyze, and Organize Research Materials
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontSize: "1.25rem", // Medium-sized subtitle text
-            color: "#555", // Lighter color for description
-            marginBottom: "1.5rem", // Reduced space between description and button
-          }}
-        >
-          Unlock the Future of Research – Simplify Your Search, Supercharge Your Analysis with AI, and Achieve Results with Just One Click.
-        </Typography>
-
-        {/* ButtonBase wraps the Link to maintain button styling */}
-        <ButtonBase
-          sx={{
-            backgroundColor: "#000", // Black background
-            color: "#fff", // White text
-            fontSize: "1rem", // Font size for the button text
-            fontWeight: "bold",
-            textTransform: "none", // Disable uppercase for button text
-            borderRadius: "5px", // Rounded corners
-            cursor: "pointer", // Pointer cursor for interactivity
-            display: "inline-block", // To make the button inline-block like
-            textDecoration: "none", // No underline for the link
-            '&:hover': {
-              backgroundColor: "#444", // Slight darkening on hover
-            }
-          }}
-        >
-          <Link
-            href="#search"
-            className="bottom-bar-option"
-            onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
-            passHref
-            style={{
-              color: 'inherit', // Ensure the text color is inherited from ButtonBase
-              textDecoration: 'none', // Remove underline from the link
-              width: '100%',
-              height: '100%',
-              display: 'flex', // Ensure link behaves like a button by taking full size of ButtonBase
-              justifyContent: 'center',
-              alignItems: 'center'
+      <Grid container sm={12} lg={5} display="flex" flexDirection="column" justifyContent="center" textAlign="left" sx={{ marginLeft: "4rem" }}>
+        <Grid xs={12}>
+          {/* App Name - PaperMate */}
+          <Typography
+            variant="h1"
+            sx={{
+              fontFamily: "'Fauna One', serif", // Use stylish font for PaperMate
+              fontSize: "4rem", // Large font size for visibility
+              fontWeight: "bold", // Bold font weight
+              color: "#333", // Darker color for contrast
+              marginBottom: "2rem", // Space below the app name
             }}
           >
-            Start your search
-          </Link>
-        </ButtonBase>
+            PaperMate
+          </Typography>
+        </Grid>
+        <Grid xs={12}>
+          {/* Other content */}
+          <Typography
+            variant="overline"
+            sx={{
+              fontSize: "0.9rem", // Small uppercase text for the label
+              fontWeight: "bold",
+              color: "#888", // Grey color for the overline text
+              marginBottom: "1rem",
+            }}
+          >
+            STREAMLINED RESEARCH TOOL
+          </Typography>
+        </Grid>
+        <Grid xs={12}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: "3.2rem", // Large font size for the title
+              fontWeight: "bold",
+              color: "#222", // Dark color for contrast
+              lineHeight: 1.2,
+              marginBottom: "1rem", // Slightly reduce space between title and subtitle
+            }}
+          >
+            Effortlessly Discover, Analyze, and Organize Research Materials
+          </Typography>
+        </Grid>
+        <Grid xs={12}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontSize: "1.25rem", // Medium-sized subtitle text
+              color: "#555", // Lighter color for description
+              marginBottom: "1.5rem", // Reduced space between description and button
+            }}
+          >
+            Unlock the Future of Research – Simplify Your Search, Supercharge Your Analysis with AI, and Achieve Results with Just One Click.
+          </Typography>
+        </Grid>
+        <Grid xs={12}>
+          {/* ButtonBase wraps the Link to maintain button styling */}
+          <ButtonBase
+            sx={{
+              backgroundColor: "#000", // Black background
+              color: "#fff", // White text
+              fontSize: "1rem", // Font size for the button text
+              fontWeight: "bold",
+              textTransform: "none", // Disable uppercase for button text
+              borderRadius: "5px", // Rounded corners
+              cursor: "pointer", // Pointer cursor for interactivity
+              display: "inline-block", // To make the button inline-block like
+              width: "100%",
+              textDecoration: "none", // No underline for the link
+              '&:hover': {
+                backgroundColor: "#444", // Slight darkening on hover
+              }
+            }}
+          >
+            <Link
+              href="#search"
+              className="bottom-bar-option"
+              onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => handleScroll(e, 'search')}
+              passHref
+              style={{
+                color: 'inherit', // Ensure the text color is inherited from ButtonBase
+                textDecoration: 'none', // Remove underline from the link
+                width: '100%',
+                height: '100%',
+                display: 'flex', // Ensure link behaves like a button by taking full size of ButtonBase
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              Start your search
+            </Link>
+          </ButtonBase>
+        </Grid>
       </Grid>
 
       {/* Right Section - Image */}
-      <Grid sm={12} md={6} display="flex" justifyContent="flex-end" alignItems="center" sx={{ marginRight: "4rem" }}>
+      <Grid sm={0} lg={5} display="flex" justifyContent="flex-end" alignItems="center" sx={{ marginRight: "4rem" }}>
         <Box
           sx={{
             borderRadius: "150px 0px 0px 150px", // Larger curve on the left, rounder corners on the right
