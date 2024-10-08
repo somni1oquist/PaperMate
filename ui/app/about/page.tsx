@@ -1,11 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Link, Card, Avatar, Grid, Button, Chip } from '@mui/material';
+import { Box, Typography, Link, Card, Avatar, Button, Chip } from '@mui/material';
 import bgImage from '../assets/sea.jpg';
-import './about.css'; 
+import './about.css';
+import { useRouter, usePathname } from 'next/navigation';
 
 const About = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname === '/search')
+    router.push('/#search');
+
   const [activeTab, setActiveTab] = useState('project'); // Default tab is 'project'
   const [showButton, setShowButton] = useState(false);
 

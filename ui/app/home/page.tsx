@@ -5,6 +5,7 @@ import { Box, Typography, ButtonBase } from "@mui/material"; // Use ButtonBase t
 import Image from 'next/image'; // Import Next.js Image component
 import Link from 'next/link'; // Use Next.js Link component
 import bookImage from '../assets/book.jpg'; // Import the image from assets
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function HomePage() {
   // Handle smooth scroll to the section
@@ -19,6 +20,12 @@ export default function HomePage() {
     }
   };
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname === '/home')
+    router.push('/');
+
   return (
     <Grid
       container
@@ -31,7 +38,7 @@ export default function HomePage() {
       justifyContent="space-between" // Space between text and image sections
     >
       {/* Left Section - Text and Animation */}
-      <Grid xs={12} md={5} display="flex" flexDirection="column" justifyContent="center" textAlign="left" sx={{ marginLeft: "4rem" }}>
+      <Grid sm={12} md={5} display="flex" flexDirection="column" justifyContent="center" textAlign="left" sx={{ marginLeft: "4rem" }}>
 
         {/* App Name - PaperMate */}
         <Typography
@@ -120,7 +127,7 @@ export default function HomePage() {
       </Grid>
 
       {/* Right Section - Image */}
-      <Grid xs={12} md={6} display="flex" justifyContent="flex-end" alignItems="center" sx={{ marginRight: "4rem" }}>
+      <Grid sm={12} md={6} display="flex" justifyContent="flex-end" alignItems="center" sx={{ marginRight: "4rem" }}>
         <Box
           sx={{
             borderRadius: "150px 0px 0px 150px", // Larger curve on the left, rounder corners on the right
