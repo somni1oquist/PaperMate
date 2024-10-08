@@ -56,7 +56,7 @@
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-image: url('./assets/mountain.jpg');
+  background-image: url('./assets/lighthouse.jpg');
   background-size: cover;
   background-position: center; /* Centers the background image */
   background-repeat: no-repeat; /* Prevents the image from repeating */
