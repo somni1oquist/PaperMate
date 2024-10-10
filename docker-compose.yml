@@ -17,7 +17,7 @@ services:
   ui:
     build:
       context: ./ui
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -29,3 +29,11 @@ services:
       - /app/node_modules
     depends_on:
       - api
+
+secrets:
+  llm_api_key:
+    file: ./secrets/llm_api_key.txt
+  els_api_key:
+    file: ./secrets/els_api_key.txt
+  els_token:
+    file: ./secrets/els_token.txt
