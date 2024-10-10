@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def client():
     from app import create_app
