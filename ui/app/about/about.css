@@ -1,0 +1,163 @@
+/* Background and overlay styles */
+.background-container {
+  background-color: #f4f4f4;
+  min-height: 100vh;
+  width: 100vw;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.overlay-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-top: 5rem; /* Ensure spacing from the top */
+}
+
+/* Tab switch styles */
+.tab-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 5px;
+}
+
+.tab-button {
+  padding: 10px 40px; /* Increased padding for equal button size */
+  border-radius: 50px;
+  background-color: transparent;
+  color: white;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  border: none;
+  outline: none;
+  flex: 1; /* Ensure equal width for both buttons */
+  max-width: 200px; /* Limit maximum width */
+  text-align: center;
+}
+
+.tab-button:not(:last-child) {
+  margin-right: 10px; /* Add spacing between the buttons */
+}
+
+.tab-button.active {
+  background-color: white;
+  color: black;
+}
+
+.tab-button:not(.active) {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.tab-button:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* Title and text styling */
+.project-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+.intro-text {
+  font-size: 1rem;
+  color: #ddd;
+  max-width: 800px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.6;
+}
+
+.team-section-title {
+  font-size: 2rem;
+  color: #fff;
+  margin: 2rem 0 1rem 0;
+}
+
+/* Paper-like background for project description */
+.paper-background {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 2rem auto; /* Centering and spacing */
+}
+
+/* Wrapper for the team member cards */
+.team-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  max-width: 1200px; /* Ensure it doesn't exceed the page width */
+  margin: 0 auto; /* Center the wrapper */
+}
+
+/* Team card styling */
+.team-member-card {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 280px; /* Consistent width for all cards */
+}
+
+.team-member-card:hover {
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px);
+}
+
+.team-avatar {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 1rem;
+}
+
+/* Floating button */
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgb(0, 123, 255);
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.floating-button:hover {
+  background-color: rgb(0, 90, 190);
+}
