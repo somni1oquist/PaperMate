@@ -44,16 +44,16 @@ def create_app(config=None):
         with open('/run/secrets/llm_api_key', 'r') as file:
             app.config['LLM_API_KEY'] = file.read().strip()
 
-        with open('/run/secrets/els_api_key', 'r') as file:
-            app.config['ELS_API_KEY'] = file.read().strip()
+        # with open('/run/secrets/els_api_key', 'r') as file:
+        #     app.config['ELS_API_KEY'] = file.read().strip()
 
-        with open('/run/secrets/els_token', 'r') as file:
-            app.config['ELS_TOKEN'] = file.read().strip()
+        # with open('/run/secrets/els_token', 'r') as file:
+        #     app.config['ELS_TOKEN'] = file.read().strip()
     except FileNotFoundError:
         logger.warning('Secrets not found in Docker secrets path. Loading from environment variables.')
         app.config['LLM_API_KEY'] = os.environ.get('LLM_API_KEY')
-        app.config['ELS_API_KEY'] = os.environ.get('ELS_API_KEY')
-        app.config['ELS_TOKEN'] = os.environ.get('ELS_TOKEN')
+        # app.config['ELS_API_KEY'] = os.environ.get('ELS_API_KEY')
+        # app.config['ELS_TOKEN'] = os.environ.get('ELS_TOKEN')
         pass
 
     # Return error messages if any Errors occur

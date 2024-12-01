@@ -3,6 +3,7 @@ from werkzeug.exceptions import BadRequest
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
 from app.services.elsevier import ElsevierService
+from app.services.pubmed import PubMedService
 from app.services.gemini import GeminiService
 from app import socketio
 from app.models.chat import Chat
@@ -52,7 +53,7 @@ class MutateFromChat(Resource):
         app.logger.info(f'Chat ID: {chat_id}, Query: {query}, Model: {model_name}')
 
         batch_size = app.config.get('BATCH_SIZE', 5)
-        total_count = Paper.query.count()
+        total_count = 20 # Paper.query.count()
         mutated_papers = []
 
         # Batch process papers
@@ -107,7 +108,7 @@ class PaperSearch(Resource):
         batch_size = app.config.get('BATCH_SIZE', 5)
         papers_rated = []
 
-        total_count = ElsevierService.get_total_count(query_params)
+        total_count = PubMedService.get_total_count(query_params) # ElsevierService.get_total_count(query_params)
         if total_count == 0:
             raise BadRequest('No papers found with the given query.')
 
@@ -118,7 +119,8 @@ class PaperSearch(Resource):
             # Set index for pagination
             query_params['start'] = i
             # Fetch papers from Elsevier API. Delete existing papers for the first batch.
-            batch_papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            # batch_papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
+            batch_papers = PubMedService.fetch_articles(query_params, delete_existing=i == 0)
             # Analyse papers using Gemini
             batch_result = gemini.analyse_papers(batch_papers, query, model_name=model_name)
             papers_rated.extend(batch_result)
@@ -136,7 +138,8 @@ class get_total_count(Resource):
         if 'publication' in params:
             params['publication'] = params['publication'].split(',')
 
-        total_count = ElsevierService.get_total_count(params)
+        # total_count = ElsevierService.get_total_count(params)
+        total_count = PubMedService.get_total_count(params)
         return {'total_count': total_count}, 200
 
 
