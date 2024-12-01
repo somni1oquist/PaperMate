@@ -108,7 +108,7 @@ class PaperSearch(Resource):
         batch_size = app.config.get('BATCH_SIZE', 5)
         papers_rated = []
 
-        total_count = PubMedService.get_total_count(query_params) # ElsevierService.get_total_count(query_params)
+        total_count = PubMedService.get_total_count(query_params)  # ElsevierService.get_total_count(query_params)
         if total_count == 0:
             raise BadRequest('No papers found with the given query.')
 

@@ -1,11 +1,11 @@
 import requests
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import xml.etree.ElementTree as ET
 from app.models.paper import Paper
 from app import db
 
 class PubMedService:
+
 
     db = 'pubmed'
     retmode = 'json'
