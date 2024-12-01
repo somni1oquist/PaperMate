@@ -4,8 +4,8 @@ import xml.etree.ElementTree as ET
 from app.models.paper import Paper
 from app import db
 
-class PubMedService:
 
+class PubMedService:
 
     db = 'pubmed'
     retmode = 'json'
