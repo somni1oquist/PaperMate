@@ -53,7 +53,7 @@ class MutateFromChat(Resource):
         app.logger.info(f'Chat ID: {chat_id}, Query: {query}, Model: {model_name}')
 
         batch_size = app.config.get('BATCH_SIZE', 5)
-        total_count = 20 # Paper.query.count()
+        total_count = Paper.query.count()
         mutated_papers = []
 
         # Batch process papers

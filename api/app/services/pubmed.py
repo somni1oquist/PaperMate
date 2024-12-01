@@ -9,6 +9,7 @@ class PubMedService:
 
     db = 'pubmed'
     retmode = 'json'
+    retmax = 5
 
     @staticmethod
     def build_query(params: dict):
@@ -32,9 +33,10 @@ class PubMedService:
         if delete_existing:
             Paper.query.delete()
             db.session.commit()
-
+        params.setdefault('start', 0)
+        start = params.get('start')
         query = PubMedService.build_query(params)
-        endpoint = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={PubMedService.db}&retmode={PubMedService.retmode}&term={query}"
+        endpoint = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={PubMedService.db}&retmode={PubMedService.retmode}&retstart={start}&retmax={PubMedService.retmax}&term={query}"
         if params.get('fromDate') and params.get('toDate'):
             min_date = datetime.strptime(params.get('fromDate'), '%Y-%m')
             max_date = datetime.strptime(params.get('toDate'), '%Y-%m')
@@ -57,21 +59,25 @@ class PubMedService:
         articles = {}
         for article in root.findall('.//PubmedArticle'):
             pmid = article.find('.//PMID').text
-            doi = article.find('.//ArticleId[@IdType="doi"]').text
+            doi = article.find('.//ArticleId[@IdType="doi"]')
+            if doi is not None:
+                doi = doi.text
+            else:
+                continue
             url = f"https://doi.org/{doi}" if doi else None
             title = article.find('.//ArticleTitle').text
             authorList = article.findall('.//Author')
             authorList = [f"{author.find('LastName').text} {author.find('Initials').text}" for author in authorList]
             authors = ', '.join(authorList)
             journal = article.find('.//Title').text
-            pub_date = article.find('.//PubDate')
+            pub_date = article.find('.//DateRevised')
             pub_date_str = f"{pub_date.find('Year').text}-{pub_date.find('Month').text}"
             if (pub_date.find('Day')):
                 pub_date_str += f"-{pub_date.find('Day').text}"
             else:
                 pub_date_str += "-01"
-            abstract_sections = article.findall('.//AbstractText')
-            abstract = ' '.join([section.text for section in abstract_sections])
+            abstract = article.find('.//AbstractText')
+            abstract = ' '.join(abstract.itertext()) if abstract is not None else 'No Abstract.'
             articles[pmid] = {
                 'title': title,
                 'doi': doi,
@@ -93,7 +99,7 @@ class PubMedService:
                 title=article.get('title', 'No Title'),
                 author=article.get('authors', 'Unknown Author'),
                 publication=article.get('publication', 'No Publication Name'),
-                publish_date=datetime.strptime(article.get('publish_date', '1970-01-01'), '%Y-%b-%d').date(),
+                publish_date=datetime.strptime(article.get('publish_date', '1970-01-01'), '%Y-%m-%d').date(),
                 abstract=article.get('abstract', 'No Abstract.'),
                 url=article.get('url')
             )
@@ -105,9 +111,10 @@ class PubMedService:
     @staticmethod
     def get_total_count(params: dict) -> int:
         """Fetch total count of articles from PubMed API based on query parameters."""
+        params.setdefault('start', 0)
+        start = params.get('start')
         query = PubMedService.build_query(params)
-        print(query)
-        endpoint = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={PubMedService.db}&retmode={PubMedService.retmode}&term={query}"
+        endpoint = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={PubMedService.db}&retmode={PubMedService.retmode}&retstart={start}&retmax={PubMedService.retmax}&term={query}"
         if params.get('fromDate') and params.get('toDate'):
             min_date = datetime.strptime(params.get('fromDate'), '%Y-%m')
             max_date = datetime.strptime(params.get('toDate'), '%Y-%m')
