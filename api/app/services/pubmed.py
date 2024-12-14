@@ -3,7 +3,6 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 from app.interfaces.source_api import SourceAPI
 from app.models.paper import Paper
-from app import db
 
 
 class PubMedService(SourceAPI):
@@ -124,4 +123,3 @@ class PubMedService(SourceAPI):
                 'url': url
             }
         return articles
-

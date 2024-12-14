@@ -2,6 +2,7 @@ from config import Config
 from app.services.pubmed import PubMedService
 from app.services.elsevier import ElsevierService
 
+
 def get_source():
     if Config.SOURCE_TYPE == "pubmed":
         return PubMedService

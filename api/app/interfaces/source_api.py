@@ -3,6 +3,7 @@ import json
 from app import db
 from app.models.paper import Paper
 
+
 class SourceAPI(ABC):
 
     @staticmethod
@@ -31,7 +32,7 @@ class SourceAPI(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_total_count( params: dict):
+    def get_total_count(params: dict):
         """Get the total count of papers based on query parameters."""
         raise NotImplementedError("This method should be implemented by subclasses.")
 
@@ -52,3 +53,4 @@ class SourceAPI(ABC):
     def transform_papers(papers: list):
         """Transform papers dictionary into a Paper model."""
         raise NotImplementedError("This method should be implemented by subclasses.")
+    

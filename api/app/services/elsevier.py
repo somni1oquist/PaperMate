@@ -1,10 +1,8 @@
-import json
 from app.interfaces.source_api import SourceAPI
 from flask import current_app as app
 from datetime import datetime
 import requests
 from app.models.paper import Paper
-from app import db
 from dateutil.relativedelta import relativedelta
 
 
