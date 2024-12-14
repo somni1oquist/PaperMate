@@ -53,4 +53,3 @@ class SourceAPI(ABC):
     def transform_papers(papers: list):
         """Transform papers dictionary into a Paper model."""
         raise NotImplementedError("This method should be implemented by subclasses.")
-    
