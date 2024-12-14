@@ -43,7 +43,7 @@ const SearchForm: React.FC = () => {
   const [geminiPro, setGeminiPro] = useState<boolean>(false);
   const [formData, setFormData] = useState<SearchFormData>({
     query: "",
-    fromDate: getSixMonthsAgo(),
+    fromDate: getCurrentMonth(),// getSixMonthsAgo(),
     toDate: getCurrentMonth(),
     title: "",
     author: "",
