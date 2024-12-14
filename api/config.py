@@ -6,6 +6,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     BATCH_SIZE = 5
 
+    SOURCE_TYPE = 'pubmed'
+
     SECRET_KEY = os.environ.get('SECRET_KEY')  # for session management
 
     LLM_MODEL_NAMES = 'gemini-1.5-flash,gemini-1.5-pro'

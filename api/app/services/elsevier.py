@@ -1,4 +1,5 @@
 import json
+from app.interfaces.source_api import SourceAPI
 from flask import current_app as app
 from datetime import datetime
 import requests
@@ -7,7 +8,7 @@ from app import db
 from dateutil.relativedelta import relativedelta
 
 
-class ElsevierService:
+class ElsevierService(SourceAPI):
     api_key = None
     inst_token = None
     headers = None
@@ -25,44 +26,15 @@ class ElsevierService:
         }
 
     @staticmethod
-    def convert_date_format(date_str):
-        """Convert date from yyyy-mm to 'Month Year' format."""
-        try:
-            date_obj = datetime.strptime(date_str, '%Y-%m')
-            return date_obj.strftime('%B %Y')  # Convert to "Month Year" format
-        except ValueError:
-            return None
-
-    @staticmethod
-    def update_papers(papers: dict):
-        """Update papers in the database with mutated data."""
-        for doi, mutation in papers.items():
-            paper = Paper.query.filter_by(doi=doi).first()
-            if paper:
-                paper.mutation = json.dumps(mutation)
-                db.session.commit()
-
-    @staticmethod
-    def get_papers_by_dois(doi_list: list):
-        """Retrieve papers from the database by DOI list."""
-        return [Paper.query.filter_by(doi=doi).first() for doi in doi_list if Paper.query.filter_by(doi=doi).first()]
-
-    @staticmethod
-    def fetch_papers(params: dict, delete_existing=True):
-        """Fetch papers from Elsevier API based on query parameters."""
+    def get_total_count(params: dict) -> int:
+        """Fetch total count of papers from Elsevier API based on query parameters."""
         ElsevierService.set_api_key()
-        if delete_existing:
-            ElsevierService.delete_papers()
-
         params.setdefault('start', 0)
         params['query'] = params.get('query', None)
         if not params['query']:
             raise ValueError('Missing query parameter for Elsevier.')
-
         scopus_data = ElsevierService.fetch_scopus_data(params)
-        papers = ElsevierService.transform_entries(scopus_data, params)
-        ElsevierService.save_papers(papers)
-        return papers
+        return int(scopus_data.get('opensearch:totalResults', 0))
 
     @staticmethod
     def build_query(params):
@@ -104,6 +76,23 @@ class ElsevierService:
         return ' AND '.join(query_parts)
 
     @staticmethod
+    def fetch_papers(params: dict, delete_existing=True):
+        """Fetch papers from Elsevier API based on query parameters."""
+        ElsevierService.set_api_key()
+        if delete_existing:
+            SourceAPI.delete_papers()
+
+        params.setdefault('start', 0)
+        params['query'] = params.get('query', None)
+        if not params['query']:
+            raise ValueError('Missing query parameter for Elsevier.')
+
+        scopus_data = ElsevierService.fetch_scopus_data(params)
+        papers = ElsevierService.transform_entries(scopus_data, params)
+        SourceAPI.save_papers(papers)
+        return papers
+
+    @staticmethod
     def transform_entries(response, params):
         """Transform Elsevier API response entries into Paper objects."""
         papers = []
@@ -136,23 +125,6 @@ class ElsevierService:
         return res.json().get('abstracts-retrieval-response', {}).get('coredata', {}).get('dc:description', 'No Abstract')
 
     @staticmethod
-    def delete_papers():
-        """Delete all papers from the database."""
-        db.session.query(Paper).delete()
-        db.session.commit()
-
-    @staticmethod
-    def get_total_count(params: dict) -> int:
-        """Fetch total count of papers from Elsevier API based on query parameters."""
-        ElsevierService.set_api_key()
-        params.setdefault('start', 0)
-        params['query'] = params.get('query', None)
-        if not params['query']:
-            raise ValueError('Missing query parameter for Elsevier.')
-        scopus_data = ElsevierService.fetch_scopus_data(params)
-        return int(scopus_data.get('opensearch:totalResults', 0))
-
-    @staticmethod
     def fetch_scopus_data(params):
         """Fetch data from Scopus API based on the query parameters."""
         batch_size = app.config.get('BATCH_SIZE', 5)
@@ -162,9 +134,3 @@ class ElsevierService:
         if scopus_res.status_code != 200:
             raise ValueError(f'Error fetching papers from Elsevier (Scopus: {scopus_res.status_code})')
         return scopus_res.json().get('search-results', {})
-
-    @staticmethod
-    def save_papers(papers):
-        """Save papers to the database."""
-        db.session.add_all(papers)
-        db.session.commit()

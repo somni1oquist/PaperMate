@@ -2,15 +2,15 @@ from flask import request, current_app as app
 from werkzeug.exceptions import BadRequest
 from flask_restx import Namespace, Resource, fields
 from app.models.paper import Paper
-from app.services.elsevier import ElsevierService
-from app.services.pubmed import PubMedService
 from app.services.gemini import GeminiService
 from app import socketio
 from app.models.chat import Chat
+from app.services import get_source
 
 
 api = Namespace('papers', description='Operations related to papers')
 gemini = GeminiService()
+Source = get_source()
 
 paper_model = api.model('Paper', {
     'doi': fields.String(required=True, description='DOI of the paper'),
@@ -24,15 +24,6 @@ paper_model = api.model('Paper', {
     'synopsis': fields.String(description='Synopsis of the paper'),
     'mutation': fields.String(description='Mutated json data of the paper')
 })
-
-
-@api.route('/')
-class PaperList(Resource):
-    @api.marshal_list_with(paper_model)
-    def get(self):
-        '''List all papers based on default query'''
-        papers = ElsevierService.fetch_papers({'query': app.config['DEFAULT_QUERY']})
-        return papers, 200
 
 
 @api.route('/mutate_from_chat')
@@ -61,9 +52,9 @@ class MutateFromChat(Resource):
             batch_papers = Paper.query.limit(batch_size).offset(i).all()
             batch_result, chat_id = gemini.mutate_papers(batch_papers, query, chat_id, model_name=model_name)
             # Update mutation column in the database
-            ElsevierService.update_papers(batch_result)
+            Source.update_papers(batch_result)
             doi_list = [doi for doi in batch_result]
-            mutated_papers.extend(ElsevierService.get_papers_by_dois(doi_list))
+            mutated_papers.extend(Source.get_papers_by_dois(doi_list))
             # Emit progress to the client
             progress = int((i + batch_size) / total_count * 100)
             socketio.emit('chat-progress', {'progress': progress if progress < 100 else 100})
@@ -108,7 +99,7 @@ class PaperSearch(Resource):
         batch_size = app.config.get('BATCH_SIZE', 5)
         papers_rated = []
 
-        total_count = PubMedService.get_total_count(query_params)  # ElsevierService.get_total_count(query_params)
+        total_count = Source.get_total_count(query_params)
         if total_count == 0:
             raise BadRequest('No papers found with the given query.')
 
@@ -118,9 +109,8 @@ class PaperSearch(Resource):
         for i in range(0, total_count, batch_size):
             # Set index for pagination
             query_params['start'] = i
-            # Fetch papers from Elsevier API. Delete existing papers for the first batch.
-            # batch_papers = ElsevierService.fetch_papers(query_params, delete_existing=i == 0)
-            batch_papers = PubMedService.fetch_articles(query_params, delete_existing=i == 0)
+            # Fetch papers from Source API. Delete existing papers for the first batch.
+            batch_papers = Source.fetch_papers(query_params, delete_existing=i == 0)
             # Analyse papers using Gemini
             batch_result = gemini.analyse_papers(batch_papers, query, model_name=model_name)
             papers_rated.extend(batch_result)
@@ -138,8 +128,7 @@ class get_total_count(Resource):
         if 'publication' in params:
             params['publication'] = params['publication'].split(',')
 
-        # total_count = ElsevierService.get_total_count(params)
-        total_count = PubMedService.get_total_count(params)
+        total_count = Source.get_total_count(params)
         return {'total_count': total_count}, 200
 
 
