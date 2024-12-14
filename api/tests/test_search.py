@@ -17,7 +17,7 @@ class TestPaperTotalCount(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()  # Clean up the app context
 
-    @patch('app.services.elsevier.ElsevierService.get_total_count')  # Mock ElsevierService
+    @patch('app.services.pubmed.PubMedService.get_total_count')  # Mock ElsevierService
     def test_get_total_count(self, mock_get_total_count):
         # Set mock return value
         mock_get_total_count.return_value = 5
